@@ -1,3 +1,29 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+:root {
+  --gradient-hero: linear-gradient(
+    90deg,
+    oklch(from var(--color-blue-1) l c h / 98%) 0%,
+    oklch(from var(--color-blue-2) l c h / 88%) 40%,
+    oklch(from var(--color-blue-3) l c h / 34%) 100%
+  );
+
+  background: var(--color-blue-2);
+}
+
+@theme {
+  --color-blue-1: oklch(17.8% 0.0255 252.7);
+  --color-blue-2: oklch(21% 0.0293 252.7);
+  --color-blue-3: oklch(27.3% 0.0663 252.7);
+  --color-blue-4: oklch(31.6% 0.0991 252.7);
+  --color-blue-5: oklch(36.4% 0.1073 252.7);
+  --color-blue-6: oklch(41.6% 0.1114 252.7);
+  --color-blue-7: oklch(47.4% 0.12 252.7);
+  --color-blue-8: oklch(54% 0.1383 252.7);
+  --color-blue-9: oklch(64.8% 0.1913 252.7);
+  --color-blue-10: oklch(60.8% 0.1913 252.7);
+  --color-blue-11: oklch(76.8% 0.1332 252.7);
+  --color-blue-12: oklch(90.7% 0.0504 252.7);
+}
