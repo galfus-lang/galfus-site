@@ -13,9 +13,7 @@
 </svelte:head>
 
 <main class="min-h-screen overflow-hidden bg-blue-2 text-blue-12">
-  <section
-    class="relative flex min-h-screen items-center bg-[url('/images/bg.jpg')] bg-cover bg-bottom-left"
-  >
+  <section class="relative flex min-h-screen items-center">
     <div class="absolute inset-0 bg-(image:--gradient-hero)"></div>
 
     <div
@@ -55,15 +53,6 @@
             vulppi-dev/galfus-script
           </span>
         </div>
-      </div>
-
-      <div class="relative mx-auto hidden h-140 w-full max-w-115 items-end justify-center lg:flex">
-        <div class="absolute bottom-10 h-56 w-56 rounded-full bg-blue-9/20 blur-3xl"></div>
-        <img
-          src="/images/char-transparent.png"
-          alt="Mascote do Galfus"
-          class="relative max-h-full w-auto object-contain drop-shadow-[0_0_34px_color-mix(in_oklch,var(--color-blue-9)_42%,transparent)]"
-        />
       </div>
     </div>
   </section>
