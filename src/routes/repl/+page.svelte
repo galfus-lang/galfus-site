@@ -51,7 +51,6 @@
       // Enter pressionado: escreve a quebra de linha visualmente
       terminal.write('\r\n');
       // Envia os dados acumulados (com quebra de linha) para a VM
-      console.log(inputBuffer);
       const bytes = new TextEncoder().encode(inputBuffer + '\n');
       playground.sendReadData(bytes);
       inputBuffer = '';
@@ -126,7 +125,6 @@
       while (currentRunId === runId) {
         const stepRaw = playground.step();
         const resultStep = JSON.parse(stepRaw);
-        console.log(resultStep);
 
         if (resultStep.error) {
           terminal.write('\r\n\x1b[31m[Runtime Error]\x1b[0m\r\n');
