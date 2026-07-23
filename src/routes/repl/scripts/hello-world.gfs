@@ -1,0 +1,7 @@
+import { println } from 'std/io'
+
+export fn main(args: [[u8]]): i32 {
+  println("Hello, Galfus!")
+
+  return 0
+}

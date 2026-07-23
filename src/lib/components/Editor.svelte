@@ -130,6 +130,14 @@
       view.destroy();
     };
   });
+
+  $effect(() => {
+    if (view && code !== undefined && code !== view.state.doc.toString()) {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: code },
+      });
+    }
+  });
 </script>
 
 <div

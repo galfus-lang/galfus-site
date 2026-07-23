@@ -13,6 +13,8 @@ export class Playground {
     setConfig(config: string): string;
     setSource(path: string, source: string): string;
     setWriteCallback(callback: Function): void;
+    start(args_json: string): string;
+    step(): string;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -29,6 +31,8 @@ export interface InitOutput {
     readonly playground_setConfig: (a: number, b: number, c: number, d: number) => void;
     readonly playground_setSource: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
     readonly playground_setWriteCallback: (a: number, b: number) => void;
+    readonly playground_start: (a: number, b: number, c: number, d: number) => void;
+    readonly playground_step: (a: number, b: number) => void;
     readonly __wbindgen_export: (a: number, b: number) => number;
     readonly __wbindgen_export2: (a: number, b: number, c: number, d: number) => number;
     readonly __wbindgen_export3: (a: number) => void;
