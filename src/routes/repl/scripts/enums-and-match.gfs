@@ -1,0 +1,27 @@
+import { println } from "std/io"
+
+enum(i16) Direction {
+  North,
+  South,
+  East,
+  West,
+}
+
+export fn main(_args: [[u8]]): i32 {
+  const dir = Direction::East
+  
+  const value = match dir {
+    Direction::North => 1,
+    Direction::South => 2,
+    Direction::East => 3,
+    Direction::West => 4,
+  }
+  
+  if value == 3 {
+    println("Heading East!")
+  } else {
+    println("Heading elsewhere!")
+  }
+  
+  return 0
+}

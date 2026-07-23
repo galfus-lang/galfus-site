@@ -116,7 +116,6 @@
       // 3. Run -> Start e Step loop
       const startRaw = playground.start('[]');
       const startResult = JSON.parse(startRaw);
-
       if (!startResult.ok) {
         terminal.write('\r\n\x1b[31m[Runtime Error]\x1b[0m\r\n');
         terminal.write(`\x1b[33m${String(startResult.error).replace(/\n/g, '\r\n')}\x1b[0m\r\n`);
@@ -127,6 +126,7 @@
       while (currentRunId === runId) {
         const stepRaw = playground.step();
         const resultStep = JSON.parse(stepRaw);
+        console.log(resultStep);
 
         if (resultStep.error) {
           terminal.write('\r\n\x1b[31m[Runtime Error]\x1b[0m\r\n');

@@ -1,0 +1,30 @@
+import { println } from "std/io"
+
+choice Outcome<T> {
+  Ok(T),
+  Err([u8]),
+}
+
+fn process_data(valid: bool): Outcome<i32> {
+  if valid {
+    return Outcome::Ok(42)
+  } else {
+    return Outcome::Err("Invalid data provided!")
+  }
+}
+
+export fn main(_args: [[u8]]): i32 {
+  const result = process_data(false)
+  
+  match result {
+    Outcome::Ok(value) => {
+      println("Success! Got value.")
+    },
+    Outcome::Err(msg) => {
+      println("Error occurred:")
+      println(msg)
+    },
+  }
+  
+  return 0
+}

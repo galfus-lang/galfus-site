@@ -1,0 +1,27 @@
+import { println } from "std/io"
+import { stringify } from "format"
+
+struct Point {
+  x: i32,
+  y: i32,
+}
+
+fn Point::move(self, dx: i32, dy: i32): Point {
+  return new {
+    x: self.x + dx,
+    y: self.y + dy,
+  }
+}
+
+export fn main(_args: [[u8]]): i32 {
+  const p1 = new(Point) { x: 10, y: 20 }
+  const p2 = p1::move(5, -5)
+  
+  println("New X coordinate:")
+  println(stringify(p2.x))
+  
+  println("New Y coordinate:")
+  println(stringify(p2.y))
+  
+  return 0
+}

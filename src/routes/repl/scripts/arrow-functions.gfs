@@ -1,0 +1,14 @@
+import { println } from "std/io"
+import { stringify } from "format"
+
+export fn main(_args: [[u8]]): i32 {
+  const double = (value: i32): i32 => value * 2
+  const add = (a: i32, b: i32) => a + b
+  
+  const result = add(double(10), 5)
+  
+  println("Result of add(double(10), 5):")
+  println(stringify(result))
+  
+  return 0
+}

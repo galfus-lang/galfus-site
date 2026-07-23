@@ -1,0 +1,17 @@
+import { println } from "std/io"
+import { stringify } from "format"
+
+export fn main(_args: [[u8]]): i32 {
+  var sum = 0
+  
+  println("Counting from 0 to 9:")
+  
+  for i in 0..10 {
+    sum += i
+  }
+  
+  println("Sum:")
+  println(stringify(sum))
+  
+  return 0
+}

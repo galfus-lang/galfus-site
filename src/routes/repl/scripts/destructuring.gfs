@@ -1,0 +1,23 @@
+import { println } from "std/io"
+import { stringify } from "format"
+
+struct Point { x: i32, y: i32 }
+
+export fn main(_args: [[u8]]): i32 {
+  const p = new(Point) { x: 100, y: 200 }
+  const { x, y } = p
+  
+  println("Destructured X:")
+  println(stringify(x))
+  
+  println("Destructured Y:")
+  println(stringify(y))
+  
+  const arr = [10, 20, 30]
+  const [first, ...rest] = arr
+  
+  println("First array element:")
+  println(stringify(first))
+  
+  return 0
+}
