@@ -189,7 +189,7 @@
           selectedScript = (e.target as HTMLSelectElement).value;
           code = scripts[selectedScript] || '';
         }}
-        class="rounded border border-primary-6 bg-primary-2 px-3 py-1.5 text-sm text-primary-11 outline-none transition-colors focus:border-primary-8"
+        class="rounded border border-primary-6 bg-primary-2 px-3 py-1.5 text-sm text-primary-11 transition-colors outline-none focus:border-primary-8"
       >
         {#each Object.keys(scripts) as path}
           <option value={path}>{path.replace('./scripts/', '')}</option>
@@ -200,7 +200,7 @@
         <button
           onclick={runCode}
           disabled={!playground}
-          class="flex items-center gap-2 rounded bg-primary-6 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary-5 disabled:opacity-50"
+          class="text-white flex items-center gap-2 rounded bg-primary-6 px-4 py-1.5 text-sm font-semibold transition-colors hover:bg-primary-5 disabled:opacity-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -217,7 +217,7 @@
         </button>
         <button
           onclick={() => terminal?.clear()}
-          class="rounded bg-primary-8 px-3 py-1.5 text-sm font-semibold hover:bg-primary-7 transition-colors"
+          class="rounded bg-primary-8 px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-primary-7"
         >
           Clear
         </button>

@@ -5,6 +5,6 @@ export async function load() {
 
   // Return only top 3
   return {
-    posts: posts.slice(0, 3)
+    posts: posts.slice(0, 3),
   };
 }

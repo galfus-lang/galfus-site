@@ -46,7 +46,7 @@ const youtubeExtension = {
         ></iframe>
       </div>
     `;
-  }
+  },
 };
 
 marked.use({ extensions: [youtubeExtension as any] });
@@ -85,21 +85,23 @@ export async function parseMarkdown(rawContent: string) {
     list(this: any, token: any) {
       const type = token.ordered ? 'ol' : 'ul';
       const className = token.ordered ? 'list-decimal' : 'list-disc';
-      const body = token.items.map((item: any) => {
-        let itemBody = '';
-        if (item.task) {
-          const checkbox = `<input ${item.checked ? 'checked="" ' : ''}disabled="" type="checkbox"> `;
-          itemBody += checkbox;
-        }
-        itemBody += this.parser.parse(item.tokens, !!item.loose);
-        return `<li>${itemBody}</li>\n`;
-      }).join('');
+      const body = token.items
+        .map((item: any) => {
+          let itemBody = '';
+          if (item.task) {
+            const checkbox = `<input ${item.checked ? 'checked="" ' : ''}disabled="" type="checkbox"> `;
+            itemBody += checkbox;
+          }
+          itemBody += this.parser.parse(item.tokens, !!item.loose);
+          return `<li>${itemBody}</li>\n`;
+        })
+        .join('');
       return `<${type} class="${className} ml-6 mb-6 space-y-2 text-primary-12/90 text-lg">\n${body}</${type}>\n`;
     },
     blockquote(this: any, token: any) {
       const text = this.parser.parse(token.tokens);
       return `<blockquote class="border-l-4 border-primary-8 pl-6 italic text-primary-11 my-8 text-lg bg-primary-2/50 py-3 pr-4 rounded-r-lg">${text}</blockquote>`;
-    }
+    },
   };
 
   marked.use({ renderer: renderer as any });
@@ -109,6 +111,6 @@ export async function parseMarkdown(rawContent: string) {
   return {
     metadata: data,
     html,
-    toc
+    toc,
   };
 }

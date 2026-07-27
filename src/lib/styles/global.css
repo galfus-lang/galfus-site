@@ -16,7 +16,7 @@
 @theme {
   --font-sans: 'Nunito', sans-serif;
   --font-mono: 'Fira Code', monospace;
-  
+
   --color-*: initial;
   --color-blue-1: oklch(17.8% 0.0255 252.7);
   --color-blue-2: oklch(21% 0.0293 252.7);

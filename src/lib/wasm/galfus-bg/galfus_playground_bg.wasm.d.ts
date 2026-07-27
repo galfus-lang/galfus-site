@@ -9,7 +9,14 @@ export const playground_new: () => number;
 export const playground_run: (a: number, b: number, c: number, d: number) => void;
 export const playground_sendReadData: (a: number, b: number, c: number) => void;
 export const playground_setConfig: (a: number, b: number, c: number, d: number) => void;
-export const playground_setSource: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const playground_setSource: (
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+) => void;
 export const playground_setWriteCallback: (a: number, b: number) => void;
 export const playground_start: (a: number, b: number, c: number, d: number) => void;
 export const playground_step: (a: number, b: number) => void;
