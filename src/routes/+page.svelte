@@ -19,6 +19,9 @@
 <main class="min-h-screen bg-primary-2 font-sans text-primary-12 selection:bg-primary-5">
   <!-- Hero Section -->
   <section class="relative flex min-h-screen items-center overflow-hidden pt-20 pb-16">
+    <div
+      class="absolute inset-0 bg-[url('/images/hero-bg.png')] bg-cover bg-center opacity-20 mix-blend-screen"
+    ></div>
     <div class="absolute inset-0 bg-(image:--gradient-hero) opacity-60"></div>
 
     <div
