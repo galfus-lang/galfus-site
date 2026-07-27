@@ -15,6 +15,9 @@ export default defineConfig({
       adapter: adapter({
         fallback: '404.html',
       }),
+      prerender: {
+        entries: ['*', '/sitemap.xml'],
+      },
       inspector: true,
     }),
   ],

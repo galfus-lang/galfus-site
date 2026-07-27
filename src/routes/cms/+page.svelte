@@ -1,8 +1,8 @@
 <script lang="ts">
   import { dev } from '$app/environment';
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { init, type CmsConfig } from '@sveltia/cms';
+  import { onMount } from 'svelte';
 
   const config: CmsConfig = {
     load_config_file: false,
@@ -44,5 +44,6 @@
 </script>
 
 <svelte:head>
+  <title>CMS | Galfus Script</title>
   <meta name="robots" content="noindex" />
 </svelte:head>

@@ -164,6 +164,7 @@
 
 <svelte:head>
   <title>Galfus REPL</title>
+  <meta name="description" content="Try Galfus Script directly in your browser. Our WebAssembly integration allows you to compile and execute code on the fly." />
 </svelte:head>
 
 <div class="flex h-screen flex-col bg-primary-3 text-primary-12">
