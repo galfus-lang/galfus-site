@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import PostCard from '$lib/components/blog/PostCard.svelte';
 
   let { data } = $props();
 
-  let searchQuery = $state('');
+  let searchQuery = $state(page.url.searchParams.get('q') || '');
   let currentPage = $state(1);
   const itemsPerPage = 6;
 
@@ -52,6 +53,20 @@
   <div class="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
     <div class="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
       <div>
+        <a
+          href="/"
+          class="mb-4 inline-flex items-center text-sm font-medium text-primary-10 transition-colors hover:text-primary-11"
+        >
+          <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Home
+        </a>
         <h1 class="mb-4 text-4xl font-black tracking-tight text-primary-12 sm:text-5xl">Blog</h1>
         <p class="max-w-2xl text-lg text-primary-11">
           News, tutorials, and deep-dives into the architecture of Galfus Script.

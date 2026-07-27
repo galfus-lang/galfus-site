@@ -23,8 +23,12 @@ export async function getAllPosts() {
     }),
   );
 
-  // Sort posts by date descending
-  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const now = new Date().getTime();
 
-  return posts;
+  // Filter out future posts and sort by date descending
+  const publishedPosts = posts
+    .filter((post) => new Date(post.date).getTime() <= now)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return publishedPosts;
 }

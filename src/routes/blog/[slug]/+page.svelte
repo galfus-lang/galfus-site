@@ -24,20 +24,46 @@
     <!-- Main Content -->
     <article class="max-w-4xl flex-1">
       <header class="mb-12">
-        <a
-          href="/blog"
-          class="mb-6 inline-flex items-center text-sm font-medium text-primary-10 transition-colors hover:text-primary-11"
-        >
-          <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <nav class="flex items-center text-sm font-medium text-primary-10">
+            <a href="/" class="transition-colors hover:text-primary-11">Home</a>
+            <svg
+              class="mx-2 h-4 w-4 text-primary-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <a href="/blog" class="transition-colors hover:text-primary-11">Blog</a>
+          </nav>
+
+          <form action="/blog" method="GET" class="relative w-full sm:w-64">
+            <div
+              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-primary-10"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              name="q"
+              placeholder="Search articles..."
+              class="block w-full rounded-lg border border-primary-5 bg-primary-2 py-2 pr-3 pl-9 leading-5 text-primary-12 placeholder-primary-10 transition-colors focus:border-primary-8 focus:ring-2 focus:ring-primary-8 focus:outline-none sm:text-sm"
             />
-          </svg>
-          Back to Blog
-        </a>
+          </form>
+        </div>
 
         <time class="mb-4 block text-sm font-semibold tracking-wider text-primary-10 uppercase"
           >{formattedDate}</time
