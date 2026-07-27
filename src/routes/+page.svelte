@@ -14,6 +14,7 @@
     name="description"
     content="Galfus Script is a highly modular interpreted scripting language built around typed source code, an in-memory executable graph, and a deterministic VM runtime."
   />
+  <script src="/embed.js"></script>
 </svelte:head>
 
 <main class="min-h-screen bg-primary-2 font-sans text-primary-12 selection:bg-primary-5">
@@ -98,34 +99,20 @@
         </p>
       </div>
 
-      <!-- Placeholder for WebComponent / iframe -->
+      <!-- Code Example WebComponent Demo -->
       <div
-        class="group relative mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border border-primary-5 bg-neutral-2 p-2 shadow-2xl"
+        class="mx-auto w-full max-w-5xl rounded-2xl shadow-[0_0_40px_rgba(var(--color-primary-10),0.15)]"
       >
-        <div
-          class="absolute inset-0 bg-linear-to-r from-primary-4/10 to-primary-6/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        ></div>
-        <div
-          class="bg-black relative z-10 flex aspect-video w-full items-center justify-center rounded-xl border border-neutral-4/30 font-mono text-sm text-neutral-9"
-        >
-          <div class="flex flex-col items-center gap-4">
-            <svg
-              class="h-12 w-12 animate-pulse text-primary-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-              />
-            </svg>
-            <p>Code Example WebComponent will be loaded here.</p>
-            <p class="text-xs text-neutral-10">Waiting for WASM module integration...</p>
-          </div>
-        </div>
+        <galfus-repl>
+          {`import { println } from 'std/io'
+
+export fn main(args: [[u8]]): i32 {
+  println("Hello from the Galfus Embed!")
+  println("Try changing this code and pressing Run.")
+  return 0
+}
+`}
+        </galfus-repl>
       </div>
     </div>
   </section>
