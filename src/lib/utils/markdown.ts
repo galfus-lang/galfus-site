@@ -1,14 +1,31 @@
 import { marked } from 'marked';
 import matter from 'gray-matter';
-import { createHighlighter, type HighlighterCore } from 'shiki';
+import { createHighlighter, type HighlighterCore, type LanguageRegistration } from 'shiki';
+import galfusGrammar from './galfus.tmLanguage.json';
 
 let highlighter: HighlighterCore | null = null;
+
+const galfusRegistration: LanguageRegistration = {
+  ...(galfusGrammar as any),
+  name: 'galfus',
+  aliases: ['gfs'],
+};
 
 async function initHighlighter() {
   if (!highlighter) {
     highlighter = await createHighlighter({
       themes: ['vitesse-dark'],
-      langs: ['javascript', 'typescript', 'rust', 'svelte', 'bash', 'json', 'html', 'css'],
+      langs: [
+        'javascript',
+        'typescript',
+        'rust',
+        'svelte',
+        'bash',
+        'json',
+        'html',
+        'css',
+        galfusRegistration,
+      ],
     });
   }
   return highlighter;

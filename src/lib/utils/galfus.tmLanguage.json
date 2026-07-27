@@ -1,0 +1,238 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Galfus Script",
+  "scopeName": "source.gfs",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#declarations" },
+    { "include": "#decorators" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#numbers" },
+    { "include": "#function-calls" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.gfs",
+          "begin": "//",
+          "end": "$"
+        },
+        {
+          "name": "comment.block.gfs",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.gfs",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.gfs",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.gfs",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.gfs",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.other.multiline.gfs",
+          "begin": "`",
+          "end": "`",
+          "patterns": [
+            {
+              "name": "constant.character.escape.gfs",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(fn)\\s+((?:[A-Za-z_][A-Za-z0-9_]*::)?[A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.function.gfs"
+            },
+            "2": {
+              "name": "entity.name.function.gfs"
+            }
+          }
+        },
+        {
+          "match": "\\b(struct|enum|choice|constraint|type)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.gfs"
+            },
+            "2": {
+              "name": "entity.name.type.gfs"
+            }
+          }
+        },
+        {
+          "match": "\\b(var|const)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.gfs"
+            },
+            "2": {
+              "name": "variable.other.definition.gfs"
+            }
+          }
+        }
+      ]
+    },
+    "decorators": {
+      "patterns": [
+        {
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.annotation.gfs"
+            },
+            "2": {
+              "name": "entity.name.function.decorator.gfs"
+            }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.gfs",
+          "match": "\\b(if|else|for|loop|break|continue|return|match|instanceof|typeof|transaction|rollback)\\b"
+        },
+        {
+          "name": "keyword.control.import.gfs",
+          "match": "\\b(import|from|export)\\b"
+        },
+        {
+          "name": "storage.type.gfs",
+          "match": "\\b(fn|var|const|struct|enum|choice|constraint|type|external)\\b"
+        },
+        {
+          "name": "storage.modifier.gfs",
+          "match": "\\bweak\\b"
+        },
+        {
+          "name": "keyword.operator.word.gfs",
+          "match": "\\b(in|satisfies|new|copy)\\b"
+        },
+        {
+          "name": "variable.language.gfs",
+          "match": "\\bself\\b"
+        },
+        {
+          "name": "variable.language.wildcard.gfs",
+          "match": "(?<![A-Za-z0-9_])_(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.primitive.gfs",
+          "match": "\\b(bool|i8|i16|i32|i64|u8|u16|u32|u64|f32|f64)\\b"
+        },
+        {
+          "name": "support.type.nominal.gfs",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.gfs",
+          "match": "\\b(true|false|null)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.gfs",
+          "match": "\\b[0-9][0-9_]*\\.(?!\\.)[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.gfs",
+          "match": "\\b[0-9][0-9_]*\\b"
+        }
+      ]
+    },
+    "function-calls": {
+      "patterns": [
+        {
+          "name": "entity.name.function.call.gfs",
+          "match": "\\b(?!if\\b|for\\b|loop\\b|match\\b|new\\b|instanceof\\b|typeof\\b)[A-Za-z_][A-Za-z0-9_]*(?=\\s*(?:<[^>\\n]+>\\s*)?\\()"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.spread.gfs",
+          "match": "\\.\\.\\."
+        },
+        {
+          "name": "keyword.operator.range.gfs",
+          "match": "\\.\\.|::"
+        },
+        {
+          "name": "keyword.operator.assignment.gfs",
+          "match": "\\?\\?="
+        },
+        {
+          "name": "keyword.operator.comparison.gfs",
+          "match": "==|!=|<=|>="
+        },
+        {
+          "name": "keyword.operator.arrow.gfs",
+          "match": "=>"
+        },
+        {
+          "name": "keyword.operator.assignment.gfs",
+          "match": "\\+=|-=|\\*=|/=|%=|="
+        },
+        {
+          "name": "keyword.operator.logical.gfs",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.comparison.gfs",
+          "match": "<|>"
+        },
+        {
+          "name": "keyword.operator.null-coalescing.gfs",
+          "match": "\\?\\?"
+        },
+        {
+          "name": "keyword.operator.arithmetic.gfs",
+          "match": "\\+|-|\\*|/|%"
+        }
+      ]
+    }
+  }
+}
