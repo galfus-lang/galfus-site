@@ -1,7 +1,7 @@
 <script lang="ts">
   import GitHubStarButton from '$lib/GitHubStarButton.svelte';
 
-  const discussionsUrl = 'https://github.com/vulppi-dev/galfus-script/discussions';
+  const discussionsUrl = 'https://github.com/galfus-lang/galfus-script/discussions';
 </script>
 
 <svelte:head>
@@ -36,7 +36,7 @@
         </p>
 
         <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          <GitHubStarButton owner="vulppi-dev" repo="galfus-script" />
+          <GitHubStarButton owner="galfus-lang" repo="galfus-script" />
 
           <a
             href={discussionsUrl}
@@ -50,7 +50,7 @@
           <span
             class="inline-flex h-12 items-center justify-center rounded-md border border-blue-12/15 px-5 text-sm font-medium text-blue-12/80"
           >
-            vulppi-dev/galfus-script
+            galfus-lang/galfus-script
           </span>
         </div>
       </div>
