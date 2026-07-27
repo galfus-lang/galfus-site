@@ -195,7 +195,7 @@
             selectedScript = (e.target as HTMLSelectElement).value;
             code = scripts[selectedScript] || '';
           }}
-          class="max-w-[150px] rounded border border-primary-6 bg-primary-2 px-3 py-1.5 text-sm text-primary-11 transition-colors outline-none focus:border-primary-8 sm:max-w-none"
+          class="max-w-37.5 rounded border border-primary-6 bg-primary-2 px-3 py-1.5 text-sm text-primary-11 transition-colors outline-none focus:border-primary-8 sm:max-w-none"
         >
           {#each Object.keys(scripts) as path}
             <option value={path}>{path.replace('../../../routes/repl/scripts/', '')}</option>
