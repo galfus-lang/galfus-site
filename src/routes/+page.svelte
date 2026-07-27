@@ -1,5 +1,8 @@
 <script lang="ts">
   import GitHubStarButton from '$lib/GitHubStarButton.svelte';
+  import PostCard from '$lib/components/blog/PostCard.svelte';
+
+  let { data } = $props();
 
   const repoUrl = 'https://github.com/galfus-lang/galfus-script';
   const discussionsUrl = `${repoUrl}/discussions`;
@@ -192,6 +195,29 @@
       </div>
     </div>
   </section>
+
+  <!-- Latest Posts Section -->
+  {#if data.posts && data.posts.length > 0}
+    <section class="py-24 bg-primary-2 relative border-t border-primary-3">
+      <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="flex flex-col sm:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-primary-12 tracking-tight">Latest from the Blog</h2>
+            <p class="mt-4 text-lg text-primary-11">Updates, tutorials, and deep-dives.</p>
+          </div>
+          <a href="/blog" class="inline-flex items-center justify-center rounded-lg bg-primary-3 border border-primary-5 px-6 py-3 text-sm font-bold text-primary-11 hover:bg-primary-4 transition-colors">
+            View all posts
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {#each data.posts as post}
+            <PostCard {...post} />
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
   
   <footer class="py-8 bg-primary-2 border-t border-primary-4 text-center">
     <p class="text-primary-10 text-sm">
