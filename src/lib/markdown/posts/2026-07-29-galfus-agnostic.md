@@ -13,23 +13,20 @@ At the heart of Galfus is a tiny, register-based Virtual Machine. This means tha
 
 Instead of relying on a bloated "global standard library" that assumes you are running on Windows, Linux, or a Web Browser, Galfus is designed to be injected into a larger host application. Whether you want to embed it in a Game Engine, a Database, or compile it to WebAssembly, Galfus just works.
 
-## Connecting to the World: Galfus Proxies (`.gfp`)
+## Connecting to the World: Adapters (`.gfp`)
 
-If Galfus has no global standard library, how does it interact with the outside world?
+If the core, runtime, and VM have no knowledge of specific operating system or environment APIs, how does Galfus interact with the outside world?
 
-This is solved through a beautifully simple surface layer called the **Galfus Proxy** (`.gfp` files). These proxies act as interfaces that allow you to import and call external code as if it were native Galfus code.
+This is solved through a surface layer defined by **Galfus Proxies** (`.gfp` files). A `.gfp` file describes the surface contract of an **Adapter**, allowing you to import it as an external module.
 
-Through these proxies, Galfus can bridge directly into:
+These files define what functions and structures the adapter exposes, and can also indicate execution requirements, such as requiring the main thread. The kernel driver's responsibility is simply to read this contract and apply the necessary execution protections.
 
-- **C-ABI (`.dylib`, `.so`, `.dll`)**: Talk to highly optimized native C/C++ or Rust functions directly.
-- **WebAssembly (`.wasm`)**: Seamlessly load and execute WASM modules.
+A `.gfp` is not inherently a C-ABI or WebAssembly bridge by definition. Rather, things like C-ABI (`.dylib`, `.so`, `.dll`), WebAssembly (`.wasm`), WGPU, or audio libraries are merely possible concrete implementations of an adapter contract. This modular import strategy means the host controls exactly what the script is allowed to see and do.
 
-This modular import strategy means the host controls exactly what the script is allowed to see and do.
+## Providers: Optional Host Capabilities
 
-## Providers: Sandboxing I/O
+While Adapters handle external module imports, **Providers** represent optional capabilities supplied directly by the host for internal standard library operations (like `std/io`).
 
-When a Galfus script requests to use basic I/O (like `std/io`), it relies on the host providing a **Provider** contract at execution time.
-
-If the host (like a CLI tool) supplies a native stream provider, the script can print to the terminal. If the host supplies no provider, the script simply fails if it attempts I/O—giving developers a perfect, zero-effort sandbox.
+If the host (like a CLI tool) supplies a native stream provider, the script can print to the terminal. If a certain provider is not supplied by the host, the corresponding capability is simply not available to the program, failing safely if requested. This ensures that the core language remains purely host-agnostic, giving developers a perfect, zero-effort sandbox.
 
 Galfus gives you the ultimate control: a small runtime footprint with infinitely extensible modular borders.

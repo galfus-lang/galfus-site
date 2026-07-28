@@ -25,10 +25,10 @@ Many scripting languages try to be "helpful" by implicitly coercing types (like 
 
 ## The Memory Inspiration
 
-Perhaps the biggest inspiration Galfus took from Rust is its **rejection of the Garbage Collector**.
+Perhaps the biggest inspiration Galfus took from Rust is its approach to **ownership and memory management**.
 
-Rust manages memory via a strict Ownership and Borrowing model evaluated entirely at compile-time. This guarantees safety but often forces developers to "fight the borrow checker" during rapid prototyping.
+Rust manages memory via a strict Ownership and Borrowing model evaluated entirely at compile-time. This shifts the burden of memory validation to the compilation phase, providing incredible safety and zero-cost abstractions, though it can present a steep learning curve during rapid prototyping.
 
-Galfus wanted that same level of deterministic memory freeing—where resources are released the exact moment they are no longer needed—but we recognized that scripting requires more flexibility.
+Galfus explores a different path for scripting environments by adopting a **runtime-managed ownership model**. While it does not offer the zero-cost compile-time guarantees of Rust, it seeks a more flexible, predictable approach compared to traditional garbage collection.
 
-This led to the creation of the **Ownership-Graph**. Inspired by Rust's ownership concepts, Galfus adapted the idea into a runtime structure using Anchors, Edges, and Weak Properties. It gives developers the safety and determinism of Rust, without the compile-time headaches, perfectly balancing power and ease of use.
+This led to the creation of the **Ownership-Graph**. Inspired by Rust's ownership concepts, Galfus adapted the idea into a runtime structure using Anchors, Edges, and Weak Properties. It provides a deterministic approach to memory management, where resources are released when they become unreachable from active anchors, balancing predictability and ease of use for scripting.

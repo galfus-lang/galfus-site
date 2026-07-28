@@ -5,20 +5,20 @@ description: How Galfus manages memory deterministically without a Garbage Colle
 thumbnail: /images/char-transparent.png
 ---
 
-One of the most revolutionary aspects of Galfus Script is how it handles memory.
+A defining characteristic of Galfus Script is its memory model.
 
-Most modern languages fall into two extremes: they either rely on a **Garbage Collector** (like Lua, JavaScript, and C#) or they enforce strict **Compile-time Lifetimes** (like Rust).
+Most modern languages tend to fall into two categories: they either rely on a **Garbage Collector** (like Lua, JavaScript, and C#) or they enforce strict **Compile-time Lifetimes** (like Rust).
 
-Galfus chooses a highly effective middle ground: the **Ownership-Graph**.
+Galfus adopts a different approach for its runtime: the **Ownership-Graph**.
 
-## The Problem with the Extremes
+## The Trade-offs
 
-- **Garbage Collectors (GC):** They are incredibly easy to use. You create variables, and eventually, the GC cleans them up. The problem? GCs cause unpredictable pauses. If you embed a script in a 60 FPS game engine, a sudden GC pause can cause a noticeable stutter.
-- **Borrow Checker (Rust):** It guarantees memory is freed exactly when needed with zero runtime overhead. The problem? It enforces a strict "single owner" rule that makes writing complex relationships (like doubly-linked lists or graphs) notoriously difficult for scripters.
+- **Garbage Collectors (GC):** They are highly convenient, as they automatically clean up unreferenced variables. The trade-off is that traditional GCs can cause unpredictable pauses, which might be undesirable in embedded real-time applications like game engines.
+- **Compile-time Validation (Rust):** It shifts the burden of memory validation to the compilation phase, guaranteeing safety with minimal runtime overhead. The trade-off is a stricter development experience, especially when dealing with complex cyclic data structures.
 
-## The Galfus Solution: The Ownership-Graph
+## The Ownership-Graph
 
-The Ownership-Graph is a runtime memory model inspired by Rust but designed for the flexibility required by scripting. It allows for **multiple owners** and **safe cyclic references** (loops) without ever leaking memory.
+The Ownership-Graph is a runtime memory model designed to balance flexibility and predictability. It allows for **multiple owners** and **cyclic references** while maintaining deterministic cleanup, although it does introduce specific runtime tracking costs.
 
 It works using three core concepts:
 
@@ -34,10 +34,10 @@ The beauty of the Galfus graph is that an object can have **multiple Edges** poi
 
 ### 3. Weak Properties
 
-A **Weak Property** is a reference that does _not_ prevent memory from being freed. If you need two objects to point at each other (a cycle), you can use weak properties to ensure they don't accidentally keep each other alive forever. If the main Anchor disappears, the objects are safely destroyed, and the weak properties are invalidated automatically.
+A **Weak Property** is a reference that does _not_ keep an object alive. If you need two objects to point at each other (a cycle), you can use weak properties to avoid reference cycles. When an object is no longer reachable from any Anchor via strong edges, it is destroyed, and any weak properties pointing to it are safely and automatically invalidated.
 
-## Deterministic Freedom
+## Predictability and Runtime Cost
 
-With the Ownership-Graph, the exact moment the last strong Edge to an object is cut (or its root Anchor is destroyed), the memory is freed instantly.
+With the Ownership-Graph, memory is freed at deterministic points of execution once an object is no longer reachable from the root Anchors.
 
-There are no GC sweeps. There are no sudden frame drops. But unlike Rust, you don't have to fight the compiler to prove your lifetimes are valid. You get the deterministic performance of native code with the fluid developer experience of a scripting language.
+Unlike traditional GC sweeps, this prevents unpredictable "stop-the-world" pauses. However, unlike Rust's compile-time model, the Ownership-Graph requires active runtime tracking of edges and anchors, which incurs a performance cost. It offers a structured approach that prioritizes deterministic execution over raw native performance, providing a practical middle ground for scripting.

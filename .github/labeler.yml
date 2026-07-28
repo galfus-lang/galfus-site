@@ -1,0 +1,49 @@
+'area/content':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/markdown/**'
+          - 'static/**'
+          - 'README.md'
+
+'area/components':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/components/**'
+          - 'src/lib/*.svelte'
+
+'area/routes':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/routes/**'
+          - 'src/app.html'
+
+'area/styles':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/styles/**'
+          - 'tailwind.config.*'
+          - 'postcss.config.*'
+
+'area/utils':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/utils/**'
+
+'area/wasm':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/wasm/**'
+
+'area/config':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - 'vite.config.*'
+          - 'svelte.config.*'
+          - 'tsconfig.*'
+
+'area/dependencies':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'package.json'
+          - 'bun.lockb'

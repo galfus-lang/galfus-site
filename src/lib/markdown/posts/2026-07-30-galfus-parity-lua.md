@@ -7,7 +7,7 @@ thumbnail: /images/char-transparent.png
 
 When building a language designed to be embedded into other applications, it is impossible to ignore the giant in the room: **Lua**.
 
-Lua has been the undisputed king of embedded scripting for decades, powering video games, server infrastructures, and desktop apps. Galfus Script is, in many ways, its modern spiritual successor.
+Lua has been a major influence in embedded scripting for decades, powering video games, server infrastructures, and desktop apps. Galfus Script draws significant inspiration from its approach to embedding.
 
 ## Where Galfus Shines Like Lua
 
@@ -21,18 +21,18 @@ Like modern Lua implementations, the core execution of Galfus relies on a highly
 
 Galfus shares Lua's fundamental goal: it assumes it is not the main star of the show. It is meant to be a lightweight passenger running inside a larger host (written in C, C++, Rust, etc.). Its minimal footprint means it doesn't try to take over your system architecture.
 
-### 3. C-ABI Optimization
+### 3. Adapters and Interoperability
 
-Interoperability is king. Just as Lua's C-API is celebrated for its simplicity, Galfus embraces the C-ABI. Through `.gfp` (Galfus Proxy) files, you can seamlessly import and call native external libraries. This allows the heavy lifting to be done natively while the high-level logic remains in the script.
+Interoperability is crucial. Just as Lua's C-API is celebrated for its simplicity, Galfus allows hosts to connect to external systems through **Adapters**. Using `.gfp` (Galfus Proxy) files to describe the contract of an importable adapter, Galfus can interface with various concrete implementations (like C-ABI or WASM). This allows the heavy lifting to be done externally while the high-level logic remains in the script.
 
-## The Evolution: Solving the Maintenance Nightmare
+## The Evolution: Static Validation vs. Flexibility
 
 If Lua is so great, why build Galfus?
 
-Because as any developer who has worked on a large Lua codebase will tell you: **lack of types scales terribly**.
+Because dynamic typing and static typing serve different goals. Dynamic languages like Lua prioritize maximum flexibility, which is fantastic for rapid prototyping and highly dynamic structures.
 
-In Lua, everything is a dynamic table. While this is incredibly flexible for prototyping, it becomes a nightmare for large-scale maintenance. You never know what fields a table has, if a variable is a string or a number, or if you misspelled a property until the code crashes in production.
+However, as codebases grow, ensuring structural correctness can become more challenging. Without static types, verifying the shape of data often relies on runtime execution.
 
-Galfus solves this chronic pain by introducing strict, modern **Static Typing**.
+Galfus opts for a different approach by introducing strict **Static Typing**.
 
-You retain the blazing speed and tiny embedding footprint of Lua, but you gain the robust predictability of explicit `struct` definitions, compile-time validation, and total type safety. Galfus gives you the agility of Lua, but strictly guards you against the chaos.
+While maintaining the goal of an embeddable architecture, Galfus prioritizes the robust predictability of explicit `struct` definitions and compile-time validation. It offers an alternative for environments that require static guarantees and early validation.

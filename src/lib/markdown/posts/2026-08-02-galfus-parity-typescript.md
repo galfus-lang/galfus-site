@@ -11,26 +11,26 @@ The Developer Experience (DX) of TypeScript is unmatched in the modern web era. 
 
 ## Expressive Typing
 
-Galfus doesn't just have basic types like `i32` or `[u8]`. It embraces the flexibility that makes TypeScript so beloved:
+Galfus is designed to support more than just basic types like `i32` or `[u8]`. It incorporates features for flexibility and safety:
 
-- **Unions:** Allow variables to hold one of several distinct types, making APIs flexible but safe.
-- **Constraints:** Ensure that generic structures or functions adhere to specific shapes.
-- **Type Aliases:** Keep your codebase readable by giving complex type signatures clean, semantic names.
+- **Choices:** Provide a way to represent a value that can be one of several distinct variants, allowing for flexible but safe APIs.
+- **Constraints:** Ensure that generic structures or functions adhere to specific trait shapes.
+- **Type Aliases (Planned):** Future updates aim to introduce type aliases to help keep codebases readable by giving complex type signatures semantic names.
 
-You get the rigidity of Rust's structs, combined with the expressive flow of TypeScript's type system.
+These features aim to provide rigidity where needed, combined with an expressive type system.
 
 ## Explicit Modularity
 
-Galfus completely rejects the concept of a "global scope script."
+In Galfus, modularity is explicit.
 
-Just like modern ES Modules in TypeScript, Galfus relies on explicit `import` and `export` statements. If a module doesn't export a function, another file cannot access it. There are no "magic globals" implicitly shared across files.
+Modules can have private declarations at their root, and Galfus relies on explicit `import` and `export` statements to share them. If a module doesn't export a function, another file cannot access it. Crucially, there is no implicit global sharing between modules.
 
-This guarantees that when you read a Galfus file, you know exactly where every dependency comes from.
+This guarantees that when you read a Galfus file, you know exactly where every external dependency comes from.
 
-## Isolated Threads and Message Passing
+## Concurrency Model (In Development)
 
-Finally, Galfus embraces the concept of Web Workers from the JavaScript ecosystem.
+Finally, Galfus is architecting a concurrency model inspired by Web Workers and actor systems.
 
-Because Galfus utilizes an isolated Ownership-Graph, it can run completely separate **isolated threads**. These threads do not share memory directly—preventing data races and complex lock fighting. Instead, they communicate strictly through **message passing**.
+The planned architecture for **Virtual Threads** leverages the isolated Ownership-Graph to run separate threads. The target model dictates that these threads will not share memory directly, aiming to prevent data races. Instead, they will communicate strictly through **message passing**.
 
-This makes building concurrent logic in Galfus as simple and safe as passing messages between isolated TypeScript workers, giving scripters immense power without the traditional concurrency headaches.
+While implementing a robust concurrent system is complex and presents its own challenges, this isolated heap model aims to provide a structured and predictable way to handle concurrency in the future.
