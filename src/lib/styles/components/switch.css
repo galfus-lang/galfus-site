@@ -1,0 +1,43 @@
+@utility switch {
+  appearance: none;
+  width: 2.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--color-neutral-4) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-neutral-6) 30%, transparent);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  outline: none;
+  margin: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    transform: translateY(-50%);
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 50%;
+    background-color: var(--color-neutral-10);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  &:checked {
+    background-color: var(--color-g-9);
+    border-color: var(--color-g-9);
+    box-shadow: 0 0 15px 0 color-mix(in srgb, var(--color-g-9) 70%, transparent);
+    
+    &::before {
+      background-color: white;
+      left: calc(100% - 1.125rem - 2px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-g-9);
+    outline-offset: 2px;
+  }
+}

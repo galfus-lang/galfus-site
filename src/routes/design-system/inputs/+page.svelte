@@ -6,7 +6,7 @@
   <h1 class="text-3xl font-bold">Inputs</h1>
   <p class="text-neutral-11">Input components utilizing the <code>@utility input-base</code> classes.</p>
 
-  <div class="card">
+  <div class="card color-group-primary">
     <div class="card-title">Text Input</div>
     <div class="card-content flex flex-col gap-6 mt-4">
       <label>

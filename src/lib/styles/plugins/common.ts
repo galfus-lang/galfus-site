@@ -1,9 +1,19 @@
 export const COLORS = [
   'primary',
   'neutral',
+  'danger',
+  'success',
+  'warning',
 
   'blue',
   'gray',
+  'green',
+  'magenta',
+  'orange',
+  'pink',
+  'red',
+  'violet',
+  'yellow',
 ];
 
 export function createNumber(length: number) {

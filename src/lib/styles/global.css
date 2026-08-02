@@ -6,17 +6,32 @@
 @import './components/button.css';
 @import './components/input.css';
 @import './components/card.css';
+@import './components/switch.css';
+@import './components/slider.css';
 
 :root {
-  --gradient-hero: linear-gradient(
-    90deg,
-    oklch(from var(--color-primary-1) l c h / 98%) 0%,
-    oklch(from var(--color-primary-2) l c h / 88%) 40%,
-    oklch(from var(--color-primary-3) l c h / 34%) 100%
-  );
+  background: 
+    radial-gradient(circle at 15% 50%, color-mix(in srgb, var(--color-primary-3) 40%, transparent), transparent 40%),
+    radial-gradient(circle at 85% 30%, color-mix(in srgb, var(--color-violet-2) 40%, transparent), transparent 40%),
+    oklch(16% 0.01 268); /* Deep slate base */
+  min-height: 100vh;
+  background-attachment: fixed;
 
-  background: var(--color-primary-1);
-  color: var(--color-primary-12);
+  /* Fallback defaults for color-group so components don't break if no explicit group is set */
+  --color-g-1: var(--color-neutral-1);
+  --color-g-2: var(--color-neutral-2);
+  --color-g-3: var(--color-neutral-3);
+  --color-g-4: var(--color-neutral-4);
+  --color-g-5: var(--color-neutral-5);
+  --color-g-6: var(--color-neutral-6);
+  --color-g-7: var(--color-neutral-7);
+  --color-g-8: var(--color-neutral-8);
+  --color-g-9: var(--color-neutral-9);
+  --color-g-10: var(--color-neutral-10);
+  --color-g-11: var(--color-neutral-11);
+  --color-g-12: var(--color-neutral-12);
+
+  color: var(--color-neutral-12);
 }
 
 @theme {
@@ -50,6 +65,97 @@
   --color-gray-11: oklch(77% 0.0436 268.1);
   --color-gray-12: oklch(94.9% 0.0081 268.1);
 
+  --color-green-1: oklch(0.182 0.017 144.7);
+  --color-green-2: oklch(0.21 0.017 144.7);
+  --color-green-3: oklch(0.267 0.035 144.7);
+  --color-green-4: oklch(0.319 0.062 144.7);
+  --color-green-5: oklch(0.367 0.073 144.7);
+  --color-green-6: oklch(0.416 0.085 144.7);
+  --color-green-7: oklch(0.468 0.099 144.7);
+  --color-green-8: oklch(0.524 0.115 144.7);
+  --color-green-9: oklch(0.624 0.174 144.7);
+  --color-green-10: oklch(0.583 0.174 144.7);
+  --color-green-11: oklch(0.78 0.168 144.7);
+  --color-green-12: oklch(0.911 0.092 144.7);
+
+  --color-magenta-1: oklch(17.8% 0.03 329.1);
+  --color-magenta-2: oklch(20.5% 0.0538 329.1);
+  --color-magenta-3: oklch(26.1% 0.1053 329.1);
+  --color-magenta-4: oklch(29.9% 0.1663 329.1);
+  --color-magenta-5: oklch(33.8% 0.1776 329.1);
+  --color-magenta-6: oklch(38.9% 0.1827 329.1);
+  --color-magenta-7: oklch(45.8% 0.2029 329.1);
+  --color-magenta-8: oklch(54.5% 0.2461 329.1);
+  --color-magenta-9: oklch(44.3% 0.2029 329.1);
+  --color-magenta-10: oklch(38.8% 0.1827 329.1);
+  --color-magenta-11: oklch(78.8% 0.2461 329.1);
+  --color-magenta-12: oklch(90.5% 0.1001 329.1);
+
+  --color-orange-1: oklch(0.197 0.041 78.894);
+  --color-orange-2: oklch(0.219 0.046 74.67);
+  --color-orange-3: oklch(0.253 0.056 66.12);
+  --color-orange-4: oklch(0.284 0.064 64.18);
+  --color-orange-5: oklch(0.317 0.071 64.62);
+  --color-orange-6: oklch(0.357 0.0788 67.295);
+  --color-orange-7: oklch(0.41 0.088 67.24);
+  --color-orange-8: oklch(0.473 0.105 67.005);
+  --color-orange-9: oklch(0.817 0.164 75.99);
+  --color-orange-10: oklch(0.866 0.154 86.431);
+  --color-orange-11: oklch(0.77 0.162 73.18);
+  --color-orange-12: oklch(0.967 0.031 83.05);
+
+  --color-pink-1: oklch(17.8% 0.0203 1.44);
+  --color-pink-2: oklch(20.5% 0.0314 1.44);
+  --color-pink-3: oklch(25.5% 0.0845 1.44);
+  --color-pink-4: oklch(29.3% 0.1341 1.44);
+  --color-pink-5: oklch(33.2% 0.1483 1.44);
+  --color-pink-6: oklch(38.2% 0.1544 1.44);
+  --color-pink-7: oklch(45% 0.1704 1.44);
+  --color-pink-8: oklch(54.2% 0.2104 1.44);
+  --color-pink-9: oklch(54.2% 0.2104 1.44);
+  --color-pink-10: oklch(49.6% 0.2104 1.44);
+  --color-pink-11: oklch(78.7% 0.2104 1.44);
+  --color-pink-12: oklch(90.9% 0.0768 1.44);
+
+  --color-red-1: oklch(0.182 0.014 31.02);
+  --color-red-2: oklch(0.206 0.02 31.02);
+  --color-red-3: oklch(0.253 0.064 31.02);
+  --color-red-4: oklch(0.291 0.101 31.02);
+  --color-red-5: oklch(0.331 0.113 31.02);
+  --color-red-6: oklch(0.38 0.116 31.02);
+  --color-red-7: oklch(0.448 0.124 31.02);
+  --color-red-8: oklch(0.539 0.152 31.02);
+  --color-red-9: oklch(0.571 0.221 31.02);
+  --color-red-10: oklch(0.527 0.221 31.02);
+  --color-red-11: oklch(0.784 0.186 31.02);
+  --color-red-12: oklch(0.899 0.054 31.02);
+
+  --color-violet-1: oklch(17.8% 0.0374 283.9);
+  --color-violet-2: oklch(20.6% 0.0506 283.9);
+  --color-violet-3: oklch(27.2% 0.1187 283.9);
+  --color-violet-4: oklch(31.8% 0.1764 283.9);
+  --color-violet-5: oklch(35.8% 0.1891 283.9);
+  --color-violet-6: oklch(39.9% 0.1934 283.9);
+  --color-violet-7: oklch(44.8% 0.2078 283.9);
+  --color-violet-8: oklch(50.7% 0.2389 283.9);
+  --color-violet-9: oklch(54% 0.2646 283.9);
+  --color-violet-10: oklch(49.3% 0.2389 283.9);
+  --color-violet-11: oklch(77.6% 0.2268 283.9);
+  --color-violet-12: oklch(91.4% 0.0725 283.9);
+
+  --color-yellow-1: oklch(0.182 0.011 95.78);
+  --color-yellow-2: oklch(0.212 0.015 95.78);
+  --color-yellow-3: oklch(0.256 0.034 95.78);
+  --color-yellow-4: oklch(0.293 0.055 95.78);
+  --color-yellow-5: oklch(0.332 0.066 95.78);
+  --color-yellow-6: oklch(0.38 0.069 95.78);
+  --color-yellow-7: oklch(0.443 0.074 95.78);
+  --color-yellow-8: oklch(0.525 0.089 95.78);
+  --color-yellow-9: oklch(0.76 0.156 95.78);
+  --color-yellow-10: oklch(0.725 0.156 95.78);
+  --color-yellow-11: oklch(0.841 0.151 95.78);
+  --color-yellow-12: oklch(0.928 0.064 95.78);
+
   --color-primary-1: var(--color-blue-1);
   --color-primary-2: var(--color-blue-2);
   --color-primary-3: var(--color-blue-3);
@@ -75,4 +181,43 @@
   --color-neutral-10: var(--color-gray-10);
   --color-neutral-11: var(--color-gray-11);
   --color-neutral-12: var(--color-gray-12);
+
+  --color-danger-1: var(--color-red-1);
+  --color-danger-2: var(--color-red-2);
+  --color-danger-3: var(--color-red-3);
+  --color-danger-4: var(--color-red-4);
+  --color-danger-5: var(--color-red-5);
+  --color-danger-6: var(--color-red-6);
+  --color-danger-7: var(--color-red-7);
+  --color-danger-8: var(--color-red-8);
+  --color-danger-9: var(--color-red-9);
+  --color-danger-10: var(--color-red-10);
+  --color-danger-11: var(--color-red-11);
+  --color-danger-12: var(--color-red-12);
+
+  --color-success-1: var(--color-green-1);
+  --color-success-2: var(--color-green-2);
+  --color-success-3: var(--color-green-3);
+  --color-success-4: var(--color-green-4);
+  --color-success-5: var(--color-green-5);
+  --color-success-6: var(--color-green-6);
+  --color-success-7: var(--color-green-7);
+  --color-success-8: var(--color-green-8);
+  --color-success-9: var(--color-green-9);
+  --color-success-10: var(--color-green-10);
+  --color-success-11: var(--color-green-11);
+  --color-success-12: var(--color-green-12);
+
+  --color-warning-1: var(--color-yellow-1);
+  --color-warning-2: var(--color-yellow-2);
+  --color-warning-3: var(--color-yellow-3);
+  --color-warning-4: var(--color-yellow-4);
+  --color-warning-5: var(--color-yellow-5);
+  --color-warning-6: var(--color-yellow-6);
+  --color-warning-7: var(--color-yellow-7);
+  --color-warning-8: var(--color-yellow-8);
+  --color-warning-9: var(--color-yellow-9);
+  --color-warning-10: var(--color-yellow-10);
+  --color-warning-11: var(--color-yellow-11);
+  --color-warning-12: var(--color-yellow-12);
 }

@@ -64,11 +64,12 @@
   ];
 </script>
 
-<div class="flex h-screen bg-neutral-1 text-neutral-12">
-  <aside class="w-64 border-r border-neutral-4 p-6 flex flex-col gap-6 overflow-y-auto">
-    <a href="/design-system" class="text-xl font-bold font-sans hover:text-primary-9">Design System</a>
+<div class="flex h-screen text-neutral-12">
+  <!-- Use a slightly darker glass sidebar -->
+  <aside class="w-64 border-r border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md p-6 flex flex-col gap-6 overflow-y-auto">
+    <a href="/design-system" class="text-xl font-bold font-sans hover:text-primary-11 transition-colors">Design System</a>
     
-    <nav class="flex flex-col gap-6">
+    <nav class="flex flex-col gap-6 color-group-primary">
       {#each groups as group}
         <div>
           <h2 class="text-xs font-bold text-neutral-11 uppercase tracking-wider mb-2">{group.name}</h2>
@@ -78,8 +79,10 @@
                 <a 
                   href={link.href} 
                   class={cn(
-                    'block px-3 py-1.5 rounded-md hover:bg-neutral-3 text-sm',
-                    page.url.pathname === link.href ? 'bg-neutral-4 font-medium text-primary-11' : 'text-neutral-12'
+                    'block px-3 py-1.5 rounded-md text-sm transition-all',
+                    page.url.pathname === link.href 
+                      ? 'bg-group-9/20 border border-group-9 text-group-12 shadow-[0_0_15px_0_color-mix(in_srgb,var(--color-g-9)_40%,transparent)]' 
+                      : 'text-neutral-11 hover:text-neutral-12 hover:bg-neutral-4/30 border border-transparent'
                   )}
                 >
                   {link.label}
