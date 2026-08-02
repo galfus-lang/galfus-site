@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+@plugin './plugins/color-group';
 
 @import './components/button.css';
 @import './components/input.css';
