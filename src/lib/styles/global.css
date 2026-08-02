@@ -2,15 +2,20 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
+@import './components/button.css';
+@import './components/input.css';
+@import './components/card.css';
+
 :root {
   --gradient-hero: linear-gradient(
     90deg,
-    oklch(from var(--color-blue-1) l c h / 98%) 0%,
-    oklch(from var(--color-blue-2) l c h / 88%) 40%,
-    oklch(from var(--color-blue-3) l c h / 34%) 100%
+    oklch(from var(--color-primary-1) l c h / 98%) 0%,
+    oklch(from var(--color-primary-2) l c h / 88%) 40%,
+    oklch(from var(--color-primary-3) l c h / 34%) 100%
   );
 
-  background: var(--color-blue-2);
+  background: var(--color-primary-1);
+  color: var(--color-primary-12);
 }
 
 @theme {
