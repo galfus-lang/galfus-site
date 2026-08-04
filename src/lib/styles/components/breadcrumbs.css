@@ -1,0 +1,24 @@
+@utility breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-neutral-11);
+  list-style: none;
+}
+
+@utility breadcrumb-link {
+  color: var(--color-neutral-11);
+  transition: color 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-g-9, var(--color-primary-9));
+    text-decoration: underline;
+  }
+}
+
+@utility breadcrumb-active {
+  color: var(--color-neutral-12);
+  font-weight: 500;
+}

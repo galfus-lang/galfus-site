@@ -228,3 +228,8 @@
 @import './components/badge.css';
 @import './components/accordion.css';
 @import './components/table.css';
+@import './components/breadcrumbs.css';
+@import './components/tabs.css';
+@import './components/pagination.css';
+@import './components/menu.css';
+@import './components/dropdown-menu.css';

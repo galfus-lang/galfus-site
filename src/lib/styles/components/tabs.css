@@ -1,0 +1,30 @@
+@utility tab-list {
+  display: flex;
+  border-bottom: 1px solid var(--color-neutral-4);
+  margin-bottom: 1rem;
+}
+
+@utility tab-trigger {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: var(--color-neutral-11);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-neutral-12);
+  }
+
+  &[aria-selected="true"] {
+    color: var(--color-g-9, var(--color-primary-9));
+    border-bottom-color: var(--color-g-9, var(--color-primary-9));
+  }
+}
+
+@utility tab-panel {
+  color: var(--color-neutral-11);
+  outline: none;
+}
