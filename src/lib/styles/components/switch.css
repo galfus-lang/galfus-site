@@ -1,3 +1,22 @@
+@utility switch-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+@utility switch-label {
+  font-weight: 500;
+  color: var(--color-neutral-12);
+  user-select: none;
+}
+
+@utility switch-description {
+  font-size: 0.875rem;
+  color: var(--color-neutral-11);
+  user-select: none;
+}
+
 @utility switch {
   appearance: none;
   width: 2.5rem;

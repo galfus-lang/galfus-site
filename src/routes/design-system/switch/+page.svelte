@@ -2,35 +2,35 @@
   import Code from '$lib/components/ui/Code.svelte';
   
   const usageCode = `<!-- Basic Switch -->
-<label class="flex cursor-pointer items-center gap-4">
+<label class="switch-group">
   <input type="checkbox" class="switch" />
   <div>
-    <div class="font-medium text-neutral-12">Toggle Title</div>
-    <div class="text-sm text-neutral-11">Description text goes here.</div>
+    <div class="switch-label">Toggle Title</div>
+    <div class="switch-description">Description text goes here.</div>
   </div>
 </label>`;
 </script>
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Switch</h1>
-  <p class="text-neutral-11">A beautiful glowing toggle component.</p>
+  <p class="text-neutral-11">A beautiful glowing toggle component using <code>@utility switch-group</code>, <code>@utility switch-label</code>, and <code>@utility switch-description</code>.</p>
 
   <div class="color-group-primary card">
-    <div class="card-title">Theme Swithes</div>
+    <div class="card-title">Theme Switches</div>
     <div class="mt-4 flex flex-col gap-6 card-content">
-      <label class="flex cursor-pointer items-center gap-4">
+      <label class="switch-group">
         <input type="checkbox" class="switch" checked />
         <div>
-          <div class="font-medium text-neutral-12">Smooth animations</div>
-          <div class="text-sm text-neutral-11">Enable fluid transitions for design elements.</div>
+          <div class="switch-label">Smooth animations</div>
+          <div class="switch-description">Enable fluid transitions for design elements.</div>
         </div>
       </label>
 
-      <label class="flex cursor-pointer items-center gap-4">
+      <label class="switch-group">
         <input type="checkbox" class="switch" />
         <div>
-          <div class="font-medium text-neutral-12">Bold focus rings</div>
-          <div class="text-sm text-neutral-11">
+          <div class="switch-label">Bold focus rings</div>
+          <div class="switch-description">
             Increase visibility of selected layers and tools.
           </div>
         </div>

@@ -11,15 +11,15 @@
 </script>
 
 <label class="block">
-  <span class="text-group-12 mb-4 block font-bold">Custom Select</span>
-  <div class="relative w-full">
+  <span class="input-label">Custom Select</span>
+  <div class="input-group">
     <!-- Trigger -->
     <input
       {@attach mySelect.trigger}
       value={selectedValue}
-      class="input-base w-full cursor-pointer pr-10"
+      class="input-base cursor-pointer"
     />
-    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-11">
+    <div class="input-icon">
       <ChevronDown size={18} />
     </div>
   </div>
@@ -65,18 +65,16 @@
 
       <div class="relative z-10">
         <label class="block">
-          <span class="text-group-12 mb-4 block font-bold">Primary Select</span>
+          <span class="input-label text-group-12">Primary Select</span>
 
-          <div class="relative w-full max-w-xs">
+          <div class="input-group max-w-xs">
             <!-- The Input Trigger -->
             <input
               {@attach primarySelect.trigger}
               value={primaryValue}
-              class="input-base w-full cursor-pointer pr-10"
+              class="input-base cursor-pointer"
             />
-            <div
-              class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-11"
-            >
+            <div class="input-icon">
               <ChevronDown size={18} />
             </div>
           </div>
@@ -125,18 +123,16 @@
 
       <div class="relative z-10">
         <label class="block">
-          <span class="text-group-12 mb-4 block font-bold">Magenta Select</span>
+          <span class="input-label text-group-12">Magenta Select</span>
 
-          <div class="relative w-full max-w-xs">
+          <div class="input-group max-w-xs">
             <!-- The Input Trigger -->
             <input
               {@attach magentaSelect.trigger}
               value={magentaValue}
-              class="input-base w-full cursor-pointer pr-10"
+              class="input-base cursor-pointer"
             />
-            <div
-              class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-11"
-            >
+            <div class="input-icon">
               <ChevronDown size={18} />
             </div>
           </div>

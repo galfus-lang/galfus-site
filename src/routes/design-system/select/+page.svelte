@@ -2,11 +2,13 @@
   import Code from '$lib/components/ui/Code.svelte';
 
   const usageCode = `<!-- Native Select (styled with input-base) -->
-<label class="block mb-2 font-medium" for="demo-select">Choose an option</label>
-<select id="demo-select" class="input-base cursor-pointer w-full">
-  <option value="1">Option 1</option>
-  <option value="2">Option 2</option>
-</select>`;
+<label class="block" for="demo-select">
+  <span class="input-label">Choose an option</span>
+  <select id="demo-select" class="input-base cursor-pointer">
+    <option value="1">Option 1</option>
+    <option value="2">Option 2</option>
+  </select>
+</label>`;
 </script>
 
 <div class="flex flex-col gap-8">
@@ -17,18 +19,20 @@
   </p>
 
   <div class="max-w-sm card">
-    <label class="mb-2 block font-medium" for="demo-select">Choose an option</label>
-    <select id="demo-select" class="input-base cursor-pointer">
-      <option value="">Select a fruit...</option>
-      <optgroup label="Citrus">
-        <option value="orange">Orange</option>
-        <option value="lemon">Lemon</option>
-      </optgroup>
-      <optgroup label="Berries">
-        <option value="strawberry">Strawberry</option>
-        <option value="blueberry">Blueberry</option>
-      </optgroup>
-    </select>
+    <label class="block" for="demo-select">
+      <span class="input-label">Choose an option</span>
+      <select id="demo-select" class="input-base cursor-pointer">
+        <option value="">Select a fruit...</option>
+        <optgroup label="Citrus">
+          <option value="orange">Orange</option>
+          <option value="lemon">Lemon</option>
+        </optgroup>
+        <optgroup label="Berries">
+          <option value="strawberry">Strawberry</option>
+          <option value="blueberry">Blueberry</option>
+        </optgroup>
+      </select>
+    </label>
   </div>
 
   <div class="mt-8">
