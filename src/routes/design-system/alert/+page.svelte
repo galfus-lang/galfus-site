@@ -1,16 +1,43 @@
+<script lang="ts">
+  import Code from '$lib/components/ui/Code.svelte';
+
+  const usageCode = `<div role="alert" class="alert color-group-danger">
+  <div>
+    <div class="alert-title">Error</div>
+    <div class="alert-description">Something went wrong while connecting to the server.</div>
+  </div>
+</div>
+
+<div role="alert" class="alert color-group-success">
+  <div>
+    <div class="alert-title">Success</div>
+    <div class="alert-description">Your profile has been updated successfully.</div>
+  </div>
+</div>`;
+</script>
+
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Alert</h1>
-  <p class="text-neutral-11">Important feedback using <code>&lt;div role="alert"&gt;</code>.</p>
+  <p class="text-neutral-11">Important feedback using <code>&lt;div role="alert"&gt;</code> and <code>@utility alert-*</code> classes.</p>
 
   <div class="card flex flex-col gap-4">
-    <div role="alert" class="p-4 border rounded-md border-red-500/50 bg-red-500/10 text-red-500 flex gap-3 items-start">
-      <div class="font-bold">Error</div>
-      <div>Something went wrong while connecting to the server.</div>
+    <div role="alert" class="alert color-group-danger">
+      <div>
+        <div class="alert-title">Error</div>
+        <div class="alert-description">Something went wrong while connecting to the server.</div>
+      </div>
     </div>
-    
-    <div role="alert" class="p-4 border rounded-md border-primary-9/50 bg-primary-9/10 text-primary-11 flex gap-3 items-start">
-      <div class="font-bold">Success</div>
-      <div>Your profile has been updated successfully.</div>
+
+    <div role="alert" class="alert color-group-success">
+      <div>
+        <div class="alert-title">Success</div>
+        <div class="alert-description">Your profile has been updated successfully.</div>
+      </div>
     </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <Code label="alert.html" code={usageCode} lang="html" />
   </div>
 </div>

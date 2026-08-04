@@ -233,3 +233,7 @@
 @import './components/pagination.css';
 @import './components/menu.css';
 @import './components/dropdown-menu.css';
+@import './components/popover.css';
+@import './components/modal.css';
+@import './components/alert.css';
+@import './components/toast.css';

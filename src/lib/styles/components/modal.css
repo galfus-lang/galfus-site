@@ -1,0 +1,46 @@
+@utility modal {
+  padding: 0;
+  margin: auto;
+  background-color: transparent;
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@utility modal-content {
+  background-color: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-4);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  width: 400px;
+  max-width: 90vw;
+  color: var(--color-neutral-12);
+  display: flex;
+  flex-direction: column;
+}
+
+@utility modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-neutral-4);
+}
+
+@utility modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+@utility modal-body {
+  padding: 1.5rem;
+}
+
+@utility modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}

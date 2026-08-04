@@ -1,0 +1,42 @@
+@utility toast {
+  position: absolute;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  background-color: var(--color-g-11, var(--color-neutral-11));
+  color: var(--color-g-1, var(--color-neutral-1));
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 18rem;
+}
+
+@utility toast-content {
+  flex: 1;
+}
+
+@utility toast-title {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+@utility toast-description {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+@utility toast-action {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -44,7 +44,6 @@
     {
       name: 'Overlays & Feedback',
       links: [
-        { href: '/design-system/tooltip', label: 'Tooltip' },
         { href: '/design-system/popover', label: 'Popover' },
         { href: '/design-system/modal', label: 'Modal' },
         { href: '/design-system/alert', label: 'Alert' },
