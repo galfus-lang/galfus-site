@@ -35,6 +35,20 @@
       </label>
       
       <label>
+        <span class="block text-sm font-medium mb-1">With Helper Text</span>
+        <input type="text" class="input-base w-full max-w-sm" placeholder="Enter username" />
+        <span class="block text-xs text-neutral-11 mt-1.5">Only lowercase letters and numbers are allowed.</span>
+      </label>
+
+      <label>
+        <span class="block text-sm font-medium mb-1">Error State</span>
+        <div class="relative w-full max-w-sm">
+          <input type="email" class="input-base input-error w-full pr-10" value="invalid-email" />
+        </div>
+        <span class="block text-xs text-danger-11 mt-1.5">Please enter a valid email address.</span>
+      </label>
+
+      <label>
         <span class="block text-sm font-medium mb-1">Disabled</span>
         <input type="text" class="input-base input-disabled w-full max-w-sm" disabled value="Disabled value" />
       </label>
