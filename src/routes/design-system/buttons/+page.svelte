@@ -8,15 +8,27 @@
 
   <div class="grid gap-8 grid-cols-2">
     <!-- Primary Color Group -->
-    <div class="card color-group-primary">
-      <div class="card-title">Primary Group</div>
-      <div class="card-content flex flex-col gap-6 mt-4">
-        <div class="flex items-center gap-4">
+    <div class="card color-group-primary relative overflow-hidden">
+      <!-- Decorative background blur orb to show off the soft glass effect -->
+      <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-group-9 rounded-full opacity-20 blur-2xl pointer-events-none"></div>
+
+      <div class="card-title relative z-10">Primary Group</div>
+      <div class="card-content flex flex-col gap-6 mt-4 relative z-10">
+        <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">Solid</button>
           <button class="btn btn-soft">Soft</button>
-          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-outlined">Outlined</button>
+          <button class="btn btn-ghost">Ghost</button>
         </div>
-        <div class="flex items-center gap-4">
+
+        <div class="flex flex-wrap items-center gap-4">
+          <button class="btn btn-solid" disabled>Disabled</button>
+          <button class="btn btn-soft" disabled>Disabled</button>
+          <button class="btn btn-outlined" disabled>Disabled</button>
+          <button class="btn btn-ghost" disabled>Disabled</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
             <Save size={20} />
             Save
@@ -25,23 +37,38 @@
             Next
             <ArrowRight size={20} />
           </button>
-          <button class="btn btn-outline btn-icon" aria-label="Close">
+          <button class="btn btn-outlined btn-icon" aria-label="Close">
+            <X size={20} />
+          </button>
+          <button class="btn btn-ghost btn-icon" aria-label="Cancel">
             <X size={20} />
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Neutral Color Group -->
-    <div class="card color-group-neutral">
-      <div class="card-title">Neutral Group</div>
-      <div class="card-content flex flex-col gap-6 mt-4">
-        <div class="flex items-center gap-4">
+    <!-- Danger Color Group -->
+    <div class="card color-group-danger relative overflow-hidden">
+      <!-- Decorative background blur orb to show off the soft glass effect -->
+      <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-group-9 rounded-full opacity-20 blur-2xl pointer-events-none"></div>
+
+      <div class="card-title relative z-10">Danger Group</div>
+      <div class="card-content flex flex-col gap-6 mt-4 relative z-10">
+        <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">Solid</button>
           <button class="btn btn-soft">Soft</button>
-          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-outlined">Outlined</button>
+          <button class="btn btn-ghost">Ghost</button>
         </div>
-        <div class="flex items-center gap-4">
+        
+        <div class="flex flex-wrap items-center gap-4">
+          <button class="btn btn-solid" disabled>Disabled</button>
+          <button class="btn btn-soft" disabled>Disabled</button>
+          <button class="btn btn-outlined" disabled>Disabled</button>
+          <button class="btn btn-ghost" disabled>Disabled</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
             <Save size={20} />
             Save
@@ -50,7 +77,10 @@
             Next
             <ArrowRight size={20} />
           </button>
-          <button class="btn btn-outline btn-icon" aria-label="Close">
+          <button class="btn btn-outlined btn-icon" aria-label="Close">
+            <X size={20} />
+          </button>
+          <button class="btn btn-ghost btn-icon" aria-label="Cancel">
             <X size={20} />
           </button>
         </div>

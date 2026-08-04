@@ -13,16 +13,6 @@
       ]
     },
     {
-      name: 'Layout',
-      links: [
-        { href: '/design-system/appbar', label: 'Appbar' },
-        { href: '/design-system/toolbar', label: 'Toolbar' },
-        { href: '/design-system/sidebar', label: 'Sidebar' },
-        { href: '/design-system/card', label: 'Card' },
-        { href: '/design-system/divider', label: 'Divider' },
-      ]
-    },
-    {
       name: 'Inputs & Actions',
       links: [
         { href: '/design-system/buttons', label: 'Button' },
@@ -30,6 +20,15 @@
         { href: '/design-system/checkbox-radio', label: 'Checkbox & Radio' },
         { href: '/design-system/switch', label: 'Switch' },
         { href: '/design-system/select', label: 'Select' },
+      ]
+    },
+    {
+      name: 'Data Display',
+      links: [
+        { href: '/design-system/avatar', label: 'Avatar' },
+        { href: '/design-system/badge', label: 'Badge' },
+        { href: '/design-system/accordion', label: 'Accordion' },
+        { href: '/design-system/table', label: 'Table' },
       ]
     },
     {
@@ -53,12 +52,13 @@
       ]
     },
     {
-      name: 'Data Display',
+      name: 'Layout',
       links: [
-        { href: '/design-system/avatar', label: 'Avatar' },
-        { href: '/design-system/badge', label: 'Badge' },
-        { href: '/design-system/accordion', label: 'Accordion' },
-        { href: '/design-system/table', label: 'Table' },
+        { href: '/design-system/appbar', label: 'Appbar' },
+        { href: '/design-system/toolbar', label: 'Toolbar' },
+        { href: '/design-system/sidebar', label: 'Sidebar' },
+        { href: '/design-system/card', label: 'Card' },
+        { href: '/design-system/divider', label: 'Divider' },
       ]
     }
   ];
