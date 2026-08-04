@@ -10,6 +10,7 @@
 @import './components/slider.css';
 @import './components/checkbox-radio.css';
 @import './components/select.css';
+@import './components/shiki.css';
 
 :root {
   background: 

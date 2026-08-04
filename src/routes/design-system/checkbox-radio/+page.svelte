@@ -1,3 +1,19 @@
+<script lang="ts">
+  import Code from '$lib/components/ui/Code.svelte';
+  
+  const usageCode = `<!-- Checkbox -->
+<label class="flex items-center gap-3 cursor-pointer group">
+  <input type="checkbox" class="checkbox" />
+  <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Label text</span>
+</label>
+
+<!-- Radio -->
+<label class="flex items-center gap-3 cursor-pointer group">
+  <input type="radio" class="radio" name="options" />
+  <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Label text</span>
+</label>`;
+</script>
+
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Checkbox & Radio</h1>
   <p class="text-neutral-11">Native form controls styled completely via pure CSS using <code>@utility checkbox</code> and <code>@utility radio</code>.</p>
@@ -38,5 +54,10 @@
         </div>
       </fieldset>
     </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <Code label="checkbox-radio.html" code={usageCode} lang="html" />
   </div>
 </div>

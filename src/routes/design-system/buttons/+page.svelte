@@ -1,5 +1,20 @@
 <script lang="ts">
   import { Save, ArrowRight, X } from '@lucide/svelte';
+  import Code from '$lib/components/ui/Code.svelte';
+  
+  const usageCode = `<!-- Button Variants -->
+<button class="btn btn-solid">Solid</button>
+<button class="btn btn-soft">Soft</button>
+<button class="btn btn-outlined">Outlined</button>
+<button class="btn btn-ghost">Ghost</button>
+
+<!-- Disabled State -->
+<button class="btn btn-solid" disabled>Disabled</button>
+
+<!-- Icon Buttons (use 'btn-icon' to make it a perfect square) -->
+<button class="btn btn-solid btn-icon" aria-label="Save">
+  <Save size={20} />
+</button>`;
 </script>
 
 <div class="flex flex-col gap-8">
@@ -86,5 +101,10 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <Code label="buttons.html" code={usageCode} lang="html" />
   </div>
 </div>

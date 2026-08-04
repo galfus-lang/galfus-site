@@ -1,5 +1,26 @@
 <script lang="ts">
   import { Search, Mail } from '@lucide/svelte';
+  import Code from '$lib/components/ui/Code.svelte';
+  
+  const usageCode = `<!-- Basic Input -->
+<label>
+  <span class="block text-sm font-medium mb-1">Label</span>
+  <input type="text" class="input-base w-full" placeholder="..." />
+</label>
+
+<!-- With Leading Icon -->
+<div class="relative w-full">
+  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-11">
+    <!-- Icon Component here -->
+  </div>
+  <input type="text" class="input-base w-full pl-10" />
+</div>
+
+<!-- Error State -->
+<input type="text" class="input-base input-error w-full" />
+
+<!-- Disabled State -->
+<input type="text" class="input-base input-disabled w-full" disabled />`;
 </script>
 
 <div class="flex flex-col gap-8">
@@ -53,5 +74,10 @@
         <input type="text" class="input-base input-disabled w-full max-w-sm" disabled value="Disabled value" />
       </label>
     </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <Code label="inputs.html" code={usageCode} lang="html" />
   </div>
 </div>

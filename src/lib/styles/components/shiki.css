@@ -1,0 +1,19 @@
+/* Shiki CSS Variables Theme Customization for our Glassmorphism UI */
+@layer components {
+  .code-window .shiki {
+    background-color: transparent !important;
+    margin: 0;
+
+    --shiki-color-text: var(--color-neutral-12);
+    --shiki-color-background: transparent;
+    --shiki-token-constant: var(--color-info-9);
+    --shiki-token-string: var(--color-success-10);
+    --shiki-token-comment: var(--color-neutral-10);
+    --shiki-token-keyword: var(--color-magenta-10);
+    --shiki-token-parameter: var(--color-warning-9);
+    --shiki-token-function: var(--color-primary-10);
+    --shiki-token-string-expression: var(--color-success-9);
+    --shiki-token-punctuation: var(--color-neutral-11);
+    --shiki-token-link: var(--color-info-10);
+  }
+}

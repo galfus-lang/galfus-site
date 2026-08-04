@@ -1,6 +1,43 @@
 <script lang="ts">
   import { ChevronDown } from '@lucide/svelte';
   import { buildSelect } from '$lib/attachments/select.svelte';
+  import Code from '$lib/components/ui/Code.svelte';
+  
+  const usageCode = `<script>
+  import { buildSelect } from '$lib/attachments/select.svelte';
+  
+  const mySelect = buildSelect();
+  let selectedValue = $state('Option 1');
+</script>
+
+<label class="block">
+  <span class="text-group-12 mb-4 block font-bold">Custom Select</span>
+  <div class="relative w-full">
+    <!-- Trigger -->
+    <input
+      {@attach mySelect.trigger}
+      value={selectedValue}
+      class="input-base w-full cursor-pointer pr-10"
+    />
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-11">
+      <ChevronDown size={18} />
+    </div>
+  </div>
+</label>
+
+<!-- Popover Menu -->
+<ul {@attach mySelect.popover} class="select-popover">
+  <li>
+    <button type="button" {@attach mySelect.item} onclick={() => selectedValue = 'Option 1'} class="select-item">
+      Option 1
+    </button>
+  </li>
+  <li>
+    <button type="button" {@attach mySelect.item} onclick={() => selectedValue = 'Option 2'} class="select-item">
+      Option 2
+    </button>
+  </li>
+</ul>`;
 
   // Create attachment builders for our two selects
   const primarySelect = buildSelect();
@@ -150,5 +187,10 @@
         </ul>
       </div>
     </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <Code label="select-attach.svelte" code={usageCode} lang="svelte" />
   </div>
 </div>
