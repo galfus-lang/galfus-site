@@ -9,12 +9,14 @@
     <button class="menu-item">
       <!-- Icon here -->
       Edit
+      <span class="menu-shortcut">⌘E</span>
     </button>
   </li>
   <li>
     <button class="menu-item">
       <!-- Icon here -->
       Duplicate
+      <span class="menu-shortcut">⌘D</span>
     </button>
   </li>
   <li role="separator" class="menu-separator"></li>
@@ -22,6 +24,7 @@
     <button class="menu-item menu-item-danger">
       <!-- Icon here -->
       Delete
+      <span class="menu-shortcut">⌘⌫</span>
     </button>
   </li>
 </menu>`;
@@ -39,12 +42,14 @@
         <button class="menu-item">
           <SquarePen size={18} class="text-neutral-11" />
           Edit
+          <span class="menu-shortcut">⌘E</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
           <Copy size={18} class="text-neutral-11" />
           Duplicate
+          <span class="menu-shortcut">⌘D</span>
         </button>
       </li>
       <li role="separator" class="menu-separator"></li>
@@ -52,6 +57,7 @@
         <button class="menu-item menu-item-danger">
           <Trash2 size={18} />
           Delete
+          <span class="menu-shortcut">⌘⌫</span>
         </button>
       </li>
     </menu>

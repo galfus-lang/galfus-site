@@ -40,3 +40,10 @@
   background-color: var(--color-neutral-4);
   margin: 0.25rem 0;
 }
+
+@utility menu-shortcut {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--color-neutral-11);
+  font-family: monospace;
+}

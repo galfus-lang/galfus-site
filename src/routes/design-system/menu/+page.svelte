@@ -7,12 +7,14 @@
     <button class="menu-item">
       <!-- Icon here -->
       Profile
+      <span class="menu-shortcut">⇧⌘P</span>
     </button>
   </li>
   <li>
     <button class="menu-item">
       <!-- Icon here -->
       Settings
+      <span class="menu-shortcut">⌘,</span>
     </button>
   </li>
   <li role="separator" class="menu-separator"></li>
@@ -20,6 +22,7 @@
     <button class="menu-item menu-item-danger">
       <!-- Icon here -->
       Log out
+      <span class="menu-shortcut">⌥⇧Q</span>
     </button>
   </li>
 </menu>`;
@@ -35,12 +38,14 @@
         <button class="menu-item">
           <User size={18} class="text-neutral-11" />
           Profile
+          <span class="menu-shortcut">⇧⌘P</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
           <Settings size={18} class="text-neutral-11" />
           Settings
+          <span class="menu-shortcut">⌘,</span>
         </button>
       </li>
       <li role="separator" class="menu-separator"></li>
@@ -48,6 +53,7 @@
         <button class="menu-item menu-item-danger">
           <LogOut size={18} />
           Log out
+          <span class="menu-shortcut">⌥⇧Q</span>
         </button>
       </li>
     </menu>
