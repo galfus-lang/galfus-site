@@ -9,6 +9,7 @@
 @import './components/switch.css';
 @import './components/slider.css';
 @import './components/checkbox-radio.css';
+@import './components/select.css';
 
 :root {
   background: 

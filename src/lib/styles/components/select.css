@@ -1,0 +1,50 @@
+@utility select-popover {
+  margin: 4px;
+  width: anchor-size(width);
+  position-area: bottom;
+  position-try-fallbacks: top;
+
+  background-color: color-mix(in srgb, var(--color-neutral-2) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--color-neutral-6) 30%, transparent);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: var(--color-neutral-12);
+
+  /* Initial state for popover animation */
+  opacity: 0;
+  transform: translateY(-5px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    display 0.2s allow-discrete,
+    overlay 0.2s allow-discrete;
+
+  &:popover-open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility select-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-g-9);
+    color: white;
+    box-shadow: 0 0 15px 0 color-mix(in srgb, var(--color-g-9) 70%, transparent);
+    outline: none;
+  }
+}

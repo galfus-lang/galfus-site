@@ -60,6 +60,12 @@
         { href: '/design-system/card', label: 'Card' },
         { href: '/design-system/divider', label: 'Divider' },
       ]
+    },
+    {
+      name: 'Attachments',
+      links: [
+        { href: '/design-system/select-attach', label: 'Select Attach' },
+      ]
     }
   ];
 </script>
