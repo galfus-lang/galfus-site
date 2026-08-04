@@ -12,9 +12,13 @@
   justify-content: center;
   position: relative;
   outline: none;
-  margin: 0;
   accent-color: var(--color-g-9);
   outline-color: var(--color-g-9);
+
+  /* Override tailwind forms default blue focus ring */
+  &:focus {
+    box-shadow: none;
+  }
 
   &::after {
     content: '';
@@ -58,9 +62,13 @@
   justify-content: center;
   position: relative;
   outline: none;
-  margin: 0;
   accent-color: var(--color-g-9);
   outline-color: var(--color-g-9);
+
+  /* Override tailwind forms default blue focus ring */
+  &:focus {
+    box-shadow: none;
+  }
 
   &::after {
     content: '';
