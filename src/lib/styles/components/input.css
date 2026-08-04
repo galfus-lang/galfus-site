@@ -1,3 +1,37 @@
+@utility input-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+@utility input-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-11);
+  pointer-events: none;
+  width: 2.5rem;
+  height: 100%;
+
+  &:first-child {
+    left: 0;
+  }
+
+  &:last-child {
+    right: 0;
+  }
+}
+
+@utility input-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--color-neutral-12);
+}
+
 @utility input-base {
   display: flex;
   width: 100%;
@@ -18,6 +52,15 @@
       inset 0 2px 4px 0 rgba(0,0,0,0.2),
       0 0 15px 0 color-mix(in srgb, var(--color-g-9) 50%, transparent);
   }
+}
+
+/* Automatic padding when icons are present */
+.input-icon + .input-base {
+  padding-left: 2.5rem;
+}
+
+.input-base:has(+ .input-icon) {
+  padding-right: 2.5rem;
 }
 
 @utility input-disabled {
