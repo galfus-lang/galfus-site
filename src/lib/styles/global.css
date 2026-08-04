@@ -224,3 +224,7 @@
   --color-warning-11: var(--color-yellow-11);
   --color-warning-12: var(--color-yellow-12);
 }
+@import './components/avatar.css';
+@import './components/badge.css';
+@import './components/accordion.css';
+@import './components/table.css';

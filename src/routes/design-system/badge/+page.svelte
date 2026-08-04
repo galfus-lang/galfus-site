@@ -1,20 +1,42 @@
+<script lang="ts">
+  import Code from '$lib/components/ui/Code.svelte';
+
+  const usageCode = `<!-- Inline Badge -->
+<span class="badge color-group-primary">
+  Active
+</span>
+
+<!-- Notification Badge (Superscript) -->
+<button class="relative btn btn-neutral">
+  Notifications
+  <sup class="badge-indicator color-group-danger">
+    3
+  </sup>
+</button>`;
+</script>
+
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Badge</h1>
-  <p class="text-neutral-11">A small indicator using <code>&lt;span&gt;</code> or <code>&lt;sup&gt;</code>.</p>
+  <p class="text-neutral-11">A small indicator using <code>&lt;span&gt;</code> or <code>&lt;sup&gt;</code> with the <code>@utility badge</code>.</p>
 
   <div class="card flex items-center gap-6">
     <div class="flex items-center gap-2">
       <span class="font-bold">Status:</span>
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-9/20 text-primary-11">
+      <span class="badge color-group-primary">
         Active
       </span>
     </div>
     
     <button class="relative btn btn-neutral">
       Notifications
-      <sup class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center bg-red-500 text-white rounded-full text-[10px]">
+      <sup class="badge-indicator color-group-danger">
         3
       </sup>
     </button>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
+    <Code label="badge.html" code={usageCode} lang="html" />
   </div>
 </div>
