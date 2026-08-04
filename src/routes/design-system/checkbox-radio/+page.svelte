@@ -2,21 +2,21 @@
   import Code from '$lib/components/ui/Code.svelte';
   
   const usageCode = `<!-- Checkbox -->
-<label class="flex items-center gap-3 cursor-pointer group">
+<label class="check-group">
   <input type="checkbox" class="checkbox" />
-  <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Label text</span>
+  <span class="check-label">Label text</span>
 </label>
 
 <!-- Radio -->
-<label class="flex items-center gap-3 cursor-pointer group">
+<label class="check-group">
   <input type="radio" class="radio" name="options" />
-  <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Label text</span>
+  <span class="check-label">Label text</span>
 </label>`;
 </script>
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Checkbox & Radio</h1>
-  <p class="text-neutral-11">Native form controls styled completely via pure CSS using <code>@utility checkbox</code> and <code>@utility radio</code>.</p>
+  <p class="text-neutral-11">Native form controls styled via pure CSS using <code>@utility checkbox</code>, <code>@utility radio</code>, <code>@utility check-group</code>, and <code>@utility check-label</code>.</p>
 
   <div class="grid grid-cols-2 gap-8">
     <div class="card color-group-primary relative overflow-hidden">
@@ -25,13 +25,13 @@
       <fieldset class="relative z-10">
         <legend class="font-bold mb-4 text-group-12">Checkboxes (Primary)</legend>
         <div class="flex flex-col gap-4">
-          <label class="flex items-center gap-3 cursor-pointer group">
+          <label class="check-group">
             <input type="checkbox" class="checkbox" checked />
-            <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Remember device</span>
+            <span class="check-label">Remember device</span>
           </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
+          <label class="check-group">
             <input type="checkbox" class="checkbox" />
-            <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Subscribe to newsletter</span>
+            <span class="check-label">Subscribe to newsletter</span>
           </label>
         </div>
       </fieldset>
@@ -43,13 +43,13 @@
       <fieldset class="relative z-10">
         <legend class="font-bold mb-4 text-group-12">Radio Buttons (Danger)</legend>
         <div class="flex flex-col gap-4">
-          <label class="flex items-center gap-3 cursor-pointer group">
+          <label class="check-group">
             <input type="radio" name="demo-radio" class="radio" checked />
-            <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Erase data</span>
+            <span class="check-label">Erase data</span>
           </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
+          <label class="check-group">
             <input type="radio" name="demo-radio" class="radio" />
-            <span class="text-neutral-12 group-hover:text-group-11 transition-colors">Keep data</span>
+            <span class="check-label">Keep data</span>
           </label>
         </div>
       </fieldset>

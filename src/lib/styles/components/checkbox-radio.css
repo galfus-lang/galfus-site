@@ -1,3 +1,20 @@
+@utility check-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+
+  &:hover .check-label {
+    color: var(--color-g-11);
+  }
+}
+
+@utility check-label {
+  color: var(--color-neutral-12);
+  transition: color 0.2s ease-in-out;
+  user-select: none;
+}
+
 @utility checkbox {
   appearance: none;
   width: 1.25rem;
