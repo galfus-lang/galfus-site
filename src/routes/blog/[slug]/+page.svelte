@@ -68,9 +68,7 @@
         <time class="mb-4 block text-sm font-semibold tracking-wider text-primary-10 uppercase"
           >{formattedDate}</time
         >
-        <h1
-          class="mb-6 text-4xl leading-tight font-black tracking-tight text-primary-12 sm:text-5xl"
-        >
+        <h1 class="mb-6 text-4xl leading-tight font-black text-primary-12 sm:text-5xl">
           {data.metadata.title}
         </h1>
 

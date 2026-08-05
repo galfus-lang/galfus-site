@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import PostCard from '$lib/components/blog/PostCard.svelte';
+  import { cn } from '$lib/utils/cn';
 
   let { data } = $props();
 
@@ -67,7 +68,7 @@
           </svg>
           Back to Home
         </a>
-        <h1 class="mb-4 text-4xl font-black tracking-tight text-primary-12 sm:text-5xl">Blog</h1>
+        <h1 class="mb-4 text-4xl font-black text-primary-12 sm:text-5xl">Blog</h1>
         <p class="max-w-2xl text-lg text-primary-11">
           News, tutorials, and deep-dives into the architecture of Galfus Script.
         </p>
@@ -137,9 +138,12 @@
           <button
             onclick={prevPage}
             disabled={currentPage === 1}
-            class="flex items-center rounded-lg px-4 py-2 text-sm font-medium {currentPage === 1
-              ? 'cursor-not-allowed text-primary-8'
-              : 'text-primary-12 transition-colors hover:bg-primary-3'}"
+            class={cn(
+              'flex items-center rounded-lg px-4 py-2 text-sm font-medium',
+              currentPage === 1
+                ? 'cursor-not-allowed text-primary-8'
+                : 'text-primary-12 transition-colors hover:bg-primary-3',
+            )}
           >
             <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -160,10 +164,12 @@
           <button
             onclick={nextPage}
             disabled={currentPage === totalPages}
-            class="flex items-center rounded-lg px-4 py-2 text-sm font-medium {currentPage ===
-            totalPages
-              ? 'cursor-not-allowed text-primary-8'
-              : 'text-primary-12 transition-colors hover:bg-primary-3'}"
+            class={cn(
+              'flex items-center rounded-lg px-4 py-2 text-sm font-medium',
+              currentPage === totalPages
+                ? 'cursor-not-allowed text-primary-8'
+                : 'text-primary-12 transition-colors hover:bg-primary-3',
+            )}
           >
             Next
             <svg class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

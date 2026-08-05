@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   type TocItem = { id: string; text: string; level: number };
   let { toc = [] }: { toc: TocItem[] } = $props();
@@ -43,15 +44,18 @@
         <li class="relative" style="padding-left: {(item.level - 2) * 1}rem;">
           <a
             href="#{item.id}"
-            class="block pl-4 text-sm transition-colors {activeId === item.id
-              ? 'font-bold text-primary-11'
-              : 'text-primary-10 hover:text-primary-11'}"
+            class={cn(
+              'block pl-4 text-sm transition-colors',
+              activeId === item.id
+                ? 'font-bold text-primary-11'
+                : 'text-primary-10 hover:text-primary-11',
+            )}
           >
             {item.text}
           </a>
           {#if activeId === item.id}
             <div
-              class="absolute top-0 bottom-0 left-[-2px] w-0.5 bg-primary-9 transition-all duration-300"
+              class="absolute top-0 bottom-0 -left-0.5 w-0.5 bg-primary-9 transition-all duration-300"
             ></div>
           {/if}
         </li>

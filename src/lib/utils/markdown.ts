@@ -90,7 +90,7 @@ export async function parseMarkdown(rawContent: string) {
       if (depth === 2 || depth === 3) {
         toc.push({ id, text, level: depth });
       }
-      return `<h${depth} id="${id}" class="group relative font-bold text-primary-12 mt-10 mb-4 tracking-tight ${depth === 2 ? 'text-3xl' : 'text-2xl'}">
+      return `<h${depth} id="${id}" class="group relative font-bold text-primary-12 mt-10 mb-4  ${depth === 2 ? 'text-3xl' : 'text-2xl'}">
         ${text}
         <a href="#${id}" class="absolute -left-6 opacity-0 group-hover:opacity-100 transition-opacity text-primary-8 hidden md:block" aria-hidden="true">#</a>
       </h${depth}>`;

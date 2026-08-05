@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { cn } from '$lib/utils/cn';
+
   let { title, description, date, slug, thumbnail } = $props<{
     title: string;
     description?: string;
@@ -29,7 +31,7 @@
       />
     </div>
   {/if}
-  <div class="flex h-full flex-col p-6 {thumbnail ? '' : 'pt-8'}">
+  <div class={cn('flex h-full flex-col p-6', !thumbnail && 'pt-8')}>
     <time class="mb-2 text-xs font-semibold tracking-wider text-primary-10 uppercase"
       >{formattedDate}</time
     >

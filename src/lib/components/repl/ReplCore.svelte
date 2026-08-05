@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import Editor from '$lib/components/Editor.svelte';
   import Terminal from '$lib/components/Terminal.svelte';
+  import { cn } from '$lib/utils/cn';
 
   let { initialCode = '', isEmbed = false } = $props<{ initialCode?: string; isEmbed?: boolean }>();
 
@@ -169,25 +170,35 @@
   }
 </script>
 
-<div class="flex h-full w-full flex-col bg-primary-3 text-primary-12">
+<div
+  class={cn(
+    'color-group-primary flex h-full w-full flex-col text-primary-12',
+    isEmbed ? 'bg-transparent' : 'bg-primary-1',
+  )}
+>
   <!-- Header -->
   <header
-    class="flex items-center justify-between border-b border-primary-6 bg-primary-3 px-6 py-3"
+    class={cn(
+      'flex flex-wrap items-center justify-between gap-4 border-b border-primary-4 px-4 py-3',
+      isEmbed ? 'bg-primary-2/30 backdrop-blur-md' : 'bg-primary-2',
+    )}
   >
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
       {#if !isEmbed}
-        <h1 class="text-xl font-bold tracking-wide text-primary-11">Galfus REPL</h1>
+        <h1 class="text-xl font-bold tracking-tight text-primary-12">Galfus REPL</h1>
       {/if}
-      <span class="text-sm">
+      <span
+        class="rounded-md bg-primary-3 px-2 py-1 text-xs font-medium text-primary-10 ring-1 ring-primary-5"
+      >
         {#if playground}
-          {#if !isEmbed}v{playground.getVersion()}{:else}Galfus v{playground.getVersion()}{/if}
+          v{playground.getVersion()}
         {:else}
           Loading engine...
         {/if}
       </span>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
       {#if !initialCode}
         <select
           value={selectedScript}
@@ -195,7 +206,7 @@
             selectedScript = (e.target as HTMLSelectElement).value;
             code = scripts[selectedScript] || '';
           }}
-          class="max-w-37.5 rounded border border-primary-6 bg-primary-2 px-3 py-1.5 text-sm text-primary-11 transition-colors outline-none focus:border-primary-8 sm:max-w-none"
+          class="input h-9 min-w-32 bg-primary-2 px-3 py-1 text-sm sm:max-w-xs"
         >
           {#each Object.keys(scripts) as path}
             <option value={path}>{path.replace('../../../routes/repl/scripts/', '')}</option>
@@ -206,25 +217,47 @@
       <div class="flex items-center gap-2">
         <button
           onclick={runCode}
-          disabled={!playground}
-          class="text-white flex items-center gap-2 rounded bg-primary-6 px-4 py-1.5 text-sm font-semibold transition-colors hover:bg-primary-5 disabled:opacity-50"
+          disabled={!playground || isRunning}
+          class="btn h-9 btn-solid px-4 text-sm font-bold shadow-md shadow-primary-9/20 transition-all hover:shadow-primary-9/40"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
-          >
-          Run
+          {#if isRunning}
+            <svg
+              class="h-4 w-4 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              ><circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle><path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path></svg
+            >
+            Running
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
+            >
+            Run
+          {/if}
         </button>
         <button
           onclick={() => terminal?.clear()}
-          class="hidden rounded bg-primary-8 px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-primary-7 sm:block"
+          class="btn hidden h-9 btn-soft px-3 text-sm font-semibold sm:inline-flex"
         >
           Clear
         </button>
@@ -235,12 +268,16 @@
   <!-- Main Content: Split View -->
   <main class="flex flex-1 flex-col overflow-hidden sm:flex-row">
     <!-- Left: Editor -->
-    <div class="min-h-[50%] flex-1 border-b border-primary-8 sm:min-h-0 sm:border-r sm:border-b-0">
+    <div
+      class="min-h-[50%] flex-1 border-b border-primary-5 bg-primary-1/50 backdrop-blur-md sm:min-h-0 sm:border-r sm:border-b-0"
+    >
       <Editor bind:code />
     </div>
 
     <!-- Right: Terminal -->
-    <div class="relative min-h-[50%] flex-1 bg-[#1e1e1e] p-2 sm:min-h-0">
+    <div
+      class="relative min-h-[50%] flex-1 bg-[#1e1e1e]/95 p-2 shadow-inner backdrop-blur-xl sm:min-h-0"
+    >
       <Terminal bind:this={terminal} onData={handleTerminalData} />
     </div>
   </main>

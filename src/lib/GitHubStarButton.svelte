@@ -49,12 +49,25 @@
   target="_blank"
   rel="noreferrer"
   aria-label="Star {owner}/{repo} on GitHub"
-  class="inline-flex h-12 items-center justify-center gap-3 rounded-md border border-blue-11/70 bg-blue-9 px-6 text-sm font-bold text-blue-1 shadow-[0_0_26px_color-mix(in_oklch,var(--color-blue-9)_35%,transparent)] transition hover:-translate-y-0.5 hover:bg-blue-12 focus:ring-2 focus:ring-blue-11 focus:ring-offset-2 focus:ring-offset-blue-2 focus:outline-none"
+  class="btn h-9 btn-soft gap-2 px-3 text-sm"
 >
-  <span aria-hidden="true" class="text-base leading-none">★</span>
-  <span>Star on GitHub</span>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    ><polygon
+      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+    ></polygon></svg
+  >
+  <span class="hidden font-semibold sm:inline">Star on GitHub</span>
   <span
-    class="min-w-12 rounded-sm bg-blue-1/15 px-2 py-1 text-center text-xs font-black text-blue-1 tabular-nums"
+    class="flex min-w-[2rem] items-center justify-center rounded bg-primary-12/10 px-1.5 py-0.5 text-xs font-bold tabular-nums"
   >
     {#if starCount !== null}
       {formatStars(starCount)}

@@ -32,9 +32,7 @@
     </div>
 
     <!-- Error Message -->
-    <h1 class="mb-4 text-4xl font-black tracking-tight text-primary-12 sm:text-5xl">
-      Post Not Found
-    </h1>
+    <h1 class="mb-4 text-4xl font-black text-primary-12 sm:text-5xl">Post Not Found</h1>
 
     <p class="mb-8 text-lg leading-relaxed text-primary-11">
       Oops! The article you are looking for doesn't exist, or it hasn't been published yet. Check
