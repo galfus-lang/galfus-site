@@ -14,7 +14,7 @@ export const COLORS = [
   'red',
   'violet',
   'yellow',
-];
+] as const;
 
 export function createNumber(length: number) {
   return Array.from({ length }, (_, i) => i + 1).reduce(
