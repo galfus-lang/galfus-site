@@ -1,5 +1,8 @@
 <script lang="ts">
   import TableOfContents from '$lib/components/blog/TableOfContents.svelte';
+  import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
+  import Footer from '$lib/components/Footer.svelte';
+  import { ChevronRight, Search } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -17,51 +20,37 @@
   {/if}
 </svelte:head>
 
+<NavigationAppbar />
+
 <main
-  class="min-h-screen bg-primary-1 pt-24 pb-24 font-sans text-primary-12 selection:bg-primary-5"
+  class="min-h-screen bg-primary-2 pt-16 pb-16 font-sans text-primary-12 selection:bg-primary-5"
 >
   <div class="relative mx-auto flex max-w-7xl flex-col gap-12 px-6 sm:px-8 lg:flex-row lg:px-12">
     <!-- Main Content -->
     <article class="max-w-4xl flex-1">
       <header class="mb-12">
         <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <nav class="flex items-center text-sm font-medium text-primary-10">
-            <a href="/" class="transition-colors hover:text-primary-11">Home</a>
-            <svg
-              class="mx-2 h-4 w-4 text-primary-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-            <a href="/blog" class="transition-colors hover:text-primary-11">Blog</a>
-          </nav>
+          <ol class="breadcrumbs">
+            <li>
+              <a href="/" class="breadcrumb-link">Home</a>
+            </li>
+            <li>
+              <ChevronRight size={16} class="text-primary-8" />
+            </li>
+            <li>
+              <a href="/blog" class="breadcrumb-link">Blog</a>
+            </li>
+            <li>
+              <ChevronRight size={16} class="text-primary-8" />
+            </li>
+            <li class="breadcrumb-active" aria-current="page">Post</li>
+          </ol>
 
-          <form action="/blog" method="GET" class="relative w-full sm:w-64">
-            <div
-              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-primary-10"
-            >
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          <form action="/blog" method="GET" class="color-group-primary input-group sm:w-64">
+            <div class="input-icon">
+              <Search size={18} />
             </div>
-            <input
-              type="text"
-              name="q"
-              placeholder="Search articles..."
-              class="block w-full rounded-lg border border-primary-5 bg-primary-2 py-2 pr-3 pl-9 leading-5 text-primary-12 placeholder-primary-10 transition-colors focus:border-primary-8 focus:ring-2 focus:ring-primary-8 focus:outline-none sm:text-sm"
-            />
+            <input type="text" name="q" placeholder="Search articles..." class="input-base" />
           </form>
         </div>
 
@@ -97,3 +86,5 @@
     <TableOfContents toc={data.toc} />
   </div>
 </main>
+
+<Footer />

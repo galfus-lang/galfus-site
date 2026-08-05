@@ -2,7 +2,6 @@
 title: 'Why Galfus is Host-Agnostic and Extensible'
 date: 2026-07-29
 description: Exploring the VM-First architecture and how Galfus seamlessly embeds into any host environment.
-thumbnail: /images/char-transparent.png
 ---
 
 One of the defining features of Galfus Script is its **host-agnostic nature**. It is explicitly designed not to be tied down to any specific Operating System, browser, or environment.

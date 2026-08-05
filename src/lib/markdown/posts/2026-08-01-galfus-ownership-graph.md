@@ -2,7 +2,6 @@
 title: 'Deep Dive: The Ownership-Graph Memory Model'
 date: 2026-08-01
 description: How Galfus manages memory deterministically without a Garbage Collector and without the rigidness of a Borrow Checker.
-thumbnail: /images/char-transparent.png
 ---
 
 A defining characteristic of Galfus Script is its memory model.

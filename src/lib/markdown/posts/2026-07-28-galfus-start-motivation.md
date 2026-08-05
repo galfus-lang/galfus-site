@@ -2,7 +2,6 @@
 title: 'The Motivation Behind Galfus Script'
 date: 2026-07-28
 description: Why create another language? Exploring the search for the perfect middle ground between Lua, Rust, and TypeScript.
-thumbnail: /images/char-transparent.png
 ---
 
 The creation of a new programming language usually stems from a specific need. For Galfus Script, it was the search for a practical middle ground for scripting within larger host environments.

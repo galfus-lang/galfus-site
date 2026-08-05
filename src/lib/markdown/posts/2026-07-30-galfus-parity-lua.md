@@ -2,7 +2,6 @@
 title: 'Galfus & Lua: The Embeddable Kinship'
 date: 2026-07-30
 description: Exploring the spiritual succession between Lua's agile embedding and Galfus Script's typed approach.
-thumbnail: /images/char-transparent.png
 ---
 
 When building a language designed to be embedded into other applications, it is impossible to ignore the giant in the room: **Lua**.

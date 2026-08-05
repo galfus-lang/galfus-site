@@ -2,7 +2,6 @@
 title: 'Rusty Roots: What Galfus Borrowed from Rust'
 date: 2026-07-31
 description: How Galfus Script utilizes Rust-inspired syntax and safe memory concepts without the complexity of a strict Borrow Checker.
-thumbnail: /images/char-transparent.png
 ---
 
 If you look at a snippet of Galfus Script, your first reaction might be: _"This looks a lot like Rust."_

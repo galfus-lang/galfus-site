@@ -1,7 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
   import PostCard from '$lib/components/blog/PostCard.svelte';
-  import { cn } from '$lib/utils/cn';
+  import Footer from '$lib/components/Footer.svelte';
+  import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
+  import { ChevronLeft, ChevronRight, Search, SearchX } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -48,26 +50,23 @@
   />
 </svelte:head>
 
+<NavigationAppbar />
+
 <main
-  class="min-h-screen bg-primary-1 pt-24 pb-16 font-sans text-primary-12 selection:bg-primary-5"
+  class="min-h-screen bg-primary-2 pt-16 pb-16 font-sans text-primary-12 selection:bg-primary-5"
 >
   <div class="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
     <div class="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
       <div>
-        <a
-          href="/"
-          class="mb-4 inline-flex items-center text-sm font-medium text-primary-10 transition-colors hover:text-primary-11"
-        >
-          <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Home
-        </a>
+        <ol class="mb-6 breadcrumbs">
+          <li>
+            <a href="/" class="breadcrumb-link">Home</a>
+          </li>
+          <li>
+            <ChevronRight size={16} class="text-primary-8" />
+          </li>
+          <li class="breadcrumb-active" aria-current="page">Blog</li>
+        </ol>
         <h1 class="mb-4 text-4xl font-black text-primary-12 sm:text-5xl">Blog</h1>
         <p class="max-w-2xl text-lg text-primary-11">
           News, tutorials, and deep-dives into the architecture of Galfus Script.
@@ -75,24 +74,15 @@
       </div>
 
       <!-- Search Input -->
-      <div class="relative w-full md:w-80">
-        <div
-          class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-primary-10"
-        >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+      <div class="color-group-primary input-group mt-6 md:mt-0 md:w-80">
+        <div class="input-icon">
+          <Search size={18} />
         </div>
         <input
           type="text"
           bind:value={searchQuery}
           placeholder="Search articles..."
-          class="block w-full rounded-xl border border-primary-5 bg-primary-2 py-3 pr-3 pl-10 leading-5 text-primary-12 placeholder-primary-10 transition-colors focus:border-primary-8 focus:ring-2 focus:ring-primary-8 focus:outline-none sm:text-sm"
+          class="input-base"
         />
       </div>
     </div>
@@ -103,19 +93,9 @@
       </div>
     {:else if filteredPosts.length === 0}
       <div class="py-24 text-center">
-        <svg
-          class="mx-auto mb-4 h-12 w-12 text-primary-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
+        <div class="mx-auto mb-4 flex justify-center text-primary-8">
+          <SearchX size={48} />
+        </div>
         <h3 class="text-lg font-medium text-primary-12">No articles found</h3>
         <p class="mt-1 text-primary-10">Try adjusting your search term.</p>
         <button
@@ -134,55 +114,48 @@
 
       <!-- Pagination Controls -->
       {#if totalPages > 1}
-        <div class="mt-16 flex items-center justify-between border-t border-primary-4 pt-6">
-          <button
-            onclick={prevPage}
-            disabled={currentPage === 1}
-            class={cn(
-              'flex items-center rounded-lg px-4 py-2 text-sm font-medium',
-              currentPage === 1
-                ? 'cursor-not-allowed text-primary-8'
-                : 'text-primary-12 transition-colors hover:bg-primary-3',
-            )}
-          >
-            <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 16l-4-4m0 0l4-4m-4 4h18"
-              />
-            </svg>
-            Previous
-          </button>
+        <div class="mt-16 flex justify-center border-t border-primary-4 pt-6">
+          <nav aria-label="Pagination">
+            <ul class="color-group-primary pagination">
+              <li>
+                <button
+                  onclick={prevPage}
+                  disabled={currentPage === 1}
+                  class="pagination-item"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </li>
 
-          <span class="text-sm text-primary-11">
-            Page <span class="font-medium text-primary-12">{currentPage}</span> of
-            <span class="font-medium text-primary-12">{totalPages}</span>
-          </span>
+              {#each Array(totalPages) as _, i}
+                <li>
+                  <button
+                    onclick={() => (currentPage = i + 1)}
+                    class="pagination-item"
+                    aria-current={currentPage === i + 1 ? 'page' : undefined}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              {/each}
 
-          <button
-            onclick={nextPage}
-            disabled={currentPage === totalPages}
-            class={cn(
-              'flex items-center rounded-lg px-4 py-2 text-sm font-medium',
-              currentPage === totalPages
-                ? 'cursor-not-allowed text-primary-8'
-                : 'text-primary-12 transition-colors hover:bg-primary-3',
-            )}
-          >
-            Next
-            <svg class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </button>
+              <li>
+                <button
+                  onclick={nextPage}
+                  disabled={currentPage === totalPages}
+                  class="pagination-item"
+                  aria-label="Next page"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       {/if}
     {/if}
   </div>
 </main>
+
+<Footer />

@@ -31,21 +31,6 @@
 @import './components/divider.css';
 
 :root {
-  background:
-    radial-gradient(
-      circle at 15% 50%,
-      color-mix(in srgb, var(--color-primary-3) 40%, transparent),
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 85% 30%,
-      color-mix(in srgb, var(--color-violet-2) 40%, transparent),
-      transparent 40%
-    ),
-    oklch(16% 0.01 268); /* Deep slate base */
-  min-height: 100vh;
-  background-attachment: fixed;
-
   /* Fallback defaults for color-group so components don't break if no explicit group is set */
   --color-g-1: var(--color-neutral-1);
   --color-g-2: var(--color-neutral-2);
@@ -61,6 +46,22 @@
   --color-g-12: var(--color-neutral-12);
 
   color: var(--color-neutral-12);
+  background:
+    radial-gradient(
+      circle at 15% 50%,
+      color-mix(in srgb, var(--color-primary-3) 40%, transparent),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      color-mix(in srgb, var(--color-violet-2) 40%, transparent),
+      transparent 40%
+    ),
+    oklch(16% 0.01 268); /* Deep slate base */
+  min-height: 100vh;
+  background-attachment: fixed;
+  color-scheme: dark;
+  accent-color: var(--color-primary-9);
 }
 
 @theme {

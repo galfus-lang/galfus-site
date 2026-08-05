@@ -2,7 +2,6 @@
 title: 'TypeScript Vibes: Expressive Modularity and Threads'
 date: 2026-08-02
 description: How Galfus embraces the modern developer experience with powerful type constraints, isolated modules, and message-based threading.
-thumbnail: /images/char-transparent.png
 ---
 
 If Lua provided the engine block and Rust provided the safety frame, **TypeScript** provided the interior design and steering wheel for Galfus Script.
