@@ -15,26 +15,33 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Accordion</h1>
-  <p class="text-neutral-11">An expandable list built with the incredibly powerful, JS-free native <code>&lt;details&gt;</code> and <code>&lt;summary&gt;</code> tags using the <code>@utility accordion</code>.</p>
+  <p class="text-neutral-11">
+    An expandable list built with the incredibly powerful, JS-free native <code
+      >&lt;details&gt;</code
+    >
+    and <code>&lt;summary&gt;</code> tags using the <code>@utility accordion</code>.
+  </p>
 
-  <div class="card max-w-lg">
-    <details class="accordion group">
+  <div class="max-w-lg card">
+    <details class="group accordion">
       <summary class="accordion-trigger">
         Is this accessible by default?
         <span class="accordion-icon"><ChevronDown size={18} /></span>
       </summary>
       <div class="accordion-content">
-        Yes! Because it uses native HTML details/summary, it is fully accessible to screen readers and keyboard navigation out of the box.
+        Yes! Because it uses native HTML details/summary, it is fully accessible to screen readers
+        and keyboard navigation out of the box.
       </div>
     </details>
 
-    <details class="accordion group">
+    <details class="group accordion">
       <summary class="accordion-trigger">
         Can I style the marker?
         <span class="accordion-icon"><ChevronDown size={18} /></span>
       </summary>
       <div class="accordion-content">
-        Yes, you can use the ::marker pseudo-element or simply hide it and use a custom span (like the arrow here).
+        Yes, you can use the ::marker pseudo-element or simply hide it and use a custom span (like
+        the arrow here).
       </div>
     </details>
   </div>

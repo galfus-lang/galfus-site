@@ -35,11 +35,14 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Pagination</h1>
-  <p class="text-neutral-11">Page navigation using <code>&lt;nav aria-label="Pagination"&gt;</code> and <code>@utility pagination-*</code> classes.</p>
+  <p class="text-neutral-11">
+    Page navigation using <code>&lt;nav aria-label="Pagination"&gt;</code> and
+    <code>@utility pagination-*</code> classes.
+  </p>
 
-  <div class="card flex justify-center">
+  <div class="flex justify-center card">
     <nav aria-label="Pagination">
-      <ul class="pagination color-group-primary">
+      <ul class="color-group-primary pagination">
         <li>
           <a href="#" class="pagination-item" aria-label="Previous page">
             <ChevronLeft size={18} />
@@ -70,7 +73,7 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="pagination.html" code={usageCode} lang="html" />
   </div>
 </div>

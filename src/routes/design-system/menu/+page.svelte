@@ -30,9 +30,12 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Menu</h1>
-  <p class="text-neutral-11">A list of choices using the native <code>&lt;menu&gt;</code> element with <code>@utility menu-*</code> classes.</p>
+  <p class="text-neutral-11">
+    A list of choices using the native <code>&lt;menu&gt;</code> element with
+    <code>@utility menu-*</code> classes.
+  </p>
 
-  <div class="card max-w-xs">
+  <div class="max-w-xs card">
     <menu class="menu">
       <li>
         <button class="menu-item">
@@ -60,7 +63,7 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="menu.html" code={usageCode} lang="html" />
   </div>
 </div>

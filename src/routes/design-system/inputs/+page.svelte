@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Search, Mail, AlertCircle } from '@lucide/svelte';
   import Code from '$lib/components/ui/Code.svelte';
-  
+
   const usageCode = `<!-- Basic Input -->
 <label class="block">
   <span class="input-label">Label</span>
@@ -39,16 +39,20 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Inputs</h1>
-  <p class="text-neutral-11">Input components utilizing the <code>@utility input-base</code>, <code>@utility input-group</code>, <code>@utility input-icon</code>, and <code>@utility input-label</code> classes.</p>
+  <p class="text-neutral-11">
+    Input components utilizing the <code>@utility input-base</code>,
+    <code>@utility input-group</code>, <code>@utility input-icon</code>, and
+    <code>@utility input-label</code> classes.
+  </p>
 
-  <div class="card color-group-primary">
+  <div class="color-group-primary card">
     <div class="card-title">Text Input</div>
-    <div class="card-content flex flex-col gap-6 mt-4">
+    <div class="mt-4 flex flex-col gap-6 card-content">
       <label class="block">
         <span class="input-label">Default</span>
         <input type="text" class="input-base max-w-sm" placeholder="Enter text..." />
       </label>
-      
+
       <label class="block">
         <span class="input-label">With Leading Icon</span>
         <div class="input-group max-w-sm">
@@ -68,7 +72,7 @@
           </div>
         </div>
       </label>
-      
+
       <label class="block">
         <span class="input-label">With Both Icons</span>
         <div class="input-group max-w-sm">
@@ -81,11 +85,13 @@
           </div>
         </div>
       </label>
-      
+
       <label class="block">
         <span class="input-label">With Helper Text</span>
         <input type="text" class="input-base max-w-sm" placeholder="Enter username" />
-        <span class="block text-xs text-neutral-11 mt-1.5">Only lowercase letters and numbers are allowed.</span>
+        <span class="mt-1.5 block text-xs text-neutral-11"
+          >Only lowercase letters and numbers are allowed.</span
+        >
       </label>
 
       <label class="block">
@@ -96,18 +102,23 @@
             <AlertCircle size={18} />
           </div>
         </div>
-        <span class="block text-xs text-danger-11 mt-1.5">Please enter a valid email address.</span>
+        <span class="mt-1.5 block text-xs text-danger-11">Please enter a valid email address.</span>
       </label>
 
       <label class="block">
         <span class="input-label">Disabled</span>
-        <input type="text" class="input-base input-disabled max-w-sm" disabled value="Disabled value" />
+        <input
+          type="text"
+          class="input-base max-w-sm input-disabled"
+          disabled
+          value="Disabled value"
+        />
       </label>
     </div>
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="inputs.html" code={usageCode} lang="html" />
   </div>
 </div>

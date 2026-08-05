@@ -13,9 +13,17 @@
 @import './components/shiki.css';
 
 :root {
-  background: 
-    radial-gradient(circle at 15% 50%, color-mix(in srgb, var(--color-primary-3) 40%, transparent), transparent 40%),
-    radial-gradient(circle at 85% 30%, color-mix(in srgb, var(--color-violet-2) 40%, transparent), transparent 40%),
+  background:
+    radial-gradient(
+      circle at 15% 50%,
+      color-mix(in srgb, var(--color-primary-3) 40%, transparent),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      color-mix(in srgb, var(--color-violet-2) 40%, transparent),
+      transparent 40%
+    ),
     oklch(16% 0.01 268); /* Deep slate base */
   min-height: 100vh;
   background-attachment: fixed;
@@ -237,3 +245,7 @@
 @import './components/modal.css';
 @import './components/alert.css';
 @import './components/toast.css';
+@import './components/appbar.css';
+@import './components/toolbar.css';
+@import './components/sidebar.css';
+@import './components/divider.css';

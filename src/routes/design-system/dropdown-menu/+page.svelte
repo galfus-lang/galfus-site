@@ -32,10 +32,12 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Dropdown Menu</h1>
-  <p class="text-neutral-11">A contextual menu using the modern HTML Popover API and <code>@utility dropdown-content</code> classes.</p>
+  <p class="text-neutral-11">
+    A contextual menu using the modern HTML Popover API and <code>@utility dropdown-content</code> classes.
+  </p>
 
-  <div class="card flex justify-center py-20 relative">
-    <button popovertarget="my-dropdown" class="btn btn-neutral">Open Options</button>
+  <div class="relative flex justify-center card py-20">
+    <button popovertarget="my-dropdown" class="btn-neutral btn">Open Options</button>
 
     <menu id="my-dropdown" popover="auto" class="dropdown-content">
       <li>
@@ -64,7 +66,7 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="dropdown-menu.html" code={usageCode} lang="html" />
   </div>
 </div>

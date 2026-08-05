@@ -1,0 +1,7 @@
+@utility divider {
+  border: 0;
+  height: 1px;
+  background-color: var(--color-neutral-4);
+  margin: 1rem 0;
+  width: 100%;
+}

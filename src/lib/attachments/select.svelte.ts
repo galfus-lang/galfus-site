@@ -4,10 +4,10 @@ export function buildSelect() {
   const id = ulid();
   const anchorName = `--select-${id}`;
   const popoverId = `select-popover-${id}`;
-  
+
   let triggerNode: HTMLInputElement | null = null;
   let popoverNode: HTMLElement | null = null;
-  
+
   // Use Svelte 5 Rune for reactive state
   let isOpen = $state(false);
 
@@ -22,7 +22,7 @@ export function buildSelect() {
     node.readOnly = true;
     node.style.cursor = 'pointer';
     node.style.setProperty('anchor-name', anchorName);
-    
+
     // A11y: Combobox roles and attributes
     node.setAttribute('role', 'combobox');
     node.setAttribute('aria-haspopup', 'listbox');
@@ -76,10 +76,10 @@ export function buildSelect() {
     node.id = popoverId;
     node.setAttribute('popover', 'auto');
     node.style.setProperty('position-anchor', anchorName);
-    
+
     // A11y: Listbox role
     node.setAttribute('role', 'listbox');
-    
+
     // Listen to native toggle event to update our rune state
     const onToggle = (e: Event) => {
       isOpen = (e as any).newState === 'open';
@@ -92,12 +92,12 @@ export function buildSelect() {
       }
     };
     node.addEventListener('toggle', onToggle);
-    
+
     // Inherit color-group from the trigger's parent tree
     if (triggerNode) {
       let parent = triggerNode.parentElement;
-      while(parent) {
-        const match = Array.from(parent.classList).find(c => c.startsWith('color-group-'));
+      while (parent) {
+        const match = Array.from(parent.classList).find((c) => c.startsWith('color-group-'));
         if (match) {
           node.classList.add(match);
           break;
@@ -146,16 +146,16 @@ export function buildSelect() {
         onClick(); // Close and return focus
       }
     };
-    
+
     const onPointerEnter = () => {
       // Sync mouse hover with focus so keyboard and mouse don't highlight different items
       node.focus();
     };
-    
+
     node.addEventListener('click', onClick);
     node.addEventListener('keydown', onKeyDown);
     node.addEventListener('pointerenter', onPointerEnter);
-    
+
     return () => {
       node.removeEventListener('click', onClick);
       node.removeEventListener('keydown', onKeyDown);

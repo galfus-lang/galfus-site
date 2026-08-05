@@ -17,12 +17,12 @@ export default plugin(
           '--color-g-9': `var(--color-${value}-9)`,
           '--color-g-10': `var(--color-${value}-10)`,
           '--color-g-11': `var(--color-${value}-11)`,
-          '--color-g-12': `var(--color-${value}-12)`
-        })
+          '--color-g-12': `var(--color-${value}-12)`,
+        }),
       },
       {
-        values: theme('groupColors')
-      }
+        values: theme('groupColors'),
+      },
     );
   },
   {
@@ -41,9 +41,9 @@ export default plugin(
           'group-9': 'var(--color-g-9)',
           'group-10': 'var(--color-g-10)',
           'group-11': 'var(--color-g-11)',
-          'group-12': 'var(--color-g-12)'
-        }
-      }
-    }
-  }
+          'group-12': 'var(--color-g-12)',
+        },
+      },
+    },
+  },
 );

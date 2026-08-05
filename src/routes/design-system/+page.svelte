@@ -1,8 +1,10 @@
-<div class="max-w-4xl flex flex-col gap-8">
+<div class="flex max-w-4xl flex-col gap-8">
   <div>
-    <h1 class="text-3xl font-bold mb-4">Design System Overview</h1>
-    <p class="text-neutral-11 text-lg">
-      Welcome to the Galfus Design System. Here you will find the structural definitions and primitive HTML elements used across the application, styled entirely with native Tailwind v4 utilities.
+    <h1 class="mb-4 text-3xl font-bold">Design System Overview</h1>
+    <p class="text-lg text-neutral-11">
+      Welcome to the Galfus Design System. Here you will find the structural definitions and
+      primitive HTML elements used across the application, styled entirely with native Tailwind v4
+      utilities.
     </p>
   </div>
 
@@ -17,12 +19,13 @@
         </div>
       </div>
     </div>
-    
+
     <div class="card">
       <div class="card-title">Layout</div>
       <div class="card-content">
         <p class="mb-4">Structural components for scaffolding.</p>
-        <a href="/design-system/appbar" class="text-primary-9 hover:underline">View Layout &rarr;</a>
+        <a href="/design-system/appbar" class="text-primary-9 hover:underline">View Layout &rarr;</a
+        >
       </div>
     </div>
 
@@ -41,7 +44,9 @@
       <div class="card-title">Navigation</div>
       <div class="card-content">
         <p class="mb-4">Menus, breadcrumbs, and tabs.</p>
-        <a href="/design-system/menu" class="text-primary-9 hover:underline">View Navigation &rarr;</a>
+        <a href="/design-system/menu" class="text-primary-9 hover:underline"
+          >View Navigation &rarr;</a
+        >
       </div>
     </div>
   </div>

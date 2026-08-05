@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Save, ArrowRight, X } from '@lucide/svelte';
   import Code from '$lib/components/ui/Code.svelte';
-  
+
   const usageCode = `<!-- Button Variants -->
 <button class="btn btn-solid">Solid</button>
 <button class="btn btn-soft">Soft</button>
@@ -19,16 +19,21 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Buttons</h1>
-  <p class="text-neutral-11">Button components utilizing the <code>@utility btn</code> classes, styled automatically by their parent's <code>color-group</code>.</p>
+  <p class="text-neutral-11">
+    Button components utilizing the <code>@utility btn</code> classes, styled automatically by their
+    parent's <code>color-group</code>.
+  </p>
 
-  <div class="grid gap-8 grid-cols-2">
+  <div class="grid grid-cols-2 gap-8">
     <!-- Primary Color Group -->
-    <div class="card color-group-primary relative overflow-hidden">
+    <div class="color-group-primary relative overflow-hidden card">
       <!-- Decorative background blur orb to show off the soft glass effect -->
-      <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-group-9 rounded-full opacity-20 blur-2xl pointer-events-none"></div>
+      <div
+        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"
+      ></div>
 
-      <div class="card-title relative z-10">Primary Group</div>
-      <div class="card-content flex flex-col gap-6 mt-4 relative z-10">
+      <div class="relative z-10 card-title">Primary Group</div>
+      <div class="relative z-10 mt-4 flex flex-col gap-6 card-content">
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">Solid</button>
           <button class="btn btn-soft">Soft</button>
@@ -52,10 +57,10 @@
             Next
             <ArrowRight size={20} />
           </button>
-          <button class="btn btn-outlined btn-icon" aria-label="Close">
+          <button class="btn btn-icon btn-outlined" aria-label="Close">
             <X size={20} />
           </button>
-          <button class="btn btn-ghost btn-icon" aria-label="Cancel">
+          <button class="btn btn-icon btn-ghost" aria-label="Cancel">
             <X size={20} />
           </button>
         </div>
@@ -63,19 +68,21 @@
     </div>
 
     <!-- Danger Color Group -->
-    <div class="card color-group-danger relative overflow-hidden">
+    <div class="color-group-danger relative overflow-hidden card">
       <!-- Decorative background blur orb to show off the soft glass effect -->
-      <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-group-9 rounded-full opacity-20 blur-2xl pointer-events-none"></div>
+      <div
+        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"
+      ></div>
 
-      <div class="card-title relative z-10">Danger Group</div>
-      <div class="card-content flex flex-col gap-6 mt-4 relative z-10">
+      <div class="relative z-10 card-title">Danger Group</div>
+      <div class="relative z-10 mt-4 flex flex-col gap-6 card-content">
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">Solid</button>
           <button class="btn btn-soft">Soft</button>
           <button class="btn btn-outlined">Outlined</button>
           <button class="btn btn-ghost">Ghost</button>
         </div>
-        
+
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid" disabled>Disabled</button>
           <button class="btn btn-soft" disabled>Disabled</button>
@@ -92,10 +99,10 @@
             Next
             <ArrowRight size={20} />
           </button>
-          <button class="btn btn-outlined btn-icon" aria-label="Close">
+          <button class="btn btn-icon btn-outlined" aria-label="Close">
             <X size={20} />
           </button>
-          <button class="btn btn-ghost btn-icon" aria-label="Cancel">
+          <button class="btn btn-icon btn-ghost" aria-label="Cancel">
             <X size={20} />
           </button>
         </div>
@@ -104,7 +111,7 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="buttons.html" code={usageCode} lang="html" />
   </div>
 </div>

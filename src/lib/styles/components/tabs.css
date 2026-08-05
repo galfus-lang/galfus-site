@@ -18,7 +18,7 @@
     color: var(--color-neutral-12);
   }
 
-  &[aria-selected="true"] {
+  &[aria-selected='true'] {
     color: var(--color-g-9, var(--color-primary-9));
     border-bottom-color: var(--color-g-9, var(--color-primary-9));
   }

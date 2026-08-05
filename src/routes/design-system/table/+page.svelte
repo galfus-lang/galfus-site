@@ -31,7 +31,11 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Table</h1>
-  <p class="text-neutral-11">A tabular data display built exclusively with standard semantic tags and <code>@utility table-*</code> classes.</p>
+  <p class="text-neutral-11">
+    A tabular data display built exclusively with standard semantic tags and <code
+      >@utility table-*</code
+    > classes.
+  </p>
 
   <div class="table-container">
     <table class="table-base">
@@ -48,7 +52,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Alice Smith</td>
           <td class="table-td text-neutral-11">Admin</td>
-          <td class="table-td"><span class="badge color-group-success">Active</span></td>
+          <td class="table-td"><span class="color-group-success badge">Active</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>
@@ -56,7 +60,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Bob Jones</td>
           <td class="table-td text-neutral-11">Editor</td>
-          <td class="table-td"><span class="badge color-group-neutral">Offline</span></td>
+          <td class="table-td"><span class="color-group-neutral badge">Offline</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>
@@ -64,7 +68,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Charlie Brown</td>
           <td class="table-td text-neutral-11">Viewer</td>
-          <td class="table-td"><span class="badge color-group-success">Active</span></td>
+          <td class="table-td"><span class="color-group-success badge">Active</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>

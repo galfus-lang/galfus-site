@@ -43,13 +43,13 @@
   color: var(--color-neutral-12);
   outline: none;
   transition: all 0.2s ease-in-out;
-  box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2);
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 
   &:focus {
     border-color: var(--color-g-9);
     background-color: color-mix(in srgb, var(--color-neutral-1) 60%, transparent);
-    box-shadow: 
-      inset 0 2px 4px 0 rgba(0,0,0,0.2),
+    box-shadow:
+      inset 0 2px 4px 0 rgba(0, 0, 0, 0.2),
       0 0 15px 0 color-mix(in srgb, var(--color-g-9) 50%, transparent);
   }
 }
@@ -74,8 +74,8 @@
 
   &:focus {
     border-color: var(--color-danger-10);
-    box-shadow: 
-      inset 0 2px 4px 0 rgba(0,0,0,0.2),
+    box-shadow:
+      inset 0 2px 4px 0 rgba(0, 0, 0, 0.2),
       0 0 15px 0 color-mix(in srgb, var(--color-danger-10) 50%, transparent);
   }
 }

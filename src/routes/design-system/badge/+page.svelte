@@ -17,21 +17,20 @@
 
 <div class="flex flex-col gap-8">
   <h1 class="text-3xl font-bold">Badge</h1>
-  <p class="text-neutral-11">A small indicator using <code>&lt;span&gt;</code> or <code>&lt;sup&gt;</code> with the <code>@utility badge</code>.</p>
+  <p class="text-neutral-11">
+    A small indicator using <code>&lt;span&gt;</code> or <code>&lt;sup&gt;</code> with the
+    <code>@utility badge</code>.
+  </p>
 
-  <div class="card flex items-center gap-6">
+  <div class="flex items-center gap-6 card">
     <div class="flex items-center gap-2">
       <span class="font-bold">Status:</span>
-      <span class="badge color-group-primary">
-        Active
-      </span>
+      <span class="color-group-primary badge"> Active </span>
     </div>
-    
-    <button class="relative btn btn-neutral">
+
+    <button class="btn-neutral btn relative">
       Notifications
-      <sup class="badge-indicator color-group-danger">
-        3
-      </sup>
+      <sup class="color-group-danger badge-indicator"> 3 </sup>
     </button>
   </div>
 

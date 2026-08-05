@@ -2,42 +2,7 @@
   import { ChevronDown } from '@lucide/svelte';
   import { buildSelect } from '$lib/attachments/select.svelte';
   import Code from '$lib/components/ui/Code.svelte';
-  
-  const usageCode = `<script>
-  import { buildSelect } from '$lib/attachments/select.svelte';
-  
-  const mySelect = buildSelect();
-  let selectedValue = $state('Option 1');
-</script>
-
-<label class="block">
-  <span class="input-label">Custom Select</span>
-  <div class="input-group">
-    <!-- Trigger -->
-    <input
-      {@attach mySelect.trigger}
-      value={selectedValue}
-      class="input-base cursor-pointer"
-    />
-    <div class="input-icon">
-      <ChevronDown size={18} />
-    </div>
-  </div>
-</label>
-
-<!-- Popover Menu -->
-<ul {@attach mySelect.popover} class="select-popover">
-  <li>
-    <button type="button" {@attach mySelect.item} onclick={() => selectedValue = 'Option 1'} class="select-item">
-      Option 1
-    </button>
-  </li>
-  <li>
-    <button type="button" {@attach mySelect.item} onclick={() => selectedValue = 'Option 2'} class="select-item">
-      Option 2
-    </button>
-  </li>
-</ul>`;
+  import { usageCode } from './data';
 
   // Create attachment builders for our two selects
   const primarySelect = buildSelect();
@@ -65,7 +30,7 @@
 
       <div class="relative z-10">
         <label class="block">
-          <span class="input-label text-group-12">Primary Select</span>
+          <span class="text-group-12 input-label">Primary Select</span>
 
           <div class="input-group max-w-xs">
             <!-- The Input Trigger -->
@@ -123,7 +88,7 @@
 
       <div class="relative z-10">
         <label class="block">
-          <span class="input-label text-group-12">Magenta Select</span>
+          <span class="text-group-12 input-label">Magenta Select</span>
 
           <div class="input-group max-w-xs">
             <!-- The Input Trigger -->
@@ -186,7 +151,7 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-bold mb-4">Usage</h2>
+    <h2 class="mb-4 text-xl font-bold">Usage</h2>
     <Code label="select-attach.svelte" code={usageCode} lang="svelte" />
   </div>
 </div>
