@@ -22,7 +22,7 @@
     and <code>&lt;summary&gt;</code> tags using the <code>@utility accordion</code>.
   </p>
 
-  <div class="max-w-lg card">
+  <div class="card max-w-lg">
     <details class="group accordion">
       <summary class="accordion-trigger">
         Is this accessible by default?

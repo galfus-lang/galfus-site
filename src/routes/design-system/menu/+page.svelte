@@ -35,7 +35,7 @@
     <code>@utility menu-*</code> classes.
   </p>
 
-  <div class="max-w-xs card">
+  <div class="card max-w-xs">
     <menu class="menu">
       <li>
         <button class="menu-item">

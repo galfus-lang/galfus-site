@@ -23,7 +23,7 @@
   </p>
 
   <div class="grid grid-cols-2 gap-8">
-    <div class="color-group-primary relative overflow-hidden card">
+    <div class="color-group-primary card relative overflow-hidden">
       <div
         class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
       ></div>
@@ -43,7 +43,7 @@
       </fieldset>
     </div>
 
-    <div class="color-group-danger relative overflow-hidden card">
+    <div class="color-group-danger card relative overflow-hidden">
       <div
         class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
       ></div>

@@ -22,7 +22,7 @@
     <code>@utility badge</code>.
   </p>
 
-  <div class="flex items-center gap-6 card">
+  <div class="card flex items-center gap-6">
     <div class="flex items-center gap-2">
       <span class="font-bold">Status:</span>
       <span class="color-group-primary badge"> Active </span>

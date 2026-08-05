@@ -21,7 +21,7 @@
     natively with the <code>@utility avatar</code>.
   </p>
 
-  <div class="flex gap-4 card">
+  <div class="card flex gap-4">
     <picture>
       <source srcset="https://i.pravatar.cc/150?u=1" type="image/jpeg" />
       <img src="https://i.pravatar.cc/150?u=1" alt="User avatar" class="avatar" />

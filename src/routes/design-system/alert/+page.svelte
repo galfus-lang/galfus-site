@@ -22,7 +22,7 @@
     Important feedback using <code>&lt;div role="alert"&gt;</code> and <code>@utility alert-*</code> classes.
   </p>
 
-  <div class="flex flex-col gap-4 card">
+  <div class="card flex flex-col gap-4">
     <div role="alert" class="color-group-danger alert">
       <div>
         <div class="alert-title">Error</div>

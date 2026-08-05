@@ -40,7 +40,7 @@
     <code>@utility pagination-*</code> classes.
   </p>
 
-  <div class="flex justify-center card">
+  <div class="card flex justify-center">
     <nav aria-label="Pagination">
       <ul class="color-group-primary pagination">
         <li>

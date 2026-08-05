@@ -18,7 +18,7 @@
     <code>&lt;option&gt;</code>.
   </p>
 
-  <div class="max-w-sm card">
+  <div class="card max-w-sm">
     <label class="block" for="demo-select">
       <span class="input-label">Choose an option</span>
       <select id="demo-select" class="input-base cursor-pointer">

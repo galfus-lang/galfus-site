@@ -17,7 +17,7 @@
     <code>@utility toast-*</code> classes.
   </p>
 
-  <div class="relative flex justify-center overflow-hidden card py-20">
+  <div class="card relative flex justify-center overflow-hidden py-20">
     <!-- Notice: We use position absolute in the HTML itself to position the toast -->
     <output role="status" class="color-group-neutral toast absolute right-4 bottom-4">
       <div class="toast-content">

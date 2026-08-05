@@ -37,7 +37,7 @@
     <code>@utility modal-*</code> classes.
   </p>
 
-  <div class="flex justify-center card py-10">
+  <div class="card flex justify-center py-10">
     <button class="color-group-primary btn btn-solid" onclick={() => dialog.showModal()}
       >Open Modal</button
     >

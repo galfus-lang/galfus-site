@@ -36,7 +36,7 @@
     A contextual menu using the modern HTML Popover API and <code>@utility dropdown-content</code> classes.
   </p>
 
-  <div class="relative flex justify-center card py-20">
+  <div class="card relative flex justify-center py-20">
     <button popovertarget="my-dropdown" class="btn-neutral btn">Open Options</button>
 
     <menu id="my-dropdown" popover="auto" class="dropdown-content">

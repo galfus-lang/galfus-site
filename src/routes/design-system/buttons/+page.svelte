@@ -26,7 +26,7 @@
 
   <div class="grid grid-cols-2 gap-8">
     <!-- Primary Color Group -->
-    <div class="color-group-primary relative overflow-hidden card">
+    <div class="color-group-primary card relative overflow-hidden">
       <!-- Decorative background blur orb to show off the soft glass effect -->
       <div
         class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"
@@ -68,7 +68,7 @@
     </div>
 
     <!-- Danger Color Group -->
-    <div class="color-group-danger relative overflow-hidden card">
+    <div class="color-group-danger card relative overflow-hidden">
       <!-- Decorative background blur orb to show off the soft glass effect -->
       <div
         class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"

@@ -15,7 +15,7 @@
     A rich floating element utilizing the HTML Popover API and <code>@utility popover-*</code> classes.
   </p>
 
-  <div class="relative flex justify-center card py-20">
+  <div class="card relative flex justify-center py-20">
     <button popovertarget="my-popover" class="color-group-primary btn btn-solid"
       >Toggle Popover</button
     >

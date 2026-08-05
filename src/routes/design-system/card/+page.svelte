@@ -21,7 +21,7 @@
     with <code>@utility card-*</code> classes.
   </p>
 
-  <article class="max-w-sm card">
+  <article class="card max-w-sm">
     <header class="card-title">Card Title</header>
     <div class="card-content">
       <p>

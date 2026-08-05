@@ -23,130 +23,118 @@
   </p>
 
   <div class="grid grid-cols-2 gap-8">
-    <div class="color-group-primary relative overflow-hidden card">
-      <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
-      ></div>
+    <div class="color-group-primary card">
+      <label class="block">
+        <span class="text-group-12 input-label">Primary Select</span>
 
-      <div class="relative z-10">
-        <label class="block">
-          <span class="text-group-12 input-label">Primary Select</span>
-
-          <div class="input-group max-w-xs">
-            <!-- The Input Trigger -->
-            <input
-              {@attach primarySelect.trigger}
-              value={primaryValue}
-              class="input-base cursor-pointer"
-            />
-            <div class="input-icon">
-              <ChevronDown size={18} />
-            </div>
+        <div class="input-group max-w-xs">
+          <!-- The Input Trigger -->
+          <input
+            {@attach primarySelect.trigger}
+            value={primaryValue}
+            class="input-base cursor-pointer"
+          />
+          <div class="input-icon">
+            <ChevronDown size={18} />
           </div>
-        </label>
+        </div>
+      </label>
 
-        <!-- The Custom Popover List -->
-        <ul {@attach primarySelect.popover} class="select-popover">
-          <li>
-            <button
-              type="button"
-              {@attach primarySelect.item}
-              onclick={() => (primaryValue = 'Option 1: The Flame')}
-              class="select-item"
-            >
-              Option 1: The Flame
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              {@attach primarySelect.item}
-              onclick={() => (primaryValue = 'Option 2: The Graph')}
-              class="select-item"
-            >
-              Option 2: The Graph
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              {@attach primarySelect.item}
-              onclick={() => (primaryValue = 'Option 3: The Wisp')}
-              class="select-item"
-            >
-              Option 3: The Wisp
-            </button>
-          </li>
-        </ul>
-      </div>
+      <!-- The Custom Popover List -->
+      <ul {@attach primarySelect.popover} class="select-popover">
+        <li>
+          <button
+            type="button"
+            {@attach primarySelect.item}
+            onclick={() => (primaryValue = 'Option 1: The Flame')}
+            class="select-item"
+          >
+            Option 1: The Flame
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            {@attach primarySelect.item}
+            onclick={() => (primaryValue = 'Option 2: The Graph')}
+            class="select-item"
+          >
+            Option 2: The Graph
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            {@attach primarySelect.item}
+            onclick={() => (primaryValue = 'Option 3: The Wisp')}
+            class="select-item"
+          >
+            Option 3: The Wisp
+          </button>
+        </li>
+      </ul>
     </div>
 
-    <div class="color-group-magenta relative overflow-hidden card">
-      <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
-      ></div>
+    <div class="color-group-magenta card">
+      <label class="block">
+        <span class="text-group-12 input-label">Magenta Select</span>
 
-      <div class="relative z-10">
-        <label class="block">
-          <span class="text-group-12 input-label">Magenta Select</span>
-
-          <div class="input-group max-w-xs">
-            <!-- The Input Trigger -->
-            <input
-              {@attach magentaSelect.trigger}
-              value={magentaValue}
-              class="input-base cursor-pointer"
-            />
-            <div class="input-icon">
-              <ChevronDown size={18} />
-            </div>
+        <div class="input-group max-w-xs">
+          <!-- The Input Trigger -->
+          <input
+            {@attach magentaSelect.trigger}
+            value={magentaValue}
+            class="input-base cursor-pointer"
+          />
+          <div class="input-icon">
+            <ChevronDown size={18} />
           </div>
-        </label>
+        </div>
+      </label>
 
-        <!-- The Custom Popover List -->
-        <ul {@attach magentaSelect.popover} class="select-popover">
-          <li>
-            <button
-              type="button"
-              {@attach magentaSelect.item}
-              onclick={() => (magentaValue = 'Module A')}
-              class="select-item"
-            >
-              Module A
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              {@attach magentaSelect.item}
-              onclick={() => (magentaValue = 'Module B')}
-              class="select-item"
-            >
-              Module B
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              {@attach magentaSelect.item}
-              onclick={() => (magentaValue = 'Module C')}
-              class="select-item"
-            >
-              Module C
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              {@attach magentaSelect.item}
-              onclick={() => (magentaValue = 'Module D')}
-              class="select-item"
-            >
-              Module D
-            </button>
-          </li>
-        </ul>
-      </div>
+      <!-- The Custom Popover List -->
+      <ul {@attach magentaSelect.popover} class="select-popover">
+        <li>
+          <button
+            type="button"
+            {@attach magentaSelect.item}
+            onclick={() => (magentaValue = 'Module A')}
+            class="select-item"
+          >
+            Module A
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            {@attach magentaSelect.item}
+            onclick={() => (magentaValue = 'Module B')}
+            class="select-item"
+          >
+            Module B
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            {@attach magentaSelect.item}
+            onclick={() => (magentaValue = 'Module C')}
+            class="select-item"
+          >
+            Module C
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            {@attach magentaSelect.item}
+            onclick={() => (magentaValue = 'Module D')}
+            class="select-item"
+          >
+            Module D
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 
