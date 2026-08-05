@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { cn } from '$lib/utils/cn';
 
   let { children } = $props();
 
@@ -86,7 +85,7 @@
           <a
             href={link.href}
             class="sidebar-link"
-            aria-current={page.url.pathname === link.href ? 'page' : undefined}
+            aria-current={page.url.pathname.startsWith(link.href) ? 'page' : undefined}
           >
             {link.label}
           </a>
