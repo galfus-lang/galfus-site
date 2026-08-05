@@ -19,12 +19,12 @@
 
     <div class="modal-body">
       <p class="text-neutral-11">This action cannot be undone. Are you sure you want to permanently delete this file?</p>
-      <div class="modal-footer">
-        <form method="dialog">
-          <button class="btn btn-outlined color-group-neutral">Cancel</button>
-        </form>
-        <button class="btn btn-solid color-group-danger" onclick={() => dialog.close()}>Delete</button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <form method="dialog">
+        <button class="btn btn-outlined color-group-neutral">Cancel</button>
+      </form>
+      <button class="btn btn-solid color-group-danger" onclick={() => dialog.close()}>Delete</button>
     </div>
   </div>
 </dialog>`;
@@ -42,7 +42,7 @@
       >Open Modal</button
     >
 
-    <dialog bind:this={dialog} class="modal">
+    <dialog class="modal" bind:this={dialog}>
       <div class="modal-content">
         <!-- Titlebar -->
         <header class="modal-header">
@@ -59,14 +59,16 @@
           <p class="text-neutral-11">
             This action cannot be undone. Are you sure you want to permanently delete this file?
           </p>
-          <div class="modal-footer">
-            <form method="dialog">
-              <button class="color-group-neutral btn btn-outlined">Cancel</button>
-            </form>
-            <button class="color-group-danger btn btn-solid" onclick={() => dialog.close()}>
-              Delete
-            </button>
-          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <form method="dialog">
+            <button class="color-group-neutral btn btn-outlined">Cancel</button>
+          </form>
+          <button class="color-group-danger btn btn-solid" onclick={() => dialog.close()}>
+            Delete
+          </button>
         </div>
       </div>
     </dialog>
@@ -77,3 +79,6 @@
     <Code label="modal.html" code={usageCode} lang="html" />
   </div>
 </div>
+
+<!-- aria-labelledby="{dialog_id}-title"
+  aria-describedby="{dialog_id}-description" -->
