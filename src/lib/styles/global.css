@@ -3,6 +3,8 @@
 @plugin '@tailwindcss/typography';
 @plugin './plugins/color-group';
 
+@import './components/shiki.css';
+
 @import './components/button.css';
 @import './components/input.css';
 @import './components/card.css';
@@ -10,7 +12,23 @@
 @import './components/slider.css';
 @import './components/checkbox-radio.css';
 @import './components/select.css';
-@import './components/shiki.css';
+@import './components/avatar.css';
+@import './components/badge.css';
+@import './components/accordion.css';
+@import './components/table.css';
+@import './components/breadcrumbs.css';
+@import './components/tabs.css';
+@import './components/pagination.css';
+@import './components/menu.css';
+@import './components/dropdown-menu.css';
+@import './components/popover.css';
+@import './components/modal.css';
+@import './components/alert.css';
+@import './components/toast.css';
+@import './components/appbar.css';
+@import './components/toolbar.css';
+@import './components/sidebar.css';
+@import './components/divider.css';
 
 :root {
   background:
@@ -232,23 +250,6 @@
   --color-warning-11: var(--color-yellow-11);
   --color-warning-12: var(--color-yellow-12);
 }
-@import './components/avatar.css';
-@import './components/badge.css';
-@import './components/accordion.css';
-@import './components/table.css';
-@import './components/breadcrumbs.css';
-@import './components/tabs.css';
-@import './components/pagination.css';
-@import './components/menu.css';
-@import './components/dropdown-menu.css';
-@import './components/popover.css';
-@import './components/modal.css';
-@import './components/alert.css';
-@import './components/toast.css';
-@import './components/appbar.css';
-@import './components/toolbar.css';
-@import './components/sidebar.css';
-@import './components/divider.css';
 
 /* Global Scrollbar Styles */
 ::-webkit-scrollbar {
