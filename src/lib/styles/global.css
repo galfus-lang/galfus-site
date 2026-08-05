@@ -249,3 +249,33 @@
 @import './components/toolbar.css';
 @import './components/sidebar.css';
 @import './components/divider.css';
+
+/* Global Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px; /* Pill shape */
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-primary-6) 50%, transparent);
+  border-radius: 9999px; /* Pill shape */
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-g-9, var(--color-primary-10));
+  background-clip: border-box;
+  border: 0;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-primary-6) 50%, transparent) transparent;
+}

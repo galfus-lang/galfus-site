@@ -68,39 +68,29 @@
 </script>
 
 <div class="flex h-screen text-neutral-12">
-  <!-- Use a slightly darker glass sidebar -->
+  <!-- Use a slightly darker glass sidebar by overriding the bg/border if needed, but let's use the core class -->
   <aside
-    class="flex w-64 flex-col gap-6 overflow-y-auto border-r border-neutral-6/30 bg-neutral-1/30 p-6 backdrop-blur-md"
+    class="color-group-primary relative z-10 sidebar w-80 border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md"
   >
     <a
       href="/design-system"
-      class="font-sans text-xl font-bold transition-colors hover:text-primary-11">Design System</a
+      class="sidebar-title font-sans transition-colors hover:text-primary-11"
     >
+      Design System
+    </a>
 
-    <nav class="color-group-primary flex flex-col gap-6">
+    <nav class="sidebar-nav overflow-y-auto pb-8">
       {#each groups as group}
-        <div>
-          <h2 class="mb-2 text-xs font-bold tracking-wider text-neutral-11 uppercase">
-            {group.name}
-          </h2>
-          <ul class="flex flex-col gap-1">
-            {#each group.links as link}
-              <li>
-                <a
-                  href={link.href}
-                  class={cn(
-                    'block rounded-md px-3 py-1.5 text-sm transition-all',
-                    page.url.pathname === link.href
-                      ? 'bg-group-9/20 border-group-9 text-group-12 border shadow-[0_0_15px_0_color-mix(in_srgb,var(--color-g-9)_40%,transparent)]'
-                      : 'border border-transparent text-neutral-11 hover:bg-neutral-4/30 hover:text-neutral-12',
-                  )}
-                >
-                  {link.label}
-                </a>
-              </li>
-            {/each}
-          </ul>
-        </div>
+        <div class="sidebar-group-title">{group.name}</div>
+        {#each group.links as link}
+          <a
+            href={link.href}
+            class="sidebar-link"
+            aria-current={page.url.pathname === link.href ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        {/each}
       {/each}
     </nav>
   </aside>
