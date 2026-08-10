@@ -22,6 +22,8 @@
 
 <svelte:head>
   <title>Galfus Embed</title>
+  <meta property="og:title" content="Galfus Embed" />
+  <meta property="og:url" content="https://galfus.com/embed" />
 </svelte:head>
 
 <!-- We only render the core once we've checked the hash so initialCode is ready -->

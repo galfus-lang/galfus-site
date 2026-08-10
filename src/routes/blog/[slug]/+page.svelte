@@ -2,6 +2,7 @@
   import TableOfContents from '$lib/components/blog/TableOfContents.svelte';
   import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
   import Footer from '$lib/components/Footer.svelte';
+  import { page } from '$app/state';
   import { ChevronRight, Search } from '@lucide/svelte';
 
   let { data } = $props();
@@ -15,9 +16,12 @@
 
 <svelte:head>
   <title>{data.metadata.title} | Galfus Script</title>
+  <meta property="og:title" content="{data.metadata.title} | Galfus Script" />
   {#if data.metadata.description}
     <meta name="description" content={data.metadata.description} />
+    <meta property="og:description" content={data.metadata.description} />
   {/if}
+  <meta property="og:url" content="https://galfus.com/blog/{page.params.slug}" />
 </svelte:head>
 
 <NavigationAppbar />

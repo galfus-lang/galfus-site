@@ -14,6 +14,12 @@
     name="description"
     content="Galfus Script is a highly modular interpreted scripting language built around typed source code, an in-memory executable graph, and a deterministic VM runtime."
   />
+  <meta property="og:title" content="Galfus Script | Small, Portable, Deterministic" />
+  <meta
+    property="og:description"
+    content="Galfus Script is a highly modular interpreted scripting language built around typed source code, an in-memory executable graph, and a deterministic VM runtime."
+  />
+  <meta property="og:url" content="https://galfus.com/" />
   <script src="/embed.js"></script>
 </svelte:head>
 

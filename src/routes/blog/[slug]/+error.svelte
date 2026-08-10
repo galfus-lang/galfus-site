@@ -1,12 +1,13 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { FileQuestion } from '@lucide/svelte';
+  import { FileQuestionMark } from '@lucide/svelte';
   import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
   import Footer from '$lib/components/Footer.svelte';
 </script>
 
 <svelte:head>
   <title>Post Not Found | Galfus Script</title>
+  <meta property="og:title" content="Post Not Found | Galfus Script" />
 </svelte:head>
 
 <NavigationAppbar />
@@ -20,7 +21,7 @@
       <div
         class="relative flex h-24 w-24 items-center justify-center rounded-full border border-primary-5 bg-primary-3 shadow-lg shadow-primary-9/20"
       >
-        <FileQuestion size={40} class="text-primary-10" />
+        <FileQuestionMark size={40} class="text-primary-10" />
       </div>
     </div>
 

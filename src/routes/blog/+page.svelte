@@ -48,6 +48,12 @@
     name="description"
     content="Read the latest news, tutorials, and updates about Galfus Script."
   />
+  <meta property="og:title" content="Blog | Galfus Script" />
+  <meta
+    property="og:description"
+    content="Read the latest news, tutorials, and updates about Galfus Script."
+  />
+  <meta property="og:url" content="https://galfus.com/blog" />
 </svelte:head>
 
 <NavigationAppbar />

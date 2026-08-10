@@ -7,6 +7,7 @@
 
 <svelte:head>
   <title>Error {page.status} | Galfus Script</title>
+  <meta property="og:title" content="Error {page.status} | Galfus Script" />
 </svelte:head>
 
 <NavigationAppbar />
