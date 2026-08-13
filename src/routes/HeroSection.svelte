@@ -1,7 +1,19 @@
 <script lang="ts">
   import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
+  import { Check, Copy, CopyCheck } from '@lucide/svelte';
   const repoUrl = 'https://github.com/galfus-lang/galfus-script';
   const discussionsUrl = `${repoUrl}/discussions`;
+
+  let installTab = $state<'linux' | 'windows'>('linux');
+  let copied = $state(false);
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    copied = true;
+    setTimeout(() => {
+      copied = false;
+    }, 2000);
+  }
 </script>
 
 <NavigationAppbar />
@@ -11,14 +23,7 @@
 >
   <!-- Dynamic Backgrounds -->
   <div
-    class="absolute inset-0 bg-[url('/images/hero-bg.png')] bg-cover bg-center opacity-10 mix-blend-screen"
-  ></div>
-  <div class="absolute inset-0 bg-(image:--gradient-hero) opacity-60"></div>
-
-  <!-- Floating glow orbs -->
-  <div class="absolute top-1/4 left-0 h-96 w-96 rounded-full bg-primary-9/20 blur-[120px]"></div>
-  <div
-    class="absolute right-0 bottom-1/4 h-96 w-96 rounded-full bg-primary-10/20 blur-[120px]"
+    class="absolute inset-0 bg-[url('/images/background.jpg')] bg-cover bg-center select-none"
   ></div>
 
   <div
@@ -49,7 +54,69 @@
         executable graph, and a deterministic VM runtime.
       </p>
 
-      <div class="mt-10 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+      <div class="color-group-primary mt-10 flex w-full max-w-xl flex-col">
+        <h3 class="text-group-12 mb-3 text-lg font-bold">Install Galfus Alpha</h3>
+
+        <div class="flex items-end justify-between">
+          <div role="tablist" class="tab-list mb-0">
+            <button
+              role="tab"
+              aria-selected={installTab === 'linux'}
+              class="tab-trigger text-sm"
+              onclick={() => (installTab = 'linux')}
+            >
+              Linux & macOS
+            </button>
+            <button
+              role="tab"
+              aria-selected={installTab === 'windows'}
+              class="tab-trigger text-sm"
+              onclick={() => (installTab = 'windows')}
+            >
+              Windows
+            </button>
+          </div>
+          <a
+            href={installTab === 'linux' ? '/install.sh' : '/install.ps1'}
+            target="_blank"
+            class="text-group-10 hover:text-group-11 mb-3 ml-4 text-xs font-medium transition-colors hover:underline"
+          >
+            View install script
+          </a>
+        </div>
+
+        <div class="card flex gap-4">
+          <code class="text-group-12 flex-1 font-mono text-sm">
+            {#if installTab === 'linux'}
+              <span class="text-group-9 mr-2 select-none">$</span>curl -fsSL
+              https://galfus.com/install.sh | bash
+            {:else}
+              <span class="text-group-9 mr-2 select-none">&gt;</span>powershell -c "irm
+              https://galfus.com/install.ps1 | iex"
+            {/if}
+          </code>
+
+          <button
+            class="btn btn-icon shrink-0 btn-soft"
+            onclick={() =>
+              copyToClipboard(
+                installTab === 'linux'
+                  ? 'curl -fsSL https://galfus.com/install.sh | bash'
+                  : 'powershell -c "irm https://galfus.com/install.ps1 | iex"',
+              )}
+            aria-label="Copy command"
+            title="Copy to clipboard"
+          >
+            {#if copied}
+              <Check size="20" />
+            {:else}
+              <Copy size="20" />
+            {/if}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-8 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
         <a
           href={repoUrl}
           target="_blank"
@@ -83,14 +150,14 @@
       >
         <!-- Window Header -->
         <div
-          class="flex items-center justify-between border-b border-primary-4 bg-primary-2/80 px-4 py-3"
+          class="grid grid-cols-[1fr_2fr_1fr] border-b border-primary-4 bg-primary-2/80 px-4 py-3"
         >
           <div class="flex gap-2">
-            <div class="bg-red-500/80 h-3 w-3 rounded-full"></div>
-            <div class="bg-yellow-500/80 h-3 w-3 rounded-full"></div>
-            <div class="bg-green-500/80 h-3 w-3 rounded-full"></div>
+            <div class="h-3 w-3 rounded-full bg-red-9/80"></div>
+            <div class="h-3 w-3 rounded-full bg-yellow-9/80"></div>
+            <div class="h-3 w-3 rounded-full bg-green-9/80"></div>
           </div>
-          <div class="font-mono text-xs text-primary-10">main.gfs</div>
+          <div class="text-center font-mono text-xs text-primary-10">main.gfs</div>
           <div class="w-12"></div>
         </div>
 
