@@ -10,11 +10,11 @@ export async function load({ params }: { params: { slug: string } }) {
     const rawContent = await import(`../../../lib/markdown/posts/${slug}.md?raw`);
 
     // Parse it using our utility
-    const { html, metadata, toc } = await parseMarkdown(rawContent.default);
+    const { tokens, metadata, toc } = await parseMarkdown(rawContent.default);
 
     return {
       slug,
-      html,
+      tokens,
       metadata,
       toc,
     };

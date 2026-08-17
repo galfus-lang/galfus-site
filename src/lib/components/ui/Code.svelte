@@ -1,14 +1,7 @@
 <script lang="ts">
   import { Check, Code as CodeIcon, Copy } from '@lucide/svelte';
-  import { codeToHtml, createCssVariablesTheme } from 'shiki';
+  import { getHighlighter, shikiTheme } from '$lib/utils/shiki';
   import { onMount } from 'svelte';
-
-  const shikiTheme = createCssVariablesTheme({
-    name: 'css-variables',
-    variablePrefix: '--shiki-',
-    variableDefaults: {},
-    fontStyle: true,
-  });
 
   let {
     code = '',
@@ -24,8 +17,12 @@
   let copied = $state(false);
 
   async function setHtml() {
-    const result = await codeToHtml(code, { lang, theme: shikiTheme });
-    htmlStr = result;
+    const hl = await getHighlighter();
+    try {
+      htmlStr = hl.codeToHtml(code, { lang, theme: shikiTheme });
+    } catch (e) {
+      htmlStr = `<pre><code class="language-${lang}">${code}</code></pre>`;
+    }
   }
 
   $effect(() => {

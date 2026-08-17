@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
 
   let { children } = $props();
 
@@ -28,6 +29,7 @@
         { href: '/design-system/badge', label: 'Badge' },
         { href: '/design-system/accordion', label: 'Accordion' },
         { href: '/design-system/table', label: 'Table' },
+        { href: '/design-system/code', label: 'Code' },
       ],
     },
     {
@@ -64,37 +66,61 @@
       links: [{ href: '/design-system/select-attach', label: 'Select Attach' }],
     },
   ];
+
+  let currentLink = $derived(
+    groups.flatMap((g) => g.links).find((l) => page.url.pathname === l.href),
+  );
+  let pageTitle = $derived(
+    currentLink ? `${currentLink.label} - Galfus Design System` : 'Galfus Design System',
+  );
 </script>
 
-<div class="flex h-screen text-neutral-12">
-  <!-- Use a slightly darker glass sidebar by overriding the bg/border if needed, but let's use the core class -->
-  <aside
-    class="color-group-primary relative z-10 sidebar w-80 border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md"
-  >
-    <a
-      href="/design-system"
-      class="sidebar-title font-sans transition-colors hover:text-primary-11"
+<svelte:head>
+  <title>{pageTitle}</title>
+  <meta
+    name="description"
+    content="Explore the Galfus Design System to find documentation and examples for our UI components, typography, and styling."
+  />
+  <meta property="og:title" content={pageTitle} />
+  <meta
+    property="og:description"
+    content="Explore the Galfus Design System to find documentation and examples for our UI components, typography, and styling."
+  />
+</svelte:head>
+
+<div class="flex h-screen flex-col text-neutral-12">
+  <NavigationAppbar />
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Use a slightly darker glass sidebar by overriding the bg/border if needed, but let's use the core class -->
+    <aside
+      class="color-group-primary relative z-10 sidebar w-80 border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md"
     >
-      Design System
-    </a>
+      <a
+        href="/design-system"
+        class="sidebar-title font-sans transition-colors hover:text-primary-11"
+      >
+        Design System
+      </a>
 
-    <nav class="sidebar-nav overflow-y-auto pb-8">
-      {#each groups as group}
-        <div class="sidebar-group-title">{group.name}</div>
-        {#each group.links as link}
-          <a
-            href={link.href}
-            class="sidebar-link"
-            aria-current={page.url.pathname.startsWith(link.href) ? 'page' : undefined}
-          >
-            {link.label}
-          </a>
+      <nav class="sidebar-nav overflow-y-auto pb-8">
+        {#each groups as group}
+          <div class="sidebar-group-title">{group.name}</div>
+          {#each group.links as link}
+            <a
+              href={link.href}
+              class="sidebar-link"
+              aria-current={page.url.pathname.startsWith(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          {/each}
         {/each}
-      {/each}
-    </nav>
-  </aside>
+      </nav>
+    </aside>
 
-  <main class="flex-1 overflow-y-auto p-10">
-    {@render children()}
-  </main>
+    <main class="flex-1 overflow-y-auto p-10">
+      {@render children()}
+    </main>
+  </div>
 </div>

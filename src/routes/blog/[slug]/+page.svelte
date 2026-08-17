@@ -2,6 +2,7 @@
   import TableOfContents from '$lib/components/blog/TableOfContents.svelte';
   import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
   import Footer from '$lib/components/Footer.svelte';
+  import MarkdownRenderer from '$lib/components/blog/MarkdownRenderer.svelte';
   import { page } from '$app/state';
   import { ChevronRight, Search } from '@lucide/svelte';
 
@@ -81,8 +82,7 @@
       <div
         class="prose-primary prose max-w-none prose-invert prose-a:text-primary-11 hover:prose-a:text-primary-12 prose-pre:border prose-pre:border-primary-4 prose-pre:bg-neutral-2"
       >
-        <!-- Render parsed HTML here safely -->
-        {@html data.html}
+        <MarkdownRenderer tokens={data.tokens} />
       </div>
     </article>
 
