@@ -24,7 +24,7 @@
 </svelte:head>
 
 <main class="min-h-screen bg-primary-2 font-sans text-primary-12 selection:bg-primary-5">
-  <HeroSection latestVersion={data.latestVersion} />
+  <HeroSection latestVersion={data.fullLatestVersion} />
   <FeaturesSection />
   <PhilosophySection />
   <LatestPostsSection posts={data.posts} />

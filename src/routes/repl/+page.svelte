@@ -1,5 +1,6 @@
 <script lang="ts">
   import ReplCore from '$lib/components/repl/ReplCore.svelte';
+  let { data } = $props();
 </script>
 
 <svelte:head>
@@ -17,5 +18,5 @@
 </svelte:head>
 
 <div class="h-[calc(100vh-64px)] w-full pt-16">
-  <ReplCore />
+  <ReplCore latestTag={data.latestTag} latestVersion={data.latestVersion} />
 </div>

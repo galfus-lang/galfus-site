@@ -153,10 +153,9 @@
       ></div>
 
       <!-- Sleek Terminal/Editor Window -->
-      <div
+      <!-- <div
         class="relative flex flex-col overflow-hidden rounded-2xl border border-primary-5 bg-primary-1/90 shadow-2xl backdrop-blur-xl"
       >
-        <!-- Window Header -->
         <div
           class="grid grid-cols-[1fr_2fr_1fr] border-b border-primary-4 bg-primary-2/80 px-4 py-3"
         >
@@ -169,7 +168,6 @@
           <div class="w-12"></div>
         </div>
 
-        <!-- REPL Content -->
         <div class="w-full">
           <galfus-repl>
             {`import { println } from 'std/io'
@@ -182,7 +180,7 @@ export fn main(args: [[u8]]): i32 {
 `}
           </galfus-repl>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </section>

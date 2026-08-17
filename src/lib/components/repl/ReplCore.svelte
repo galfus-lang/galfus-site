@@ -1,71 +1,82 @@
 <script lang="ts">
-  import { getPlayground, type Playground } from '$lib/wasm/galfus';
   import { onMount } from 'svelte';
   import Editor from '$lib/components/Editor.svelte';
   import Terminal from '$lib/components/Terminal.svelte';
   import { cn } from '$lib/utils/cn';
 
-  let { initialCode = '', isEmbed = false } = $props<{ initialCode?: string; isEmbed?: boolean }>();
+  let {
+    initialCode = '',
+    isEmbed = false,
+    latestTag,
+    latestVersion,
+  } = $props<{
+    initialCode?: string;
+    isEmbed?: boolean;
+    latestTag: string;
+    latestVersion: string;
+  }>();
 
-  let playground = $state<Playground | null>(null);
-  const scripts = import.meta.glob('../../../routes/repl/scripts/*.gfs', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  }) as Record<string, string>;
+  let PlaygroundClass: any = null;
+  let playground: any = $state(null);
+  let scripts = $derived.by(() => {
+    const preResult = import.meta.glob('../../../routes/repl/scripts/*.gfs', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
 
-  let selectedScript = $state('../../../routes/repl/scripts/hello-world.gfs');
-  let code = $state(initialCode || scripts['../../../routes/repl/scripts/hello-world.gfs'] || '');
+    const result: Record<string, string> = {};
+
+    for (const key in preResult) {
+      result[key.replace('../../../routes/repl/scripts/', '')] = preResult[key];
+    }
+
+    return result;
+  });
+
+  let selectedScript = $state('hello-world.gfs');
+  let code = $state(initialCode || scripts['hello-world.gfs'] || '');
 
   let terminal: ReturnType<typeof Terminal> | undefined = $state();
 
   onMount(async () => {
-    playground = await getPlayground();
-
-    // Configura o callback para as saídas do Galfus
-    playground.setWriteCallback((msg: string | Uint8Array) => {
-      if (terminal) {
-        if (typeof msg === 'string') {
-          // O terminal geralmente precisa de \r\n em vez de \n puro para quebrar linha certo
-          terminal.write(msg.replace(/\n/g, '\r\n'));
-        } else {
-          // Caso envie Uint8Array
-          const str = new TextDecoder().decode(msg);
-          terminal.write(str.replace(/\n/g, '\r\n'));
-        }
-      }
-    });
-
-    playground.setConfig('[module]\nname = "my-app"\ntarget = "app"\nentry = "main.gfs"\n');
+    try {
+      const cdnUrl = `https://storage.galfus.com/playground-web/${latestTag}/${latestVersion}/web/wasm32/galfus-playground-web-release/galfus_playground_web.js`;
+      const module = await import(cdnUrl);
+      await module.default(); // init
+      PlaygroundClass = module.Playground;
+      playground = new PlaygroundClass();
+      playground.setConfig('[module]\nname = "my-app"\ntarget = "app"\nentry = "src/main.gfs"\n');
+    } catch (e) {
+      console.error('Failed to load WASM', e);
+    }
+    console.log('Loaded Galfus WASM Playground');
 
     if (initialCode) {
       code = initialCode;
     }
   });
 
-  let runId = 0;
-  let isRunning = false;
-  let resolveRead: (() => void) | null = null;
+  let isRunning = $state(false);
 
   let inputBuffer = '';
+  let streamController: ReadableStreamDefaultController<Uint8Array> | null = null;
 
   function handleTerminalData(data: string) {
-    if (!playground || !terminal) return;
+    if (!terminal) return;
 
-    // Apenas processa a entrada se estivermos esperando por uma leitura
-    if (!resolveRead) return;
+    // Apenas processa a entrada se estivermos esperando por uma leitura no fluxo
+    if (!streamController) {
+      return;
+    }
 
     if (data === '\r') {
       // Enter pressionado: escreve a quebra de linha visualmente
       terminal.write('\r\n');
       // Envia os dados acumulados (com quebra de linha) para a VM
       const bytes = new TextEncoder().encode(inputBuffer + '\n');
-      playground.sendReadData(bytes);
+      streamController.enqueue(bytes);
       inputBuffer = '';
-
-      // Libera a VM
-      resolveRead();
-      resolveRead = null;
     } else if (data === '\x7f') {
       // Backspace pressionado
       if (inputBuffer.length > 0) {
@@ -82,26 +93,20 @@
   async function runCode() {
     if (!playground || !terminal) return;
 
-    // Cancela qualquer execução anterior
-    runId++;
-    const currentRunId = runId;
     isRunning = true;
-    resolveRead = null;
-
     terminal.clear();
     terminal.write('\x1b[32m$ Running Galfus...\x1b[0m\r\n');
 
     try {
       // Define o código fonte
-      playground.setSource('main.gfs', code);
-
+      playground.setSource('src/main.gfs', code);
       // 1. Check (Typechecking / Parsing)
       const resultCheckRaw = playground.check();
       const resultCheck = JSON.parse(resultCheckRaw);
+      console.log(resultCheck);
 
       if (!resultCheck.is_valid) {
         terminal.write('\r\n\x1b[31m[Check Error]\x1b[0m\r\n');
-        // diagnostics pode vir como string do Rust Debug
         const diag =
           typeof resultCheck.diagnostics === 'string'
             ? resultCheck.diagnostics.replace(/\n/g, '\r\n')
@@ -120,52 +125,38 @@
         return; // Interrompe se a compilação falhar
       }
 
-      // 3. Run -> Start e Step loop
-      const startRaw = playground.start('[]');
-      const startResult = JSON.parse(startRaw);
-      if (!startResult.ok) {
-        terminal.write('\r\n\x1b[31m[Runtime Error]\x1b[0m\r\n');
-        terminal.write(`\x1b[33m${String(startResult.error).replace(/\n/g, '\r\n')}\x1b[0m\r\n`);
-        isRunning = false;
-        return;
-      }
+      // 3. Run -> Start com native Web Streams
+      const writeStream = new WritableStream({
+        write(chunk) {
+          const text = new TextDecoder().decode(chunk);
+          terminal?.write(text.replace(/\n/g, '\r\n'));
+        },
+      });
 
-      while (currentRunId === runId) {
-        const stepRaw = playground.step();
-        const resultStep = JSON.parse(stepRaw);
+      const readStream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          streamController = controller;
+        },
+        cancel() {
+          streamController = null;
+        },
+      });
 
-        if (resultStep.error) {
-          terminal.write('\r\n\x1b[31m[Runtime Error]\x1b[0m\r\n');
-          terminal.write(`\x1b[33m${String(resultStep.error).replace(/\n/g, '\r\n')}\x1b[0m\r\n`);
-          break;
-        }
+      const options = {
+        args: [],
+        envs: {},
+        stdout: writeStream,
+        stdin: readStream,
+      };
 
-        if (resultStep.status === 'completed') {
-          terminal.write(
-            `\r\n\x1b[32m$ Execution finished (exit code ${resultStep.exit_code}).\x1b[0m\r\n`,
-          );
-          break;
-        }
+      const exitCode = await playground.start(options);
 
-        if (resultStep.status === 'pending_read') {
-          // Foca o terminal para garantir que o xterm esteja em modo de entrada
-          terminal.focus();
-          // Pausa a execução assíncrona até que algo seja digitado e o Enter seja pressionado
-          await new Promise<void>((r) => {
-            resolveRead = r;
-          });
-        } else if (resultStep.status === 'running') {
-          // Cede tempo para o navegador redesenhar a tela (Evita congelamentos)
-          await new Promise<void>((r) => setTimeout(r, 0));
-        }
-      }
+      terminal.write(`\r\n\x1b[32m$ Execution finished (exit code ${exitCode}).\x1b[0m\r\n`);
     } catch (e: any) {
       terminal.write(`\r\n\x1b[31mFatal Error: ${e.toString().replace(/\n/g, '\r\n')}\x1b[0m\r\n`);
     } finally {
-      if (currentRunId === runId) {
-        isRunning = false;
-        resolveRead = null;
-      }
+      isRunning = false;
+      streamController = null;
     }
   }
 </script>
@@ -209,7 +200,7 @@
           class="input h-9 min-w-32 bg-primary-2 px-3 py-1 text-sm sm:max-w-xs"
         >
           {#each Object.keys(scripts) as path}
-            <option value={path}>{path.replace('../../../routes/repl/scripts/', '')}</option>
+            <option value={path}>{path}</option>
           {/each}
         </select>
       {/if}
