@@ -17,10 +17,10 @@ export fn main(_args: [[u8]]): i32 {
   const result = process_data(false)
   
   match result {
-    Outcome::Ok(value) => {
+    Outcome::Ok(value) {
       println("Success! Got value.")
     },
-    Outcome::Err(msg) => {
+    Outcome::Err(msg) {
       println("Error occurred:")
       println(msg)
     },

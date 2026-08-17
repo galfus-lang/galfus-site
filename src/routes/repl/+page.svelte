@@ -17,6 +17,6 @@
   <meta property="og:url" content="https://galfus.com/repl" />
 </svelte:head>
 
-<div class="h-[calc(100vh-64px)] w-full pt-16">
+<div class="h-dvh w-full">
   <ReplCore latestTag={data.latestTag} latestVersion={data.latestVersion} />
 </div>
