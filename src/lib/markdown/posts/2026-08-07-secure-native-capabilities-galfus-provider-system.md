@@ -47,7 +47,7 @@ let providers = Providers::with_host(Box::new(Host));
 let mut execution = workspace.start_execution(&[], Some(providers), driver)?;
 ```
 
-If you choose *not* to provide one, what happens? 
+If you choose _not_ to provide one, what happens?
 
 The compiler doesn't care—it does not validate the existence of a provider at compile time. However, if execution reaches a native call (like our `__provider_fs_read_file` above) and no host provider is configured, the call will fail deterministically with a structured missing-provider error.
 
@@ -57,7 +57,7 @@ This means you can trivially sandbox any Galfus script simply by withholding the
 
 Galfus provides the host with fine-grained control over scheduling. Host providers default to a main-thread affinity (`TaskAffinity::Main`). This is a safe default, ensuring that native calls which might interact with non-thread-safe host state don't cause concurrency issues.
 
-However, for providers that *can* safely run on worker executors concurrently, the host can override this behavior by returning `TaskAffinity::Any` from `HostProvider::affinity`. This flexibility allows performance optimization where appropriate without sacrificing safety.
+However, for providers that _can_ safely run on worker executors concurrently, the host can override this behavior by returning `TaskAffinity::Any` from `HostProvider::affinity`. This flexibility allows performance optimization where appropriate without sacrificing safety.
 
 ## Conclusion
 

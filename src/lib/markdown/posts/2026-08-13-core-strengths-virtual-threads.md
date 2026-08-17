@@ -8,9 +8,9 @@ In the Galfus ecosystem, running code rarely talks directly to the hardware abst
 
 ## The "Shared-Nothing" Model
 
-A *Virtual Thread* in Galfus is an entirely isolated execution unit. 
+A _Virtual Thread_ in Galfus is an entirely isolated execution unit.
 
-Unlike most mainstream languages where concurrent threads share the same global *Heap* (requiring complex locks and mutexes to avoid data races), each Virtual Thread in Galfus has its own isolated memory footprint and instance cycle. 
+Unlike most mainstream languages where concurrent threads share the same global _Heap_ (requiring complex locks and mutexes to avoid data races), each Virtual Thread in Galfus has its own isolated memory footprint and instance cycle.
 
 Thread A cannot access Thread B's memory under any circumstances—not even with locks.
 
@@ -22,14 +22,14 @@ This strict architectural foundation makes Galfus a uniquely powerful tool for s
 
 ### Embedded Systems and RTOS
 
-Real-Time Operating Systems (RTOS) demand absolute predictability. Because a Galfus *Virtual Thread* is fully aware of its local memory footprint and stack size, there is zero risk of asynchronous conflicts or random memory corruption from another thread. 
+Real-Time Operating Systems (RTOS) demand absolute predictability. Because a Galfus _Virtual Thread_ is fully aware of its local memory footprint and stack size, there is zero risk of asynchronous conflicts or random memory corruption from another thread.
 
 RTOS orchestrators can schedule Galfus Virtual Threads while forecasting strict time constraints and predetermined memory bounds with complete isolation. Without cross-hardware corruption, predictability reigns absolute.
 
 ### Web Workers (Browsers)
 
-JavaScript Web Workers are traditionally heavy and limited to `postMessage` communication. The Galfus Virtual Thread isolation fits this model perfectly! 
+JavaScript Web Workers are traditionally heavy and limited to `postMessage` communication. The Galfus Virtual Thread isolation fits this model perfectly!
 
-We can map a *Galfus Virtual Thread* directly to a *Web Worker*. Since the Galfus threads were already written from the ground up without assuming shared memory (utilizing the isolated `ByteMessage` payload), porting a native embedded codebase or a backend to the Web runs smoothly, essentially for free. 
+We can map a _Galfus Virtual Thread_ directly to a _Web Worker_. Since the Galfus threads were already written from the ground up without assuming shared memory (utilizing the isolated `ByteMessage` payload), porting a native embedded codebase or a backend to the Web runs smoothly, essentially for free.
 
 It eliminates the notorious lock problems found in multi-threaded web ports and completely removes the need for `SharedArrayBuffer` requirements.

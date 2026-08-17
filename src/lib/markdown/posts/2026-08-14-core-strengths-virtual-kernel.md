@@ -4,15 +4,16 @@ date: 2026-08-14
 description: Exploring the Virtual Kernel of Galfus and how it achieves cross-determinism as an OS-agnostic orchestrator.
 ---
 
-If `Virtual Threads` isolate memory and the virtual machine (VM) runs the *Bytecode*, who actually manages the queue and dictates when everything should run? 
+If `Virtual Threads` isolate memory and the virtual machine (VM) runs the _Bytecode_, who actually manages the queue and dictates when everything should run?
 
 In Galfus, this responsibility does not fall to the host operating system. This is where the grand orchestrator comes in: the **Virtual Kernel**.
 
 ## OS-Agnostic Orchestrator
 
-The *Virtual Kernel* should not be confused with the Kernel of your base operating system (like Linux, Windows, or macOS). It is a lightweight lifecycle engine written entirely in a hardware-agnostic manner.
+The _Virtual Kernel_ should not be confused with the Kernel of your base operating system (like Linux, Windows, or macOS). It is a lightweight lifecycle engine written entirely in a hardware-agnostic manner.
 
 Its responsibilities include:
+
 - Receiving suspended tasks (`PendingContinuation`).
 - Routing byte messages (`ByteMessage`) between Virtual Threads.
 - Making consistent and portable scheduling decisions, handling chronological tie-breaks to guarantee determinism.

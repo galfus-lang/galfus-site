@@ -26,8 +26,9 @@ Use this skill to create a new blog post for the Galfus Script website. The skil
    - The markdown file must start with YAML frontmatter.
    - Required fields: `title`, `date`, `description`.
    - Optional fields: `thumbnail`.
-   
+
    Example:
+
    ```markdown
    ---
    title: 'My New Post'
