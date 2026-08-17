@@ -1,6 +1,9 @@
 <script lang="ts">
   import NavigationAppbar from '$lib/components/NavigationAppbar.svelte';
   import { Check, Copy, CopyCheck } from '@lucide/svelte';
+
+  let { latestVersion }: { latestVersion: string | null } = $props();
+
   const repoUrl = 'https://github.com/galfus-lang/galfus-script';
   const discussionsUrl = `${repoUrl}/discussions`;
 
@@ -38,6 +41,11 @@
           class="mr-3 flex h-2 w-2 rounded-full bg-primary-9 shadow-[0_0_10px_rgba(var(--color-primary-9),1)]"
         ></span>
         VM-First Scripting Language
+        {#if latestVersion}
+          <span class="ml-3 border-l border-primary-6 pl-3 font-mono text-xs text-primary-10">
+            {latestVersion}
+          </span>
+        {/if}
       </div>
 
       <h1
@@ -86,7 +94,7 @@
         </div>
 
         <div class="card flex gap-4">
-          <code class="text-group-12 flex-1 font-mono text-sm">
+          <code class="text-group-12 flex-1 font-mono text-sm break-all">
             {#if installTab === 'linux'}
               <span class="text-group-9 mr-2 select-none">$</span>curl -fsSL
               https://galfus.com/install.sh | bash
@@ -97,7 +105,7 @@
           </code>
 
           <button
-            class="btn btn-icon shrink-0 btn-soft"
+            class="btn btn-icon shrink-0 btn-soft self-start"
             onclick={() =>
               copyToClipboard(
                 installTab === 'linux'
