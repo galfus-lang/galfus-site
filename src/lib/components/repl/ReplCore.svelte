@@ -257,7 +257,7 @@
   </header>
 
   <!-- Main Content: Split View -->
-  <main class="flex flex-1 flex-col overflow-hidden sm:flex-row">
+  <main class="grid flex-1 grid-cols-1 overflow-hidden sm:grid-cols-2">
     <!-- Left: Editor -->
     <div
       class="min-h-[50%] flex-1 border-b border-primary-5 bg-primary-1/50 backdrop-blur-md sm:min-h-0 sm:border-r sm:border-b-0"

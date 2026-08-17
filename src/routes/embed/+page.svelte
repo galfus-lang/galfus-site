@@ -2,6 +2,8 @@
   import ReplCore from '$lib/components/repl/ReplCore.svelte';
   import { onMount } from 'svelte';
 
+  let { data } = $props();
+
   let initialCode = $state('');
   let loaded = $state(false);
 
@@ -15,6 +17,8 @@
       } catch (e) {
         console.error('Failed to decode initial code from URL hash', e);
       }
+    } else {
+      console.error('No initial code found in URL hash');
     }
     loaded = true;
   });
@@ -29,6 +33,11 @@
 <!-- We only render the core once we've checked the hash so initialCode is ready -->
 {#if loaded}
   <div class="m-0 h-screen w-screen overflow-hidden bg-primary-3 p-0">
-    <ReplCore isEmbed={true} {initialCode} />
+    <ReplCore
+      isEmbed={true}
+      {initialCode}
+      latestTag={data.latestTag}
+      latestVersion={data.latestVersion}
+    />
   </div>
 {/if}

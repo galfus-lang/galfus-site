@@ -153,7 +153,7 @@
       ></div>
 
       <!-- Sleek Terminal/Editor Window -->
-      <!-- <div
+      <div
         class="relative flex flex-col overflow-hidden rounded-2xl border border-primary-5 bg-primary-1/90 shadow-2xl backdrop-blur-xl"
       >
         <div
@@ -180,7 +180,7 @@ export fn main(args: [[u8]]): i32 {
 `}
           </galfus-repl>
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 </section>
