@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Search, Mail, AlertCircle } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<!-- Basic Input -->
@@ -57,7 +56,7 @@
         <span class="input-label">With Leading Icon</span>
         <div class="input-group max-w-sm">
           <div class="input-icon">
-            <Search size={18} />
+            <span class="icon-[lucide--search] text-[18px]"></span>
           </div>
           <input type="text" class="input-base" placeholder="Search..." />
         </div>
@@ -68,7 +67,7 @@
         <div class="input-group max-w-sm">
           <input type="email" class="input-base" placeholder="Email address" />
           <div class="input-icon">
-            <Mail size={18} />
+            <span class="icon-[lucide--mail] text-[18px]"></span>
           </div>
         </div>
       </label>
@@ -77,11 +76,11 @@
         <span class="input-label">With Both Icons</span>
         <div class="input-group max-w-sm">
           <div class="input-icon">
-            <Search size={18} />
+            <span class="icon-[lucide--search] text-[18px]"></span>
           </div>
           <input type="text" class="input-base" placeholder="Search email..." />
           <div class="input-icon">
-            <Mail size={18} />
+            <span class="icon-[lucide--mail] text-[18px]"></span>
           </div>
         </div>
       </label>
@@ -99,7 +98,7 @@
         <div class="input-group max-w-sm">
           <input type="email" class="input-base input-error" value="invalid-email" />
           <div class="input-icon text-danger-11">
-            <AlertCircle size={18} />
+            <span class="icon-[lucide--alert-circle] text-[18px]"></span>
           </div>
         </div>
         <span class="mt-1.5 block text-xs text-danger-11">Please enter a valid email address.</span>

@@ -4,7 +4,6 @@
   import Footer from '@galfus/design-system/components/Footer.svelte';
   import MarkdownRenderer from '$lib/components/blog/MarkdownRenderer.svelte';
   import { page } from '$app/state';
-  import { ChevronRight, Search } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -40,20 +39,20 @@
               <a href="/" class="breadcrumb-link">Home</a>
             </li>
             <li>
-              <ChevronRight size={16} class="text-primary-8" />
+              <span class="icon-[lucide--chevron-right] text-[16px] text-primary-8"></span>
             </li>
             <li>
               <a href="/blog" class="breadcrumb-link">Blog</a>
             </li>
             <li>
-              <ChevronRight size={16} class="text-primary-8" />
+              <span class="icon-[lucide--chevron-right] text-[16px] text-primary-8"></span>
             </li>
             <li class="breadcrumb-active" aria-current="page">Post</li>
           </ol>
 
           <form action="/blog" method="GET" class="color-group-primary input-group sm:w-64">
             <div class="input-icon">
-              <Search size={18} />
+              <span class="icon-[lucide--search] text-[18px]"></span>
             </div>
             <input type="text" name="q" placeholder="Search articles..." class="input-base" />
           </form>

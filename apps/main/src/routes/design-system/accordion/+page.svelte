@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { ChevronDown } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<details class="accordion group">
   <summary class="accordion-trigger">
     Is this accessible by default?
-    <span class="accordion-icon"><ChevronDown size={18} /></span>
+    <span class="accordion-icon"><span class="icon-[lucide--chevron-down] text-[18px]" ></span></span>
   </summary>
   <div class="accordion-content">
     Yes! Because it uses native HTML details/summary, it is fully accessible out of the box.
@@ -26,7 +25,9 @@
     <details class="group accordion">
       <summary class="accordion-trigger">
         Is this accessible by default?
-        <span class="accordion-icon"><ChevronDown size={18} /></span>
+        <span class="accordion-icon"
+          ><span class="icon-[lucide--chevron-down] text-[18px]"></span></span
+        >
       </summary>
       <div class="accordion-content">
         Yes! Because it uses native HTML details/summary, it is fully accessible to screen readers
@@ -37,7 +38,9 @@
     <details class="group accordion">
       <summary class="accordion-trigger">
         Can I style the marker?
-        <span class="accordion-icon"><ChevronDown size={18} /></span>
+        <span class="accordion-icon"
+          ><span class="icon-[lucide--chevron-down] text-[18px]"></span></span
+        >
       </summary>
       <div class="accordion-content">
         Yes, you can use the ::marker pseudo-element or simply hide it and use a custom span (like

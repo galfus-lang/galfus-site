@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Check, Code as CodeIcon, Copy } from '@lucide/svelte';
   import { getHighlighter, shikiTheme } from '../../utils/shiki';
   import { onMount } from 'svelte';
 
@@ -52,7 +51,7 @@
     class="flex items-center justify-between border-b border-neutral-6/30 bg-neutral-3/50 px-4 py-2.5 backdrop-blur-md"
   >
     <div class="flex items-center gap-2 text-sm font-medium text-neutral-11">
-      <CodeIcon size={16} />
+      <span class="icon-[lucide--code] text-[16px]"></span>
       <span>{label}</span>
     </div>
     <button
@@ -62,9 +61,9 @@
       title="Copy to clipboard"
     >
       {#if copied}
-        <Check size={16} class="text-success-9" />
+        <span class="icon-[lucide--check] text-[16px] text-success-9"></span>
       {:else}
-        <Copy size={16} />
+        <span class="icon-[lucide--copy] text-[16px]"></span>
       {/if}
     </button>
   </div>

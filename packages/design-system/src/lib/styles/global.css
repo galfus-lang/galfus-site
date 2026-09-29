@@ -2,6 +2,7 @@
 @source '../../../../../apps';
 @source '../../../../../packages';
 
+@plugin '@iconify/tailwind4';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin './plugins/color-group';

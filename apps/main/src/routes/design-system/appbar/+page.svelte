@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { Menu, User, Hexagon } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<header class="appbar">
   <div class="flex items-center gap-4">
     <button class="btn btn-ghost btn-icon color-group-neutral" aria-label="Open Menu">
-      <Menu size={20} />
+      <span class="icon-[lucide--menu] text-[20px]" ></span>
     </button>
     <div class="appbar-title">
-      <Hexagon size={24} class="text-primary-9" />
+      <span class="icon-[lucide--hexagon] text-[24px] text-primary-9" ></span>
       My App
     </div>
   </div>
@@ -22,7 +21,7 @@
 
   <div>
     <button class="btn btn-ghost btn-icon rounded-full color-group-neutral" aria-label="User Profile">
-      <User size={20} />
+      <span class="icon-[lucide--user] text-[20px]" ></span>
     </button>
   </div>
 </header>`;
@@ -40,10 +39,10 @@
     <header class="appbar">
       <div class="flex items-center gap-4">
         <button class="color-group-neutral btn btn-icon btn-ghost" aria-label="Open Menu">
-          <Menu size={20} />
+          <span class="icon-[lucide--menu] text-[20px]"></span>
         </button>
         <div class="appbar-title">
-          <Hexagon size={24} class="text-primary-9" />
+          <span class="icon-[lucide--hexagon] text-[24px] text-primary-9"></span>
           My App
         </div>
       </div>
@@ -60,7 +59,7 @@
           class="color-group-neutral btn btn-icon btn-ghost rounded-full"
           aria-label="User Profile"
         >
-          <User size={20} />
+          <span class="icon-[lucide--user] text-[20px]"></span>
         </button>
       </div>
     </header>

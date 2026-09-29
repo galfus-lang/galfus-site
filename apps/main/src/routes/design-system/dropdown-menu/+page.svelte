@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { SquarePen, Copy, Trash2 } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<button popovertarget="my-dropdown" class="btn btn-neutral">Open Options</button>
@@ -42,14 +41,14 @@
     <menu id="my-dropdown" popover="auto" class="dropdown-content">
       <li>
         <button class="menu-item">
-          <SquarePen size={18} class="text-neutral-11" />
+          <span class="icon-[lucide--square-pen] text-[18px] text-neutral-11"></span>
           Edit
           <span class="menu-shortcut">⌘E</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
-          <Copy size={18} class="text-neutral-11" />
+          <span class="icon-[lucide--copy] text-[18px] text-neutral-11"></span>
           Duplicate
           <span class="menu-shortcut">⌘D</span>
         </button>
@@ -57,7 +56,7 @@
       <li role="separator" class="menu-separator"></li>
       <li>
         <button class="menu-item menu-item-danger">
-          <Trash2 size={18} />
+          <span class="text-[18px] icon-[lucide--trash2]"></span>
           Delete
           <span class="menu-shortcut">⌘⌫</span>
         </button>

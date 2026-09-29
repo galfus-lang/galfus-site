@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { X } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   let dialog: HTMLDialogElement;
@@ -12,7 +11,7 @@
       <h2 class="modal-title">Confirm Deletion</h2>
       <form method="dialog">
         <button class="btn btn-ghost btn-icon color-group-neutral" aria-label="Close">
-          <X size={18} />
+          <span class="icon-[lucide--x] text-[18px]" ></span>
         </button>
       </form>
     </header>
@@ -49,7 +48,7 @@
           <h2 class="modal-title">Confirm Deletion</h2>
           <form method="dialog">
             <button class="color-group-neutral btn btn-icon btn-ghost" aria-label="Close">
-              <X size={18} />
+              <span class="icon-[lucide--x] text-[18px]"></span>
             </button>
           </form>
         </header>

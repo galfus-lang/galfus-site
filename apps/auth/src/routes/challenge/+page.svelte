@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { User, KeyRound, Fingerprint, ArrowLeft } from '@lucide/svelte';
 
   let hint = $derived(page.url.searchParams.get('hint') || 'unknown@galfus.com');
   let password = $state('');
@@ -12,12 +11,12 @@
 <div class="flex flex-col items-center justify-center space-y-6">
   <div class="flex w-full items-center justify-between">
     <a href="/" class="btn btn-icon btn-ghost" aria-label="Back">
-      <ArrowLeft size={20} />
+      <span class="icon-[lucide--arrow-left] text-[20px]"></span>
     </a>
     <div
       class="bg-primary/10 text-primary avatar flex h-12 w-12 items-center justify-center rounded-full font-bold"
     >
-      <User size={24} />
+      <span class="icon-[lucide--user] text-[24px]"></span>
     </div>
     <div class="w-10"></div>
     <!-- Spacer for centering -->
@@ -35,7 +34,7 @@
   <div class="w-full space-y-4">
     {#if hasPasskey}
       <button class="color-group-primary btn w-full btn-solid py-4 text-base">
-        <Fingerprint size={20} />
+        <span class="icon-[lucide--fingerprint] text-[20px]"></span>
         Sign in with Passkey
       </button>
 
@@ -54,7 +53,7 @@
         <label for="password" class="text-sm font-medium">Password</label>
         <div class="relative">
           <div class="text-muted-foreground absolute inset-y-0 left-0 flex items-center pl-3">
-            <KeyRound size={16} />
+            <span class="icon-[lucide--key-round] text-[16px]"></span>
           </div>
           <input
             id="password"

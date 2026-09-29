@@ -15,7 +15,7 @@ export const usageCode = `<script>
       class="input-base cursor-pointer"
     />
     <div class="input-icon">
-      <ChevronDown size={18} />
+      <span class="icon-[lucide--chevron-down] text-[18px]"></span>
     </div>
   </div>
 </label>

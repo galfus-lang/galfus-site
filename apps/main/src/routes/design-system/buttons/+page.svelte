@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Save, ArrowRight, X } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<!-- Button Variants -->
@@ -13,7 +12,7 @@
 
 <!-- Icon Buttons (use 'btn-icon' to make it a perfect square) -->
 <button class="btn btn-solid btn-icon" aria-label="Save">
-  <Save size={20} />
+  <span class="icon-[lucide--save] text-[20px]" ></span>
 </button>`;
 </script>
 
@@ -50,18 +49,18 @@
 
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
-            <Save size={20} />
+            <span class="icon-[lucide--save] text-[20px]"></span>
             Save
           </button>
           <button class="btn btn-soft">
             Next
-            <ArrowRight size={20} />
+            <span class="icon-[lucide--arrow-right] text-[20px]"></span>
           </button>
           <button class="btn btn-icon btn-outlined" aria-label="Close">
-            <X size={20} />
+            <span class="icon-[lucide--x] text-[20px]"></span>
           </button>
           <button class="btn btn-icon btn-ghost" aria-label="Cancel">
-            <X size={20} />
+            <span class="icon-[lucide--x] text-[20px]"></span>
           </button>
         </div>
       </div>
@@ -92,18 +91,18 @@
 
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
-            <Save size={20} />
+            <span class="icon-[lucide--save] text-[20px]"></span>
             Save
           </button>
           <button class="btn btn-soft">
             Next
-            <ArrowRight size={20} />
+            <span class="icon-[lucide--arrow-right] text-[20px]"></span>
           </button>
           <button class="btn btn-icon btn-outlined" aria-label="Close">
-            <X size={20} />
+            <span class="icon-[lucide--x] text-[20px]"></span>
           </button>
           <button class="btn btn-icon btn-ghost" aria-label="Cancel">
-            <X size={20} />
+            <span class="icon-[lucide--x] text-[20px]"></span>
           </button>
         </div>
       </div>

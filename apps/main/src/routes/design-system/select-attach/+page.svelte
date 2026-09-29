@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ChevronDown } from '@lucide/svelte';
   import { buildSelect } from '$lib/attachments/select.svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
   import { usageCode } from './data';
@@ -35,7 +34,7 @@
             class="input-base cursor-pointer"
           />
           <div class="input-icon">
-            <ChevronDown size={18} />
+            <span class="icon-[lucide--chevron-down] text-[18px]"></span>
           </div>
         </div>
       </label>
@@ -87,7 +86,7 @@
             class="input-base cursor-pointer"
           />
           <div class="input-icon">
-            <ChevronDown size={18} />
+            <span class="icon-[lucide--chevron-down] text-[18px]"></span>
           </div>
         </div>
       </label>

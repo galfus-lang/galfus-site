@@ -1,6 +1,5 @@
 <script lang="ts">
   import NavigationAppbar from '@galfus/design-system/components/NavigationAppbar.svelte';
-  import { Check, Copy, CopyCheck } from '@lucide/svelte';
 
   let { latestVersion }: { latestVersion: string | null } = $props();
 
@@ -116,9 +115,9 @@
             title="Copy to clipboard"
           >
             {#if copied}
-              <Check size="20" />
+              <span class="icon-[lucide--check] text-[24px]" size="20"></span>
             {:else}
-              <Copy size="20" />
+              <span class="icon-[lucide--copy] text-[24px]" size="20"></span>
             {/if}
           </button>
         </div>

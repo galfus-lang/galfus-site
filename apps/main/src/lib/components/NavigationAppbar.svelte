@@ -1,7 +1,6 @@
 <script lang="ts">
   import Brand from '@galfus/design-system/components/svg/Brand.svelte';
   import GitHubStarButton from '$lib/GitHubStarButton.svelte';
-  import { Menu, X } from '@lucide/svelte';
 
   let dialog: HTMLDialogElement;
 </script>
@@ -19,7 +18,7 @@
     aria-label="Open Menu"
     onclick={() => dialog.showModal()}
   >
-    <Menu size={24} />
+    <span class="icon-[lucide--menu] text-[24px]"></span>
   </button>
 
   <nav class="hidden @md:block">
@@ -48,7 +47,7 @@
           aria-label="Close Menu"
           onclick={() => dialog.close()}
         >
-          <X size={20} />
+          <span class="icon-[lucide--x] text-[20px]"></span>
         </button>
       </div>
       <div class="modal-body">

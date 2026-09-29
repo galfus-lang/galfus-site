@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<nav aria-label="Pagination">
   <ul class="pagination">
     <li>
       <a href="#" class="pagination-item" aria-label="Previous page">
-        <ChevronLeft size={18} />
+        <span class="icon-[lucide--chevron-left] text-[18px]" ></span>
       </a>
     </li>
     <li>
@@ -26,7 +25,7 @@
     </li>
     <li>
       <a href="#" class="pagination-item" aria-label="Next page">
-        <ChevronRight size={18} />
+        <span class="icon-[lucide--chevron-right] text-[18px]" ></span>
       </a>
     </li>
   </ul>
@@ -45,7 +44,7 @@
       <ul class="color-group-primary pagination">
         <li>
           <a href="#" class="pagination-item" aria-label="Previous page">
-            <ChevronLeft size={18} />
+            <span class="icon-[lucide--chevron-left] text-[18px]"></span>
           </a>
         </li>
         <li>
@@ -65,7 +64,7 @@
         </li>
         <li>
           <a href="#" class="pagination-item" aria-label="Next page">
-            <ChevronRight size={18} />
+            <span class="icon-[lucide--chevron-right] text-[18px]"></span>
           </a>
         </li>
       </ul>

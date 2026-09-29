@@ -3,7 +3,6 @@
   import PostCard from '$lib/components/blog/PostCard.svelte';
   import Footer from '@galfus/design-system/components/Footer.svelte';
   import NavigationAppbar from '@galfus/design-system/components/NavigationAppbar.svelte';
-  import { ChevronLeft, ChevronRight, Search, SearchX } from '@lucide/svelte';
 
   let { data } = $props();
 
@@ -69,7 +68,7 @@
             <a href="/" class="breadcrumb-link">Home</a>
           </li>
           <li>
-            <ChevronRight size={16} class="text-primary-8" />
+            <span class="icon-[lucide--chevron-right] text-[16px] text-primary-8"></span>
           </li>
           <li class="breadcrumb-active" aria-current="page">Blog</li>
         </ol>
@@ -82,7 +81,7 @@
       <!-- Search Input -->
       <div class="color-group-primary input-group mt-6 md:mt-0 md:w-80">
         <div class="input-icon">
-          <Search size={18} />
+          <span class="icon-[lucide--search] text-[18px]"></span>
         </div>
         <input
           type="text"
@@ -100,7 +99,7 @@
     {:else if filteredPosts.length === 0}
       <div class="py-24 text-center">
         <div class="mx-auto mb-4 flex justify-center text-primary-8">
-          <SearchX size={48} />
+          <span class="icon-[lucide--search] text-[48px]" X></span>
         </div>
         <h3 class="text-lg font-medium text-primary-12">No articles found</h3>
         <p class="mt-1 text-primary-10">Try adjusting your search term.</p>
@@ -130,7 +129,7 @@
                   class="pagination-item"
                   aria-label="Previous page"
                 >
-                  <ChevronLeft size={18} />
+                  <span class="icon-[lucide--chevron-left] text-[18px]"></span>
                 </button>
               </li>
 
@@ -153,7 +152,7 @@
                   class="pagination-item"
                   aria-label="Next page"
                 >
-                  <ChevronRight size={18} />
+                  <span class="icon-[lucide--chevron-right] text-[18px]"></span>
                 </button>
               </li>
             </ul>

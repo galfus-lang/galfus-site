@@ -1,32 +1,31 @@
 <script lang="ts">
-  import { Bold, Italic, Underline, AlignLeft, AlignCenter } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<menu role="toolbar" aria-label="Text Formatting" class="toolbar">
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Bold">
-      <Bold size={18} />
+      <span class="icon-[lucide--bold] text-[18px]" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Italic">
-      <Italic size={18} />
+      <span class="icon-[lucide--italic] text-[18px]" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Underline">
-      <Underline size={18} />
+      <span class="icon-[lucide--underline] text-[18px]" ></span>
     </button>
   </li>
   <li aria-hidden="true" class="toolbar-divider"></li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Align Left">
-      <AlignLeft size={18} />
+      <span class="icon-[lucide--align-left] text-[18px]" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Align Center">
-      <AlignCenter size={18} />
+      <span class="icon-[lucide--align-center] text-[18px]" ></span>
     </button>
   </li>
 </menu>`;
@@ -43,7 +42,7 @@
     <menu role="toolbar" aria-label="Text Formatting" class="toolbar">
       <li>
         <button type="button" class="color-group-neutral btn btn-icon btn-ghost" aria-label="Bold">
-          <Bold size={18} />
+          <span class="icon-[lucide--bold] text-[18px]"></span>
         </button>
       </li>
       <li>
@@ -52,7 +51,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Italic"
         >
-          <Italic size={18} />
+          <span class="icon-[lucide--italic] text-[18px]"></span>
         </button>
       </li>
       <li>
@@ -61,7 +60,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Underline"
         >
-          <Underline size={18} />
+          <span class="icon-[lucide--underline] text-[18px]"></span>
         </button>
       </li>
       <li aria-hidden="true" class="toolbar-divider"></li>
@@ -71,7 +70,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Align Left"
         >
-          <AlignLeft size={18} />
+          <span class="icon-[lucide--align-left] text-[18px]"></span>
         </button>
       </li>
       <li>
@@ -80,7 +79,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Align Center"
         >
-          <AlignCenter size={18} />
+          <span class="icon-[lucide--align-center] text-[18px]"></span>
         </button>
       </li>
     </menu>

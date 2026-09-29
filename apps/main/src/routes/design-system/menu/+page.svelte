@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { User, Settings, LogOut } from '@lucide/svelte';
   import Code from '@galfus/design-system/components/ui/Code.svelte';
 
   const usageCode = `<menu class="menu">
@@ -39,14 +38,14 @@
     <menu class="menu">
       <li>
         <button class="menu-item">
-          <User size={18} class="text-neutral-11" />
+          <span class="icon-[lucide--user] text-[18px] text-neutral-11"></span>
           Profile
           <span class="menu-shortcut">⇧⌘P</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
-          <Settings size={18} class="text-neutral-11" />
+          <span class="icon-[lucide--settings] text-[18px] text-neutral-11"></span>
           Settings
           <span class="menu-shortcut">⌘,</span>
         </button>
@@ -54,7 +53,7 @@
       <li role="separator" class="menu-separator"></li>
       <li>
         <button class="menu-item menu-item-danger">
-          <LogOut size={18} />
+          <span class="icon-[lucide--log-out] text-[18px]"></span>
           Log out
           <span class="menu-shortcut">⌥⇧Q</span>
         </button>

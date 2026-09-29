@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { ShieldCheck, ArrowLeft } from '@lucide/svelte';
 
   let hint = $derived(page.url.searchParams.get('hint') || 'unknown@galfus.com');
   let otp = $state('');
@@ -9,12 +8,12 @@
 <div class="flex flex-col items-center justify-center space-y-6">
   <div class="flex w-full items-center justify-between">
     <button onclick={() => history.back()} class="btn btn-icon btn-ghost" aria-label="Back">
-      <ArrowLeft size={20} />
+      <span class="icon-[lucide--arrow-left] text-[20px]"></span>
     </button>
     <div
       class="bg-primary/10 text-primary avatar flex h-12 w-12 items-center justify-center rounded-full font-bold"
     >
-      <ShieldCheck size={24} />
+      <span class="icon-[lucide--shield-check] text-[24px]"></span>
     </div>
     <div class="w-10"></div>
     <!-- Spacer for centering -->
