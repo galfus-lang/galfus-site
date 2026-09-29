@@ -41,7 +41,6 @@
           autocomplete="one-time-code"
           class="placeholder:text-muted-foreground/30 mx-auto input-base w-40 text-center text-2xl font-bold tracking-[0.5em] placeholder:tracking-normal"
           placeholder="000000"
-          bind:value={otp}
           required
           autofocus
         />

@@ -4,10 +4,26 @@
   import { Menu, X } from '@lucide/svelte';
 
   let dialog: HTMLDialogElement;
+
+  const isDev = import.meta.env.DEV;
+
+  function getAppUrl(app: 'main' | 'auth' | 'blog', path = '/') {
+    if (isDev) {
+      const ports = { auth: 5001, main: 5002, blog: 5003 };
+      return `http://localhost:${ports[app]}${path}`;
+    } else {
+      const domains = {
+        auth: 'https://auth.galfus.com',
+        main: 'https://galfus.com',
+        blog: 'https://blog.galfus.com',
+      };
+      return `${domains[app]}${path}`;
+    }
+  }
 </script>
 
 <header class="color-group-primary @container sticky top-0 z-50 appbar w-full">
-  <a href="/" class="group appbar-title">
+  <a href={getAppUrl('main')} class="group appbar-title">
     <div class="relative flex items-center justify-center">
       <Brand size={40} class="text-group-9 relative z-10" />
     </div>
@@ -25,13 +41,16 @@
   <nav class="hidden @md:block">
     <ul class="appbar-nav">
       <li>
-        <a href="/" class="appbar-link">Home</a>
+        <a href={getAppUrl('main')} class="appbar-link">Home</a>
       </li>
       <li>
-        <a href="/blog" class="appbar-link">Blog</a>
+        <a href={getAppUrl('blog')} class="appbar-link">Blog</a>
       </li>
       <li>
-        <a href="/design-system" class="appbar-link">Design System</a>
+        <a href={getAppUrl('auth')} class="appbar-link">Auth</a>
+      </li>
+      <li>
+        <a href={getAppUrl('main', '/design-system')} class="appbar-link">Design System</a>
       </li>
       <li>
         <GitHubStarButton owner="galfus-lang" repo="galfus-script" />
@@ -54,14 +73,31 @@
       <div class="modal-body">
         <ul class="flex flex-col gap-4">
           <li>
-            <a href="/" class="block w-full appbar-link" onclick={() => dialog.close()}>Home</a>
+            <a
+              href={getAppUrl('main')}
+              class="block w-full appbar-link"
+              onclick={() => dialog.close()}>Home</a
+            >
           </li>
           <li>
-            <a href="/blog" class="block w-full appbar-link" onclick={() => dialog.close()}>Blog</a>
+            <a
+              href={getAppUrl('blog')}
+              class="block w-full appbar-link"
+              onclick={() => dialog.close()}>Blog</a
+            >
           </li>
           <li>
-            <a href="/design-system" class="block w-full appbar-link" onclick={() => dialog.close()}
-              >Design System</a
+            <a
+              href={getAppUrl('auth')}
+              class="block w-full appbar-link"
+              onclick={() => dialog.close()}>Auth</a
+            >
+          </li>
+          <li>
+            <a
+              href={getAppUrl('main', '/design-system')}
+              class="block w-full appbar-link"
+              onclick={() => dialog.close()}>Design System</a
             >
           </li>
           <li>

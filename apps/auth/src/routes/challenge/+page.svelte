@@ -62,7 +62,6 @@
             type="password"
             class="input-base w-full pl-10"
             placeholder="••••••••"
-            bind:value={password}
             required
             autofocus={!hasPasskey}
           />

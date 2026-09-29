@@ -54,7 +54,6 @@
           type="text"
           class="input-base w-full"
           placeholder="morbden@galfus.com"
-          bind:value={email}
           required
         />
       </div>
