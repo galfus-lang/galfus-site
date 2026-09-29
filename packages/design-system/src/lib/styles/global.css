@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@source "../../../../../apps/*/src";
+@source "../../../../../packages/*/src";
+
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin './plugins/color-group';
