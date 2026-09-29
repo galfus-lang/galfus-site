@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { User, KeyRound, Fingerprint, ArrowLeft } from 'lucide-svelte';
+  import { User, KeyRound, Fingerprint, ArrowLeft } from '@lucide/svelte';
 
   let hint = $derived(page.url.searchParams.get('hint') || 'unknown@galfus.com');
   let password = $state('');
