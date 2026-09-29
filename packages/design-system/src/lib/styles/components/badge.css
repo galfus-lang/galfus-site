@@ -1,0 +1,26 @@
+@utility badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: color-mix(in srgb, var(--color-g-9, var(--color-neutral-9)) 20%, transparent);
+  color: var(--color-g-11, var(--color-neutral-11));
+  white-space: nowrap;
+}
+
+@utility badge-indicator {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  background-color: var(--color-g-9, var(--color-danger-9));
+  color: white;
+}

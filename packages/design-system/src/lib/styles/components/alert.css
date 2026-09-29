@@ -1,0 +1,19 @@
+@utility alert {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-g-9, var(--color-neutral-9)) 50%, transparent);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-g-9, var(--color-neutral-9)) 10%, transparent);
+  color: var(--color-g-11, var(--color-neutral-11));
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+@utility alert-title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+@utility alert-description {
+  font-size: 0.875rem;
+}

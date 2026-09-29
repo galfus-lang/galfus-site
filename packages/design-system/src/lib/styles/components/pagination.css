@@ -1,0 +1,24 @@
+@utility pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+}
+
+@utility pagination-item {
+  @apply btn btn-icon btn-ghost;
+  text-decoration: none;
+
+  &[aria-current='page'] {
+    @apply btn-solid;
+    pointer-events: none;
+  }
+}
+
+@utility pagination-ellipsis {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-g-11);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

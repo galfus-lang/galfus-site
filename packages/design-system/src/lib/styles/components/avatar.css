@@ -1,0 +1,14 @@
+@utility avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  background-color: var(--color-g-9, var(--color-neutral-3));
+  color: var(--color-g-1, var(--color-neutral-12));
+}

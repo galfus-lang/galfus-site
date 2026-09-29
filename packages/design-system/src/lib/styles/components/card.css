@@ -1,0 +1,51 @@
+@utility card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--color-g-6) 40%, transparent);
+  background-color: color-mix(in srgb, var(--color-g-1) 50%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 20px 40px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 color-mix(in srgb, #fff 10%, transparent);
+  color: var(--color-g-12);
+  padding: 1.5rem;
+  transition: border-color 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2.5rem;
+    right: -2.5rem;
+    height: 8rem;
+    width: 8rem;
+    border-radius: 9999px;
+    background-color: var(--color-g-9);
+    opacity: 0.1;
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+@utility card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-g-12);
+  margin-bottom: 0.5rem;
+}
+
+@utility card-content {
+  color: var(--color-g-11);
+}
+
+@utility card-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-g-6) 40%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

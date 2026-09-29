@@ -1,0 +1,42 @@
+@utility accordion {
+  border-bottom: 1px solid var(--color-neutral-4);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+@utility accordion-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0.75rem 0;
+  outline: none;
+  color: var(--color-neutral-12);
+  transition: color 0.2s ease;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  details[open] & {
+    color: var(--color-g-9, var(--color-primary-9));
+  }
+}
+
+@utility accordion-icon {
+  transition: transform 0.2s ease;
+
+  details[open] & {
+    transform: rotate(180deg);
+  }
+}
+
+@utility accordion-content {
+  padding-bottom: 0.75rem;
+  color: var(--color-neutral-11);
+  font-size: 0.875rem;
+}
