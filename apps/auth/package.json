@@ -13,8 +13,7 @@
   "dependencies": {
     "@galfus/assets": "workspace:*",
     "@galfus/data-types": "workspace:*",
-    "@galfus/design-system": "workspace:*",
-    "hono": "^4.6.1"
+    "@galfus/design-system": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
