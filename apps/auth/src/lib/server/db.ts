@@ -18,5 +18,8 @@ export async function getDb() {
 
     isConnected = true;
   }
+
+  await db.ready;
+
   return db;
 }
