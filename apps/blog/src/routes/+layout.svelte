@@ -1,7 +1,7 @@
 <script lang="ts">
   import '@fontsource/fira-code';
   import '@fontsource/nunito';
-  import '@galfus/design-system/styles/global.css';
+  import '../app.css';
 
   import icon from '@galfus/assets/images/icon-128.png';
   import ogImage from '@galfus/assets/images/og-banner.jpg';

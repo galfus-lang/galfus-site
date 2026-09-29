@@ -39,9 +39,9 @@
       </div>
 
       <div class="relative my-4 flex items-center py-2">
-        <div class="border-border flex-grow border-t"></div>
+        <div class="border-border grow border-t"></div>
         <span class="bg-card text-muted-foreground px-2 text-xs">or use another</span>
-        <div class="border-border flex-grow border-t"></div>
+        <div class="border-border grow border-t"></div>
       </div>
     {/if}
 
@@ -63,9 +63,9 @@
     </form>
 
     <div class="relative my-4 flex items-center py-2">
-      <div class="border-border flex-grow border-t"></div>
+      <div class="border-border grow border-t"></div>
       <span class="bg-card text-muted-foreground px-2 text-xs">or continue with</span>
-      <div class="border-border flex-grow border-t"></div>
+      <div class="border-border grow border-t"></div>
     </div>
 
     <div class="flex flex-col gap-2">
