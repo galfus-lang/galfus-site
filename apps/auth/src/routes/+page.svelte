@@ -1,6 +1,4 @@
 <script lang="ts">
-  import NavigationAppbar from '@galfus/design-system/components/NavigationAppbar.svelte';
-  import Footer from '@galfus/design-system/components/Footer.svelte';
   import bgImage from '@galfus/assets/images/background.jpg';
 </script>
 
@@ -9,7 +7,6 @@
 </svelte:head>
 
 <div class="bg-background text-foreground flex min-h-screen flex-col font-sans">
-  <NavigationAppbar />
   <main class="relative flex flex-1 flex-col items-center justify-center p-4">
     <!-- Dynamic Background -->
     <div
@@ -22,5 +19,4 @@
       <p class="text-muted-foreground text-center">The authentication UI will be built here.</p>
     </div>
   </main>
-  <Footer />
 </div>
