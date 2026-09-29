@@ -13,7 +13,8 @@
   "dependencies": {
     "@galfus/assets": "workspace:*",
     "@galfus/data-types": "workspace:*",
-    "@galfus/design-system": "workspace:*"
+    "@galfus/design-system": "workspace:*",
+    "surrealdb": "^2.0.8"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
