@@ -1,0 +1,30 @@
+<script lang="ts">
+  import HeroSection from './HeroSection.svelte';
+  import FeaturesSection from './FeaturesSection.svelte';
+  import PhilosophySection from './PhilosophySection.svelte';
+  import Footer from '@galfus/design-system/components/Footer.svelte';
+
+  let { data } = $props();
+</script>
+
+<svelte:head>
+  <title>Galfus Script | Small, Portable, Deterministic</title>
+  <meta
+    name="description"
+    content="Galfus Script is a highly modular interpreted scripting language built around typed source code, an in-memory executable graph, and a deterministic VM runtime."
+  />
+  <meta property="og:title" content="Galfus Script | Small, Portable, Deterministic" />
+  <meta
+    property="og:description"
+    content="Galfus Script is a highly modular interpreted scripting language built around typed source code, an in-memory executable graph, and a deterministic VM runtime."
+  />
+  <meta property="og:url" content="https://galfus.com/" />
+  <script src="/embed.js"></script>
+</svelte:head>
+
+<main class="min-h-screen bg-primary-2 font-sans text-primary-12 selection:bg-primary-5">
+  <HeroSection latestVersion={data.fullLatestVersion} />
+  <FeaturesSection />
+  <PhilosophySection />
+  <Footer />
+</main>
