@@ -1,11 +1,23 @@
-export const GALFUS_MAIN_APP_URL = {
-  development: 'http://localhost:5002',
-  production: 'https://galfus.com',
+export const APP_URLS = {
+  dev: {
+    auth: 'http://localhost:5001',
+    main: 'http://localhost:5002',
+    blog: 'http://localhost:5003',
+  },
+  prod: {
+    auth: 'https://auth.galfus.com',
+    main: 'https://galfus.com',
+    blog: 'https://blog.galfus.com',
+  },
+};
+
+export const COOKIES_KEYS = {
+  locale: 'galfus_locale',
 } as const;
 
 /** Returns the main application URL for the current SvelteKit environment. */
 export function getMainAppUrl(isDevelopment: boolean): string {
-  return isDevelopment ? GALFUS_MAIN_APP_URL.development : GALFUS_MAIN_APP_URL.production;
+  return isDevelopment ? APP_URLS.dev.main : APP_URLS.prod.main;
 }
 
 /**
