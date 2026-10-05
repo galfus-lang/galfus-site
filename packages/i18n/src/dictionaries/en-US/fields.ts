@@ -1,0 +1,15 @@
+export const fields = {
+  next: 'Next',
+  back: 'Back',
+  continue: 'Continue',
+  cancel: 'Cancel',
+  close: 'Close',
+  ok: 'OK',
+  yes: 'Yes',
+  no: 'No',
+  save: 'Save',
+  edit: 'Edit',
+  delete: 'Delete',
+  create: 'Create',
+  submit: 'Submit',
+} as const;

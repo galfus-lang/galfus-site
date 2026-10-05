@@ -1,0 +1,15 @@
+{
+  "name": "@galfus/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2"
+  },
+  "dependencies": {
+    "@formatjs/intl": "^6.1.2"
+  }
+}
