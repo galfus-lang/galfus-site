@@ -8,16 +8,20 @@
   import bgImage from '@galfus/assets/images/background.jpg';
 
   import { page } from '$app/state';
+  import ToastSystem from '@galfus/design-system/components/ToastSystem.svelte';
+  import { translate } from '@galfus/i18n';
 
-  let { children } = $props();
+  let { children, data } = $props();
 </script>
 
 <svelte:head>
   <link rel="shortcut icon" href={icon} />
   <meta property="og:image" content={ogImage} />
   <meta name="twitter:image" content={ogImage} />
-  <title>Galfus Identity</title>
+  <title>{translate('auth.title.application', data.locale)}</title>
 </svelte:head>
+
+<ToastSystem />
 
 {#if page.error}
   {@render children()}

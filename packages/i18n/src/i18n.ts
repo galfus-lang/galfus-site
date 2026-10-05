@@ -64,6 +64,36 @@ export function safeLocale(locale?: string | null): Locale {
   return DEFAULT_LOCALE;
 }
 
+/** Selects one supported locale from a standard Accept-Language header. */
+export function negotiateLocale(acceptLanguage?: string | null): Locale {
+  if (!acceptLanguage) return DEFAULT_LOCALE;
+
+  const candidates = acceptLanguage
+    .split(',')
+    .map((entry) => {
+      const [tag, ...parameters] = entry.trim().split(';');
+      const quality = parameters
+        .map((parameter) => parameter.trim())
+        .find((parameter) => parameter.startsWith('q='))
+        ?.slice(2);
+
+      return { tag, priority: quality ? Number(quality) : 1 };
+    })
+    .filter(({ tag, priority }) => tag && Number.isFinite(priority) && priority > 0)
+    .sort((first, second) => second.priority - first.priority);
+
+  for (const { tag } of candidates) {
+    const exactLocale = LOCALES.find((locale) => locale.toLowerCase() === tag.toLowerCase());
+    if (exactLocale) return exactLocale;
+
+    const language = tag.split('-', 1)[0]?.toLowerCase();
+    const matchedLocale = LOCALES.find((locale) => locale.split('-', 1)[0].toLowerCase() === language);
+    if (matchedLocale) return matchedLocale;
+  }
+
+  return DEFAULT_LOCALE;
+}
+
 export function translate(
   id: MessageId,
   locale: string | null | undefined = DEFAULT_LOCALE,

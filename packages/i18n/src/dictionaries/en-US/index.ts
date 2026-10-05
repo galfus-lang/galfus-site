@@ -1,7 +1,9 @@
+import { auth } from './auth';
 import { error } from './error';
 import { fields } from './fields';
 
 export const enUS = {
+  auth,
   error,
   fields,
 } as const;

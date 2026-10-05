@@ -1,5 +1,6 @@
 export const fields = {
   next: 'Next',
+  please_wait: 'Please wait…',
   back: 'Back',
   continue: 'Continue',
   cancel: 'Cancel',

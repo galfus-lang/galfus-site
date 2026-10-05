@@ -23,15 +23,28 @@ export const error = {
   auth: {
     account: {
       invalid: 'The account is invalid.',
+      blocked: 'This account is temporarily blocked. Contact support.',
     },
     identity: {
       invalid: 'Enter a valid email address or username.',
       already_exists: 'This email address or username is already in use.',
+      lookup_failed: 'We could not verify this identity. Please try again.',
     },
     pass: {
+      required: 'Enter your password.',
       too_short: 'The password must be at least 8 characters long.',
       too_long: 'The password must be at most 128 characters long.',
       password_dont_match: 'The passwords do not match.',
+      incorrect: 'The password is incorrect. Please try again.',
+    },
+    registration: {
+      session_missing: 'The registration session is missing.',
+      session_invalid: 'The registration session is invalid.',
+      failed: 'We could not create your account. Please try again.',
+    },
+    login: {
+      session_invalid: 'The sign-in session is invalid.',
+      failed: 'Something went wrong. Please try again.',
     },
   },
 } as const;
