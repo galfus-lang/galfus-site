@@ -1,3 +1,4 @@
+@import './components/loading.css';
 @import 'tailwindcss';
 @source '../../../../../apps';
 @source '../../../../../packages';
@@ -6,6 +7,36 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin './plugins/color-group';
+
+/* Iconify icons inherit their dimensions from font-size. Keep the scale semantic
+ * so consumers never need arbitrary text-[…] classes for icon sizing. */
+@utility icon-xs {
+  font-size: 0.75rem;
+}
+
+@utility icon-sm {
+  font-size: 1rem;
+}
+
+@utility icon-md {
+  font-size: 1.125rem;
+}
+
+@utility icon-lg {
+  font-size: 1.25rem;
+}
+
+@utility icon-xl {
+  font-size: 1.5rem;
+}
+
+@utility icon-2xl {
+  font-size: 2rem;
+}
+
+@utility icon-3xl {
+  font-size: 3rem;
+}
 
 @import './components/shiki.css';
 

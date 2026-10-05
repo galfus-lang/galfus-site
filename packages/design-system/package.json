@@ -4,11 +4,20 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    ".": "./src/lib/index.ts",
-    "./components/*": "./src/lib/components/*",
+    ".": {
+      "svelte": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./components/*": {
+      "svelte": "./src/lib/components/*",
+      "default": "./src/lib/components/*"
+    },
     "./styles/*": "./src/lib/styles/*",
-    "./utils/*": "./src/lib/utils/*",
-    "./seo/*": "./src/lib/seo/*"
+    "./utils/*": "./src/lib/utils/*.ts",
+    "./seo/*": {
+      "svelte": "./src/lib/seo/*",
+      "default": "./src/lib/seo/*"
+    }
   },
   "svelte": "./src/lib/index.ts",
   "scripts": {
@@ -25,20 +34,22 @@
     "@fontsource/fira-code": "^5.3.0",
     "@fontsource/nunito": "^5.3.0",
     "@galfus/assets": "workspace:*",
+    "@galfus/auth-utils": "workspace:*",
+    "@iconify-json/lucide": "^1.2.138",
+    "@iconify-json/simple-icons": "^1.2.98",
+    "@iconify/tailwind4": "^1.2.3",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
-    "shiki": "^4.4.3",
+    "shiki": "^4.5.0",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3",
     "xterm": "^5.3.0",
     "xterm-addon-fit": "^0.8.0"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.137",
-    "@iconify-json/simple-icons": "^1.2.98",
-    "@iconify/tailwind4": "^1.2.3"
+    "@types/bun": "^1.4.2"
   }
 }

@@ -1,0 +1,72 @@
+@property --loading-progress {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes conic-rotation {
+  0% {
+    --loading-progress: 0;
+  }
+  100% {
+    --loading-progress: 1;
+  }
+}
+
+@keyframes loading-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility is-loading {
+  position: relative;
+  pointer-events: none !important;
+
+  &::after {
+    content: '';
+    position: absolute;
+    /* Inset 0 to sit exactly on the button borders */
+    inset: -2px;
+    /* Inherit the border radius of the parent button/input */
+    border-radius: inherit;
+    /* Add the border that will be masked */
+    border: 2px solid currentColor;
+    pointer-events: none;
+    /* The rotation animation */
+    animation: conic-rotation 2.5s linear infinite;
+    /* The conic gradient mask */
+    mask-image: conic-gradient(
+      from calc(var(--loading-progress, 0) * 360deg),
+      transparent 30%,
+      #fff 40%,
+      #fff 60%,
+      transparent 70%
+    );
+    -webkit-mask-image: conic-gradient(
+      from calc(var(--loading-progress, 0) * 360deg),
+      transparent 30%,
+      #fff 40%,
+      #fff 60%,
+      transparent 70%
+    );
+  }
+}
+
+@utility is-loading-fade {
+  position: relative;
+  pointer-events: none !important;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    border: 2px solid currentColor;
+    pointer-events: none;
+    animation: loading-fade 1s ease-in-out infinite alternate;
+  }
+}

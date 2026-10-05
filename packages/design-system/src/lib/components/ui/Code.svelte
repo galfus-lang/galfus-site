@@ -51,7 +51,7 @@
     class="flex items-center justify-between border-b border-neutral-6/30 bg-neutral-3/50 px-4 py-2.5 backdrop-blur-md"
   >
     <div class="flex items-center gap-2 text-sm font-medium text-neutral-11">
-      <span class="icon-[lucide--code] text-[16px]"></span>
+      <span class="icon-[lucide--code] icon-sm"></span>
       <span>{label}</span>
     </div>
     <button
@@ -61,9 +61,9 @@
       title="Copy to clipboard"
     >
       {#if copied}
-        <span class="icon-[lucide--check] text-[16px] text-success-9"></span>
+        <span class="icon-[lucide--check] icon-sm text-success-9"></span>
       {:else}
-        <span class="icon-[lucide--copy] text-[16px]"></span>
+        <span class="icon-[lucide--copy] icon-sm"></span>
       {/if}
     </button>
   </div>
