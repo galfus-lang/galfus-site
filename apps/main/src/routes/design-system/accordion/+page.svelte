@@ -4,7 +4,7 @@
   const usageCode = `<details class="accordion group">
   <summary class="accordion-trigger">
     Is this accessible by default?
-    <span class="accordion-icon"><span class="icon-[lucide--chevron-down] text-[18px]" ></span></span>
+    <span class="accordion-icon"><span class="icon-[lucide--chevron-down] icon-md" ></span></span>
   </summary>
   <div class="accordion-content">
     Yes! Because it uses native HTML details/summary, it is fully accessible out of the box.
@@ -26,7 +26,7 @@
       <summary class="accordion-trigger">
         Is this accessible by default?
         <span class="accordion-icon"
-          ><span class="icon-[lucide--chevron-down] text-[18px]"></span></span
+          ><span class="icon-[lucide--chevron-down] icon-md"></span></span
         >
       </summary>
       <div class="accordion-content">
@@ -39,7 +39,7 @@
       <summary class="accordion-trigger">
         Can I style the marker?
         <span class="accordion-icon"
-          ><span class="icon-[lucide--chevron-down] text-[18px]"></span></span
+          ><span class="icon-[lucide--chevron-down] icon-md"></span></span
         >
       </summary>
       <div class="accordion-content">

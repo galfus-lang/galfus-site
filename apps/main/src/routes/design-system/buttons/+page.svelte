@@ -12,7 +12,7 @@
 
 <!-- Icon Buttons (use 'btn-icon' to make it a perfect square) -->
 <button class="btn btn-solid btn-icon" aria-label="Save">
-  <span class="icon-[lucide--save] text-[20px]" ></span>
+  <span class="icon-[lucide--save] icon-lg" ></span>
 </button>`;
 </script>
 
@@ -49,18 +49,18 @@
 
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
-            <span class="icon-[lucide--save] text-[20px]"></span>
+            <span class="icon-[lucide--save] icon-lg"></span>
             Save
           </button>
           <button class="btn btn-soft">
             Next
-            <span class="icon-[lucide--arrow-right] text-[20px]"></span>
+            <span class="icon-[lucide--arrow-right] icon-lg"></span>
           </button>
           <button class="btn btn-icon btn-outlined" aria-label="Close">
-            <span class="icon-[lucide--x] text-[20px]"></span>
+            <span class="icon-[lucide--x] icon-lg"></span>
           </button>
           <button class="btn btn-icon btn-ghost" aria-label="Cancel">
-            <span class="icon-[lucide--x] text-[20px]"></span>
+            <span class="icon-[lucide--x] icon-lg"></span>
           </button>
         </div>
       </div>
@@ -91,18 +91,18 @@
 
         <div class="flex flex-wrap items-center gap-4">
           <button class="btn btn-solid">
-            <span class="icon-[lucide--save] text-[20px]"></span>
+            <span class="icon-[lucide--save] icon-lg"></span>
             Save
           </button>
           <button class="btn btn-soft">
             Next
-            <span class="icon-[lucide--arrow-right] text-[20px]"></span>
+            <span class="icon-[lucide--arrow-right] icon-lg"></span>
           </button>
           <button class="btn btn-icon btn-outlined" aria-label="Close">
-            <span class="icon-[lucide--x] text-[20px]"></span>
+            <span class="icon-[lucide--x] icon-lg"></span>
           </button>
           <button class="btn btn-icon btn-ghost" aria-label="Cancel">
-            <span class="icon-[lucide--x] text-[20px]"></span>
+            <span class="icon-[lucide--x] icon-lg"></span>
           </button>
         </div>
       </div>

@@ -68,7 +68,7 @@
             <a href="/" class="breadcrumb-link">Home</a>
           </li>
           <li>
-            <span class="icon-[lucide--chevron-right] text-[16px] text-primary-8"></span>
+            <span class="icon-[lucide--chevron-right] icon-sm text-primary-8"></span>
           </li>
           <li class="breadcrumb-active" aria-current="page">Blog</li>
         </ol>
@@ -81,7 +81,7 @@
       <!-- Search Input -->
       <div class="color-group-primary input-group mt-6 md:mt-0 md:w-80">
         <div class="input-icon">
-          <span class="icon-[lucide--search] text-[18px]"></span>
+          <span class="icon-[lucide--search] icon-md"></span>
         </div>
         <input
           type="text"
@@ -99,7 +99,7 @@
     {:else if filteredPosts.length === 0}
       <div class="py-24 text-center">
         <div class="mx-auto mb-4 flex justify-center text-primary-8">
-          <span class="icon-[lucide--search] text-[48px]" X></span>
+          <span class="icon-[lucide--search] icon-3xl"></span>
         </div>
         <h3 class="text-lg font-medium text-primary-12">No articles found</h3>
         <p class="mt-1 text-primary-10">Try adjusting your search term.</p>
@@ -129,7 +129,7 @@
                   class="pagination-item"
                   aria-label="Previous page"
                 >
-                  <span class="icon-[lucide--chevron-left] text-[18px]"></span>
+                  <span class="icon-[lucide--chevron-left] icon-md"></span>
                 </button>
               </li>
 
@@ -152,7 +152,7 @@
                   class="pagination-item"
                   aria-label="Next page"
                 >
-                  <span class="icon-[lucide--chevron-right] text-[18px]"></span>
+                  <span class="icon-[lucide--chevron-right] icon-md"></span>
                 </button>
               </li>
             </ul>

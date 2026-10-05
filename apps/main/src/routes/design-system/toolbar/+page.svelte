@@ -4,28 +4,28 @@
   const usageCode = `<menu role="toolbar" aria-label="Text Formatting" class="toolbar">
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Bold">
-      <span class="icon-[lucide--bold] text-[18px]" ></span>
+      <span class="icon-[lucide--bold] icon-md" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Italic">
-      <span class="icon-[lucide--italic] text-[18px]" ></span>
+      <span class="icon-[lucide--italic] icon-md" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Underline">
-      <span class="icon-[lucide--underline] text-[18px]" ></span>
+      <span class="icon-[lucide--underline] icon-md" ></span>
     </button>
   </li>
   <li aria-hidden="true" class="toolbar-divider"></li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Align Left">
-      <span class="icon-[lucide--align-left] text-[18px]" ></span>
+      <span class="icon-[lucide--align-left] icon-md" ></span>
     </button>
   </li>
   <li>
     <button type="button" class="btn btn-ghost btn-icon color-group-neutral" aria-label="Align Center">
-      <span class="icon-[lucide--align-center] text-[18px]" ></span>
+      <span class="icon-[lucide--align-center] icon-md" ></span>
     </button>
   </li>
 </menu>`;
@@ -42,7 +42,7 @@
     <menu role="toolbar" aria-label="Text Formatting" class="toolbar">
       <li>
         <button type="button" class="color-group-neutral btn btn-icon btn-ghost" aria-label="Bold">
-          <span class="icon-[lucide--bold] text-[18px]"></span>
+          <span class="icon-[lucide--bold] icon-md"></span>
         </button>
       </li>
       <li>
@@ -51,7 +51,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Italic"
         >
-          <span class="icon-[lucide--italic] text-[18px]"></span>
+          <span class="icon-[lucide--italic] icon-md"></span>
         </button>
       </li>
       <li>
@@ -60,7 +60,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Underline"
         >
-          <span class="icon-[lucide--underline] text-[18px]"></span>
+          <span class="icon-[lucide--underline] icon-md"></span>
         </button>
       </li>
       <li aria-hidden="true" class="toolbar-divider"></li>
@@ -70,7 +70,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Align Left"
         >
-          <span class="icon-[lucide--align-left] text-[18px]"></span>
+          <span class="icon-[lucide--align-left] icon-md"></span>
         </button>
       </li>
       <li>
@@ -79,7 +79,7 @@
           class="color-group-neutral btn btn-icon btn-ghost"
           aria-label="Align Center"
         >
-          <span class="icon-[lucide--align-center] text-[18px]"></span>
+          <span class="icon-[lucide--align-center] icon-md"></span>
         </button>
       </li>
     </menu>

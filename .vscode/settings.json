@@ -1,5 +1,6 @@
 {
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "iconify.includes": ["lucide", "simple-icons"]
 }

@@ -4,10 +4,10 @@
   const usageCode = `<header class="appbar">
   <div class="flex items-center gap-4">
     <button class="btn btn-ghost btn-icon color-group-neutral" aria-label="Open Menu">
-      <span class="icon-[lucide--menu] text-[20px]" ></span>
+      <span class="icon-[lucide--menu] icon-lg" ></span>
     </button>
     <div class="appbar-title">
-      <span class="icon-[lucide--hexagon] text-[24px] text-primary-9" ></span>
+      <span class="icon-[lucide--hexagon] icon-xl text-primary-9" ></span>
       My App
     </div>
   </div>
@@ -21,7 +21,7 @@
 
   <div>
     <button class="btn btn-ghost btn-icon rounded-full color-group-neutral" aria-label="User Profile">
-      <span class="icon-[lucide--user] text-[20px]" ></span>
+      <span class="icon-[lucide--user] icon-lg" ></span>
     </button>
   </div>
 </header>`;
@@ -39,10 +39,10 @@
     <header class="appbar">
       <div class="flex items-center gap-4">
         <button class="color-group-neutral btn btn-icon btn-ghost" aria-label="Open Menu">
-          <span class="icon-[lucide--menu] text-[20px]"></span>
+          <span class="icon-[lucide--menu] icon-lg"></span>
         </button>
         <div class="appbar-title">
-          <span class="icon-[lucide--hexagon] text-[24px] text-primary-9"></span>
+          <span class="icon-[lucide--hexagon] icon-xl text-primary-9"></span>
           My App
         </div>
       </div>
@@ -59,7 +59,7 @@
           class="color-group-neutral btn btn-icon btn-ghost rounded-full"
           aria-label="User Profile"
         >
-          <span class="icon-[lucide--user] text-[20px]"></span>
+          <span class="icon-[lucide--user] icon-lg"></span>
         </button>
       </div>
     </header>

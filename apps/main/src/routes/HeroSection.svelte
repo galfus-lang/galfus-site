@@ -115,9 +115,9 @@
             title="Copy to clipboard"
           >
             {#if copied}
-              <span class="icon-[lucide--check] text-[24px]" size="20"></span>
+              <span class="icon-[lucide--check] icon-xl"></span>
             {:else}
-              <span class="icon-[lucide--copy] text-[24px]" size="20"></span>
+              <span class="icon-[lucide--copy] icon-xl"></span>
             {/if}
           </button>
         </div>

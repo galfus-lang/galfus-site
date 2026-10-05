@@ -38,14 +38,14 @@
     <menu class="menu">
       <li>
         <button class="menu-item">
-          <span class="icon-[lucide--user] text-[18px] text-neutral-11"></span>
+          <span class="icon-[lucide--user] icon-md text-neutral-11"></span>
           Profile
           <span class="menu-shortcut">⇧⌘P</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
-          <span class="icon-[lucide--settings] text-[18px] text-neutral-11"></span>
+          <span class="icon-[lucide--settings] icon-md text-neutral-11"></span>
           Settings
           <span class="menu-shortcut">⌘,</span>
         </button>
@@ -53,7 +53,7 @@
       <li role="separator" class="menu-separator"></li>
       <li>
         <button class="menu-item menu-item-danger">
-          <span class="icon-[lucide--log-out] text-[18px]"></span>
+          <span class="icon-[lucide--log-out] icon-md"></span>
           Log out
           <span class="menu-shortcut">⌥⇧Q</span>
         </button>

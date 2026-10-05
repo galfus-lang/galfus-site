@@ -56,7 +56,7 @@
         <span class="input-label">With Leading Icon</span>
         <div class="input-group max-w-sm">
           <div class="input-icon">
-            <span class="icon-[lucide--search] text-[18px]"></span>
+            <span class="icon-[lucide--search] icon-md"></span>
           </div>
           <input type="text" class="input-base" placeholder="Search..." />
         </div>
@@ -67,7 +67,7 @@
         <div class="input-group max-w-sm">
           <input type="email" class="input-base" placeholder="Email address" />
           <div class="input-icon">
-            <span class="icon-[lucide--mail] text-[18px]"></span>
+            <span class="icon-[lucide--mail] icon-md"></span>
           </div>
         </div>
       </label>
@@ -76,11 +76,11 @@
         <span class="input-label">With Both Icons</span>
         <div class="input-group max-w-sm">
           <div class="input-icon">
-            <span class="icon-[lucide--search] text-[18px]"></span>
+            <span class="icon-[lucide--search] icon-md"></span>
           </div>
           <input type="text" class="input-base" placeholder="Search email..." />
           <div class="input-icon">
-            <span class="icon-[lucide--mail] text-[18px]"></span>
+            <span class="icon-[lucide--mail] icon-md"></span>
           </div>
         </div>
       </label>
@@ -98,7 +98,7 @@
         <div class="input-group max-w-sm">
           <input type="email" class="input-base input-error" value="invalid-email" />
           <div class="input-icon text-danger-11">
-            <span class="icon-[lucide--alert-circle] text-[18px]"></span>
+            <span class="icon-[lucide--alert-circle] icon-md"></span>
           </div>
         </div>
         <span class="mt-1.5 block text-xs text-danger-11">Please enter a valid email address.</span>

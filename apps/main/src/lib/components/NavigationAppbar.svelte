@@ -18,7 +18,7 @@
     aria-label="Open Menu"
     onclick={() => dialog.showModal()}
   >
-    <span class="icon-[lucide--menu] text-[24px]"></span>
+    <span class="icon-[lucide--menu] icon-xl"></span>
   </button>
 
   <nav class="hidden @md:block">
@@ -47,7 +47,7 @@
           aria-label="Close Menu"
           onclick={() => dialog.close()}
         >
-          <span class="icon-[lucide--x] text-[20px]"></span>
+          <span class="icon-[lucide--x] icon-lg"></span>
         </button>
       </div>
       <div class="modal-body">

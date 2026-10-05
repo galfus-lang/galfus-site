@@ -5,7 +5,7 @@
   <ul class="pagination">
     <li>
       <a href="#" class="pagination-item" aria-label="Previous page">
-        <span class="icon-[lucide--chevron-left] text-[18px]" ></span>
+        <span class="icon-[lucide--chevron-left] icon-md" ></span>
       </a>
     </li>
     <li>
@@ -25,7 +25,7 @@
     </li>
     <li>
       <a href="#" class="pagination-item" aria-label="Next page">
-        <span class="icon-[lucide--chevron-right] text-[18px]" ></span>
+        <span class="icon-[lucide--chevron-right] icon-md" ></span>
       </a>
     </li>
   </ul>
@@ -44,7 +44,7 @@
       <ul class="color-group-primary pagination">
         <li>
           <a href="#" class="pagination-item" aria-label="Previous page">
-            <span class="icon-[lucide--chevron-left] text-[18px]"></span>
+            <span class="icon-[lucide--chevron-left] icon-md"></span>
           </a>
         </li>
         <li>
@@ -64,7 +64,7 @@
         </li>
         <li>
           <a href="#" class="pagination-item" aria-label="Next page">
-            <span class="icon-[lucide--chevron-right] text-[18px]"></span>
+            <span class="icon-[lucide--chevron-right] icon-md"></span>
           </a>
         </li>
       </ul>

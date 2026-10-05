@@ -41,14 +41,14 @@
     <menu id="my-dropdown" popover="auto" class="dropdown-content">
       <li>
         <button class="menu-item">
-          <span class="icon-[lucide--square-pen] text-[18px] text-neutral-11"></span>
+          <span class="icon-[lucide--square-pen] icon-md text-neutral-11"></span>
           Edit
           <span class="menu-shortcut">⌘E</span>
         </button>
       </li>
       <li>
         <button class="menu-item">
-          <span class="icon-[lucide--copy] text-[18px] text-neutral-11"></span>
+          <span class="icon-[lucide--copy] icon-md text-neutral-11"></span>
           Duplicate
           <span class="menu-shortcut">⌘D</span>
         </button>
@@ -56,7 +56,7 @@
       <li role="separator" class="menu-separator"></li>
       <li>
         <button class="menu-item menu-item-danger">
-          <span class="text-[18px] icon-[lucide--trash2]"></span>
+          <span class="icon-md icon-[lucide--trash-2]"></span>
           Delete
           <span class="menu-shortcut">⌘⌫</span>
         </button>

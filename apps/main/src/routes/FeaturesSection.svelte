@@ -15,7 +15,7 @@
     <div
       class="bg-group-4 text-group-11 group-hover:bg-group-5 mb-6 flex h-12 w-12 items-center justify-center rounded-lg transition-colors"
     >
-      <span class="{iconClass} text-[24px]"></span>
+      <span class="{iconClass} icon-xl"></span>
     </div>
     <h3 class="text-group-12 mb-3 text-xl font-bold">{title}</h3>
     <p class="text-group-11 leading-relaxed">
