@@ -99,5 +99,9 @@ After completing the code, ask the user if they want a playground link. Only cal
 - `translate(...)` uses FormatJS and ICU Message syntax. Pass placeholder
   values as its third argument; never add manual string interpolation to
   dictionaries or consumers.
+- `apps/auth` exposes the resolved locale through root layout data. Its server
+  actions must use `getRequestLocale(...)`, which prioritises the `locale`
+  cookie and otherwise negotiates `Accept-Language`; Svelte components use
+  `data.locale` with `translate(...)`.
 - Do not edit a translation to change validation behaviour. Validation IDs are
   defined by the Valibot input schema; dictionaries only provide locale text.
