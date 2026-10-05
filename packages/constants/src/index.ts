@@ -13,6 +13,9 @@ export const APP_URLS = {
 
 export const COOKIES_KEYS = {
   locale: 'galfus_locale',
+  auth_transaction: 'galfus_auth_transaction',
+  auth_session: 'galfus_auth_session',
+  active_organization: 'galfus_active_organization',
 } as const;
 
 /** Returns the main application URL for the current SvelteKit environment. */
