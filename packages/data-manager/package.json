@@ -1,0 +1,30 @@
+{
+  "name": "@galfus/data-manager",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "local:check": "bun run scripts/surrealkit.ts local sync --dry-run",
+    "local:sync": "bun run scripts/surrealkit.ts local sync",
+    "local:typegen": "bun run scripts/surrealkit.ts local typegen",
+    "dev:check": "bun run scripts/surrealkit.ts development sync --dry-run",
+    "dev:sync": "bun run scripts/surrealkit.ts development sync --allow-shared-prune",
+    "dev:typegen": "bun run scripts/surrealkit.ts development typegen",
+    "prod:check": "bun run scripts/surrealkit.ts production sync --dry-run",
+    "prod:sync": "bun run scripts/surrealkit.ts production sync --allow-shared-prune",
+    "prod:typegen": "bun run scripts/surrealkit.ts production typegen"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./generated": "./src/generated/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "dependencies": {
+    "@galfus/i18n": "workspace:*",
+    "surrealdb": "^2.0.9",
+    "valibot": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2"
+  }
+}

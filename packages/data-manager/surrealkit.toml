@@ -1,0 +1,20 @@
+# Schema modules are intentionally separate so their lifecycle is explicit.
+
+[schema.auth]
+path = "modules/auth/schema"
+
+[schema.core]
+path = "modules/core/schema"
+depends_on = ["auth"]
+
+[typegen]
+typescript = "src/generated"
+
+[target.local]
+pass_env = "SURREALDB_LOCAL_PASSWORD"
+
+[target.development]
+pass_env = "SURREALDB_DEVELOPMENT_PASSWORD"
+
+[target.production]
+pass_env = "SURREALDB_PRODUCTION_PASSWORD"

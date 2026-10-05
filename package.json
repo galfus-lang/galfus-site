@@ -6,8 +6,17 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun --bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
+    "dev": "bun --bun run -F '*' dev",
+    "build": "bun run -F '*' build",
+    "db:local:check": "bun run -F '@galfus/data-manager' local:check",
+    "db:local:sync": "bun run -F '@galfus/data-manager' local:sync",
+    "db:local:typegen": "bun run -F '@galfus/data-manager' local:typegen",
+    "db:dev:check": "bun run -F '@galfus/data-manager' dev:check",
+    "db:dev:sync": "bun run -F '@galfus/data-manager' dev:sync",
+    "db:dev:typegen": "bun run -F '@galfus/data-manager' dev:typegen",
+    "db:prod:check": "bun run -F '@galfus/data-manager' prod:check",
+    "db:prod:sync": "bun run -F '@galfus/data-manager' prod:sync",
+    "db:prod:typegen": "bun run -F '@galfus/data-manager' prod:typegen",
     "lint": "prettier --check .",
     "format": "prettier --write ."
   },
