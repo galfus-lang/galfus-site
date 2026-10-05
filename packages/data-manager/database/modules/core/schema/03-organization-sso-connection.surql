@@ -1,0 +1,11 @@
+DEFINE TABLE organization_sso_connection SCHEMAFULL;
+DEFINE FIELD organization ON organization_sso_connection TYPE record<organization>;
+DEFINE FIELD protocol ON organization_sso_connection TYPE string ASSERT $value IN ['oidc', 'saml'];
+DEFINE FIELD status ON organization_sso_connection TYPE string DEFAULT 'active' ASSERT $value IN ['active', 'disabled'];
+DEFINE FIELD issuer ON organization_sso_connection TYPE string;
+DEFINE FIELD clientId ON organization_sso_connection TYPE option<string>;
+DEFINE FIELD metadata ON organization_sso_connection TYPE object DEFAULT {};
+DEFINE FIELD claimPolicy ON organization_sso_connection TYPE object DEFAULT {};
+DEFINE FIELD createdAt ON organization_sso_connection TYPE datetime DEFAULT time::now() READONLY;
+DEFINE FIELD updatedAt ON organization_sso_connection TYPE datetime VALUE time::now();
+DEFINE INDEX idx_organization_sso_connection_issuer ON organization_sso_connection COLUMNS organization, issuer UNIQUE;

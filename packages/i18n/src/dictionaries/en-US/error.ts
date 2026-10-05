@@ -46,5 +46,20 @@ export const error = {
       session_invalid: 'The sign-in session is invalid.',
       failed: 'Something went wrong. Please try again.',
     },
+    transaction: {
+      invalid: 'This authorization request is no longer valid. Please start again.',
+      expired: 'This authorization request has expired. Please start again.',
+      state_conflict: 'This authorization request changed in another tab. Please start again.',
+    },
+    invitation: {
+      invalid: 'This invitation is no longer valid.',
+      already_used: 'This invitation has already been used.',
+    },
+    session: {
+      invalid: 'Your session is no longer valid. Please sign in again.',
+    },
+    otp: {
+      invalid: 'The verification code is invalid or expired.',
+    },
   },
 } as const;

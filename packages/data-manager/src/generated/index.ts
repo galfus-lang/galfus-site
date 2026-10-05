@@ -13,6 +13,29 @@ export interface Account {
   updatedAt: Date;
 }
 
+export interface AccountContact {
+  id: RecordId<'account_contact'>;
+  account: RecordId<'account'>;
+  createdAt: Date;
+  disabledAt?: Date;
+  status: string;
+  type: unknown;
+  updatedAt: Date;
+  value: string;
+  verifiedAt?: Date;
+}
+
+export interface AccountFederatedIdentity {
+  id: RecordId<'account_federated_identity'>;
+  account: RecordId<'account'>;
+  connection: RecordId<'organization_sso_connection'>;
+  createdAt: Date;
+  issuer: string;
+  metadata: { [key: string]: unknown };
+  subject: string;
+  updatedAt: Date;
+}
+
 export interface AccountIdentity {
   id: RecordId<'account_identity'>;
   account: RecordId<'account'>;
@@ -31,12 +54,97 @@ export interface AccountKey {
   value: string;
 }
 
+export interface AccountMfaFactor {
+  id: RecordId<'account_mfa_factor'>;
+  account: RecordId<'account'>;
+  createdAt: Date;
+  disabledAt?: Date;
+  label?: string;
+  secretCiphertext?: string;
+  status: string;
+  type: unknown;
+  updatedAt: Date;
+  verifiedAt?: Date;
+}
+
+export interface AccountPasskey {
+  id: RecordId<'account_passkey'>;
+  account: RecordId<'account'>;
+  backedUp: boolean;
+  counter: number;
+  createdAt: Date;
+  credentialId: string;
+  deviceType: string;
+  label?: string;
+  lastUsedAt?: Date;
+  publicKey: string;
+  transports: string[];
+  webauthnUserId: string;
+}
+
+export interface AuthOtpChallenge {
+  id: RecordId<'auth_otp_challenge'>;
+  account?: RecordId<'account'>;
+  attempts: number;
+  codeHash: string;
+  consumedAt?: Date;
+  contact?: RecordId<'account_contact'>;
+  createdAt: Date;
+  expiresAt: Date;
+  maxAttempts: number;
+  purpose: string;
+}
+
+export interface AuthSession {
+  id: RecordId<'auth_session'>;
+  account: RecordId<'account'>;
+  createdAt: Date;
+  expiresAt: Date;
+  idleExpiresAt?: Date;
+  lastUsedAt: Date;
+  revokeReason?: string;
+  revokedAt?: Date;
+  tokenHash: string;
+  tokenPrefix: string;
+}
+
+export interface AuthTransaction {
+  id: RecordId<'auth_transaction'>;
+  account?: RecordId<'account'>;
+  attempts: number;
+  browserVerifierHash: string;
+  consumedAt?: Date;
+  createdAt: Date;
+  expiresAt: Date;
+  intent: string;
+  invitation?: RecordId<'organization_invitation'>;
+  maxAttempts: number;
+  oidcNonceHash?: string;
+  oidcStateHash?: string;
+  organization?: RecordId<'organization'>;
+  pendingMfaMethod?: string;
+  pkceVerifierCiphertext?: string;
+  primaryMethod?: string;
+  returnTo?: string;
+  ssoConnection?: RecordId<'organization_sso_connection'>;
+  status: string;
+  updatedAt: Date;
+  version: number;
+}
+
 export interface BelongsTo {
   id: RecordId<'belongs_to'>;
+  activatedAt?: Date;
   in: RecordId<'account'>;
+  invitation?: RecordId<'organization_invitation'>;
   joinedAt: Date;
+  origin: string;
   out: RecordId<'organization'>;
+  revokedAt?: Date;
+  revokedReason?: string;
   role: string;
+  ssoConnection?: RecordId<'organization_sso_connection'>;
+  status: string;
 }
 
 export interface Organization {
@@ -45,6 +153,34 @@ export interface Organization {
   name: string;
   slug: string;
   type: unknown;
+  updatedAt: Date;
+}
+
+export interface OrganizationInvitation {
+  id: RecordId<'organization_invitation'>;
+  consumedAt?: Date;
+  consumedBy?: RecordId<'account'>;
+  createdAt: Date;
+  createdBy: RecordId<'account'>;
+  expiresAt: Date;
+  organization: RecordId<'organization'>;
+  revokedAt?: Date;
+  role: string;
+  ssoConnection?: RecordId<'organization_sso_connection'>;
+  targetEmail?: string;
+  tokenHash: string;
+}
+
+export interface OrganizationSsoConnection {
+  id: RecordId<'organization_sso_connection'>;
+  claimPolicy: { [key: string]: unknown };
+  clientId?: string;
+  createdAt: Date;
+  issuer: string;
+  metadata: { [key: string]: unknown };
+  organization: RecordId<'organization'>;
+  protocol: string;
+  status: string;
   updatedAt: Date;
 }
 

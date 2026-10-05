@@ -1,6 +1,6 @@
 import type { Surreal } from 'surrealdb';
 
-import type { Account, AccountIdentity, AccountKey } from '../generated';
+import type { Account, AccountIdentity, AccountKey, AccountPasskey } from '../generated';
 import { conflict, invalidInput, type DataManagerResult } from '../errors';
 import {
   parseCreatePasswordAccountInput,
@@ -25,6 +25,7 @@ type CreatedIdentityRow = Pick<AccountIdentity, 'account'>;
 type IdentityRow = Pick<AccountIdentity, 'id'>;
 type AccountSecurityRow = Pick<Account, 'mfaEnabled'>;
 type PasswordKeyRow = Pick<AccountKey, 'id'>;
+type PasskeyRow = Pick<AccountPasskey, 'id'>;
 
 async function identityExists(
   db: Surreal,
@@ -152,7 +153,7 @@ export async function getAccountAuthenticationState(
   if (!parsed.success) return invalidInput(parsed.issues);
 
   const [accounts, passkeys] = await db
-    .query<[AccountSecurityRow[], PasswordKeyRow[]]>(
+    .query<[AccountSecurityRow[], PasskeyRow[]]>(
       `
         SELECT mfaEnabled
         FROM account
@@ -160,8 +161,8 @@ export async function getAccountAuthenticationState(
         LIMIT 1;
 
         SELECT id
-        FROM account_key
-        WHERE account = type::record($accountId) AND type = 'passkey'
+        FROM account_passkey
+        WHERE account = type::record($accountId)
         LIMIT 1;
       `,
       parsed.output,

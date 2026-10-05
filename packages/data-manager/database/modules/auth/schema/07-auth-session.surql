@@ -1,0 +1,12 @@
+DEFINE TABLE auth_session SCHEMAFULL;
+DEFINE FIELD account ON auth_session TYPE record<account>;
+DEFINE FIELD tokenPrefix ON auth_session TYPE string;
+DEFINE FIELD tokenHash ON auth_session TYPE string;
+DEFINE FIELD expiresAt ON auth_session TYPE datetime;
+DEFINE FIELD idleExpiresAt ON auth_session TYPE option<datetime>;
+DEFINE FIELD lastUsedAt ON auth_session TYPE datetime DEFAULT time::now();
+DEFINE FIELD revokedAt ON auth_session TYPE option<datetime>;
+DEFINE FIELD revokeReason ON auth_session TYPE option<string>;
+DEFINE FIELD createdAt ON auth_session TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_auth_session_token_prefix ON auth_session COLUMNS tokenPrefix UNIQUE;
+DEFINE INDEX idx_auth_session_expires_at ON auth_session COLUMNS expiresAt;

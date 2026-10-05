@@ -1,3 +1,11 @@
 DEFINE TABLE belongs_to SCHEMAFULL TYPE RELATION IN account OUT organization;
 DEFINE FIELD role ON belongs_to TYPE string DEFAULT 'member';
+DEFINE FIELD status ON belongs_to TYPE string DEFAULT 'active' ASSERT $value IN ['pending_activation', 'active', 'revoked', 'disabled'];
+DEFINE FIELD origin ON belongs_to TYPE string DEFAULT 'manual' ASSERT $value IN ['self', 'invite', 'sso', 'manual'];
+DEFINE FIELD invitation ON belongs_to TYPE option<record<organization_invitation>>;
+DEFINE FIELD ssoConnection ON belongs_to TYPE option<record<organization_sso_connection>>;
+DEFINE FIELD activatedAt ON belongs_to TYPE option<datetime>;
+DEFINE FIELD revokedAt ON belongs_to TYPE option<datetime>;
+DEFINE FIELD revokedReason ON belongs_to TYPE option<string>;
 DEFINE FIELD joinedAt ON belongs_to TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_belongs_to_account_organization ON belongs_to COLUMNS in, out UNIQUE;

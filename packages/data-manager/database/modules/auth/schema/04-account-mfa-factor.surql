@@ -1,0 +1,11 @@
+DEFINE TABLE account_mfa_factor SCHEMAFULL;
+DEFINE FIELD account ON account_mfa_factor TYPE record<account>;
+DEFINE FIELD type ON account_mfa_factor TYPE string ASSERT $value IN ['totp', 'email_otp', 'sms_otp'];
+DEFINE FIELD status ON account_mfa_factor TYPE string DEFAULT 'pending' ASSERT $value IN ['pending', 'active', 'disabled'];
+DEFINE FIELD secretCiphertext ON account_mfa_factor TYPE option<string>;
+DEFINE FIELD label ON account_mfa_factor TYPE option<string>;
+DEFINE FIELD verifiedAt ON account_mfa_factor TYPE option<datetime>;
+DEFINE FIELD disabledAt ON account_mfa_factor TYPE option<datetime>;
+DEFINE FIELD createdAt ON account_mfa_factor TYPE datetime DEFAULT time::now() READONLY;
+DEFINE FIELD updatedAt ON account_mfa_factor TYPE datetime VALUE time::now();
+DEFINE INDEX idx_account_mfa_factor_account_type ON account_mfa_factor COLUMNS account, type;

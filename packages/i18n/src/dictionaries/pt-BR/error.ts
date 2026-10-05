@@ -46,5 +46,20 @@ export const error = {
       session_invalid: 'A sessão de entrada é inválida.',
       failed: 'Ocorreu um erro. Tente novamente.',
     },
+    transaction: {
+      invalid: 'Esta solicitação de autorização não é mais válida. Comece novamente.',
+      expired: 'Esta solicitação de autorização expirou. Comece novamente.',
+      state_conflict: 'Esta solicitação foi alterada em outra aba. Comece novamente.',
+    },
+    invitation: {
+      invalid: 'Este convite não é mais válido.',
+      already_used: 'Este convite já foi utilizado.',
+    },
+    session: {
+      invalid: 'Sua sessão não é mais válida. Entre novamente.',
+    },
+    otp: {
+      invalid: 'O código de verificação é inválido ou expirou.',
+    },
   },
 } as const;

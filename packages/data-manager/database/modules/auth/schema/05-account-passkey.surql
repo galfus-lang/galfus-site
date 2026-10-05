@@ -1,0 +1,14 @@
+DEFINE TABLE account_passkey SCHEMAFULL;
+DEFINE FIELD account ON account_passkey TYPE record<account>;
+DEFINE FIELD credentialId ON account_passkey TYPE string;
+DEFINE FIELD webauthnUserId ON account_passkey TYPE string;
+DEFINE FIELD publicKey ON account_passkey TYPE string;
+DEFINE FIELD counter ON account_passkey TYPE int DEFAULT 0;
+DEFINE FIELD transports ON account_passkey TYPE array<string> DEFAULT [];
+DEFINE FIELD deviceType ON account_passkey TYPE string;
+DEFINE FIELD backedUp ON account_passkey TYPE bool DEFAULT false;
+DEFINE FIELD label ON account_passkey TYPE option<string>;
+DEFINE FIELD lastUsedAt ON account_passkey TYPE option<datetime>;
+DEFINE FIELD createdAt ON account_passkey TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_account_passkey_credential_id ON account_passkey COLUMNS credentialId UNIQUE;
+DEFINE INDEX idx_account_passkey_account ON account_passkey COLUMNS account;

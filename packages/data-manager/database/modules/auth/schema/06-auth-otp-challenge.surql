@@ -1,0 +1,11 @@
+DEFINE TABLE auth_otp_challenge SCHEMAFULL;
+DEFINE FIELD account ON auth_otp_challenge TYPE option<record<account>>;
+DEFINE FIELD contact ON auth_otp_challenge TYPE option<record<account_contact>>;
+DEFINE FIELD purpose ON auth_otp_challenge TYPE string ASSERT $value IN ['verify_contact', 'mfa', 'recovery'];
+DEFINE FIELD codeHash ON auth_otp_challenge TYPE string;
+DEFINE FIELD expiresAt ON auth_otp_challenge TYPE datetime;
+DEFINE FIELD attempts ON auth_otp_challenge TYPE int DEFAULT 0;
+DEFINE FIELD maxAttempts ON auth_otp_challenge TYPE int DEFAULT 5;
+DEFINE FIELD consumedAt ON auth_otp_challenge TYPE option<datetime>;
+DEFINE FIELD createdAt ON auth_otp_challenge TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_auth_otp_challenge_expires_at ON auth_otp_challenge COLUMNS expiresAt;

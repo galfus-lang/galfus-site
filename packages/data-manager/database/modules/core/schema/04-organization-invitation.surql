@@ -1,0 +1,14 @@
+DEFINE TABLE organization_invitation SCHEMAFULL;
+DEFINE FIELD organization ON organization_invitation TYPE record<organization>;
+DEFINE FIELD ssoConnection ON organization_invitation TYPE option<record<organization_sso_connection>>;
+DEFINE FIELD createdBy ON organization_invitation TYPE record<account>;
+DEFINE FIELD tokenHash ON organization_invitation TYPE string;
+DEFINE FIELD targetEmail ON organization_invitation TYPE option<string>;
+DEFINE FIELD role ON organization_invitation TYPE string DEFAULT 'member';
+DEFINE FIELD expiresAt ON organization_invitation TYPE datetime;
+DEFINE FIELD consumedAt ON organization_invitation TYPE option<datetime>;
+DEFINE FIELD consumedBy ON organization_invitation TYPE option<record<account>>;
+DEFINE FIELD revokedAt ON organization_invitation TYPE option<datetime>;
+DEFINE FIELD createdAt ON organization_invitation TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_organization_invitation_token_hash ON organization_invitation COLUMNS tokenHash UNIQUE;
+DEFINE INDEX idx_organization_invitation_expires_at ON organization_invitation COLUMNS expiresAt;

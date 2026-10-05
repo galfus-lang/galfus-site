@@ -1,0 +1,10 @@
+DEFINE TABLE account_contact SCHEMAFULL;
+DEFINE FIELD account ON account_contact TYPE record<account>;
+DEFINE FIELD type ON account_contact TYPE string ASSERT $value IN ['email', 'phone'];
+DEFINE FIELD value ON account_contact TYPE string;
+DEFINE FIELD status ON account_contact TYPE string DEFAULT 'pending' ASSERT $value IN ['pending', 'active', 'disabled'];
+DEFINE FIELD verifiedAt ON account_contact TYPE option<datetime>;
+DEFINE FIELD disabledAt ON account_contact TYPE option<datetime>;
+DEFINE FIELD createdAt ON account_contact TYPE datetime DEFAULT time::now() READONLY;
+DEFINE FIELD updatedAt ON account_contact TYPE datetime VALUE time::now();
+DEFINE INDEX idx_account_contact_type_value ON account_contact COLUMNS type, value UNIQUE;
