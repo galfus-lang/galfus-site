@@ -1,4 +1,12 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
+import { ulid } from 'ulid';
+
+/**
+ * Generates a lexicographically sortable, globally unique identifier.
+ */
+export function generateId(): string {
+  return ulid();
+}
 
 export interface JwtOptions {
   issuer?: string;

@@ -6,6 +6,10 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "jose": "^5.9.6"
+    "jose": "^6.2.12",
+    "ulid": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2"
   }
 }
