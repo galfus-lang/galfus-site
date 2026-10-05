@@ -1,77 +1,119 @@
 <script lang="ts">
-  import { page } from '$app/state';
+  import { enhance } from '$app/forms';
+  import { addToast } from '@galfus/design-system/components/ToastSystem.svelte';
+  import { cn } from '@galfus/design-system/utils/cn';
+  import { translate } from '@galfus/i18n';
 
-  let hint = $derived(page.url.searchParams.get('hint') || 'unknown@galfus.com');
-  let password = $state('');
-
-  // Mocked state to decide whether to show Passkey prompt
-  let hasPasskey = $state(true);
+  let { data, form } = $props();
+  let isLoading = $state(false);
 </script>
 
-<div class="flex flex-col items-center justify-center space-y-6">
-  <div class="flex w-full items-center justify-between">
-    <a href="/" class="btn btn-icon btn-ghost" aria-label="Back">
-      <span class="icon-[lucide--arrow-left] text-[20px]"></span>
-    </a>
-    <div
-      class="bg-primary/10 text-primary avatar flex h-12 w-12 items-center justify-center rounded-full font-bold"
+<div class="flex w-full flex-col items-center justify-center space-y-6">
+  <div class="relative mb-2 flex w-full items-center justify-center">
+    <a
+      href="/"
+      class="text-muted-foreground hover:text-foreground btn absolute left-0 btn-icon btn-ghost"
+      aria-label={translate('auth.action.use_different_identity', data.locale)}
     >
-      <span class="icon-[lucide--user] text-[24px]"></span>
+      <span class="icon-[lucide--arrow-left] icon-lg"></span>
+    </a>
+
+    <div
+      class="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-full"
+    >
+      <span class="icon-[lucide--user] icon-xl"></span>
     </div>
-    <div class="w-10"></div>
-    <!-- Spacer for centering -->
   </div>
 
   <div class="text-center">
-    <h1 class="text-2xl font-bold">Welcome back</h1>
+    <h1 class="text-2xl font-bold">{translate('auth.title.welcome_back', data.locale)}</h1>
     <div
-      class="border-border bg-muted/30 text-muted-foreground mt-2 inline-flex items-center rounded-full border px-3 py-1 text-sm"
+      class="border-border text-muted-foreground mt-4 inline-flex items-center rounded-full border px-4 py-1.5 text-sm"
     >
-      {hint}
+      {data.identifier}
     </div>
   </div>
 
-  <div class="w-full space-y-4">
-    {#if hasPasskey}
-      <button class="color-group-primary btn w-full btn-solid py-4 text-base">
-        <span class="icon-[lucide--fingerprint] text-[20px]"></span>
-        Sign in with Passkey
+  <div class="mt-6 w-full">
+    {#if data.hasPasskey}
+      <!-- The WebAuthn action is added with the passkey authentication flow. -->
+      <button type="button" class="color-group-primary btn w-full btn-solid">
+        <span class="mr-2 icon-[lucide--fingerprint] icon-lg"></span>
+        {translate('auth.action.sign_in_with_passkey', data.locale)}
       </button>
 
-      <div class="relative my-4 flex items-center py-2">
+      <div class="relative flex items-center py-5">
         <div class="border-border flex-grow border-t"></div>
-        <span class="bg-card text-muted-foreground px-2 text-xs">or use password</span>
+        <span class="text-muted-foreground mx-4 flex-shrink-0 text-xs">
+          {translate('auth.connective.or_use_password', data.locale)}
+        </span>
         <div class="border-border flex-grow border-t"></div>
       </div>
     {/if}
 
-    <form action="/mfa" class="space-y-4">
-      <!-- Hidden input to pass hint forward -->
-      <input type="hidden" name="hint" value={hint} />
+    <form
+      method="POST"
+      use:enhance={() => {
+        isLoading = true;
+        return async ({ result, update }) => {
+          isLoading = false;
+          const error =
+            result.type === 'failure' && typeof result.data?.error === 'string'
+              ? result.data.error
+              : undefined;
+
+          if (error) {
+            addToast({
+              title: translate('auth.title.sign_in_failed', data.locale),
+              description: error,
+              type: 'error',
+              duration: 6000,
+            });
+          }
+          await update();
+        };
+      }}
+      class="space-y-4"
+    >
+      <input type="hidden" name="state" value={data.stateToken} />
 
       <div class="space-y-1">
-        <label for="password" class="text-sm font-medium">Password</label>
-        <div class="relative">
-          <div class="text-muted-foreground absolute inset-y-0 left-0 flex items-center pl-3">
-            <span class="icon-[lucide--key-round] text-[16px]"></span>
+        <label for="password" class="text-sm font-medium">
+          {translate('auth.label.password', data.locale)}
+        </label>
+        <div class="input-group">
+          <div class="input-icon">
+            <span class="icon-[lucide--key] icon-md"></span>
           </div>
           <input
             id="password"
             name="password"
             type="password"
-            class="input-base w-full pl-10"
+            class={cn(
+              'input-base w-full pl-10',
+              form?.error && 'border-danger-9 focus:ring-danger-9',
+            )}
             placeholder="••••••••"
             required
-            autofocus={!hasPasskey}
           />
         </div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <a href="#" class="text-primary text-xs font-medium hover:underline">Forgot password?</a>
+      <div class="mb-6 flex justify-start">
+        <button type="button" class="text-muted-foreground hover:text-foreground text-xs">
+          {translate('auth.action.forgot_password', data.locale)}
+        </button>
       </div>
 
-      <button type="submit" class="color-group-primary btn w-full btn-solid"> Continue </button>
+      <button
+        type="submit"
+        class={cn('color-group-primary btn w-full btn-solid', isLoading && 'is-loading')}
+        disabled={isLoading}
+      >
+        {isLoading
+          ? translate('fields.please_wait', data.locale)
+          : translate('auth.action.sign_in', data.locale)}
+      </button>
     </form>
   </div>
 </div>
