@@ -21,6 +21,25 @@ const FullNameInputSchema = v.pipe(
   v.maxLength(100, 'error.fields.full_name.too_long'),
 );
 
+export const ExternalIdentityProviderSchema = v.picklist(['google', 'github', 'steam']);
+export type ExternalIdentityProvider = v.InferOutput<typeof ExternalIdentityProviderSchema>;
+
+const ExternalIdentityIssuerSchema = v.pipe(
+  v.string('error.input.invalid'),
+  v.trim(),
+  v.url('error.input.invalid'),
+  v.maxLength(2_048, 'error.input.invalid'),
+);
+
+const ExternalIdentitySubjectSchema = v.pipe(
+  v.string('error.input.invalid'),
+  v.trim(),
+  v.minLength(1, 'error.input.invalid'),
+  v.maxLength(512, 'error.input.invalid'),
+);
+
+const ExternalIdentityMetadataSchema = v.optional(v.record(v.string(), v.unknown()), {});
+
 export const FindAccountByIdentityInputSchema = v.object({
   identifier: v.string('error.auth.identity.invalid'),
 });
@@ -38,6 +57,44 @@ export const VerifyAccountPasswordInputSchema = v.object({
 
 export const GetAccountAuthenticationStateInputSchema = v.object({
   accountId: AccountIdInputSchema,
+});
+
+export const FindAccountByExternalIdentityInputSchema = v.object({
+  provider: ExternalIdentityProviderSchema,
+  issuer: ExternalIdentityIssuerSchema,
+  subject: ExternalIdentitySubjectSchema,
+});
+
+export const CreateExternalAccountInputSchema = v.object({
+  provider: ExternalIdentityProviderSchema,
+  issuer: ExternalIdentityIssuerSchema,
+  subject: ExternalIdentitySubjectSchema,
+  metadata: ExternalIdentityMetadataSchema,
+  fullName: FullNameInputSchema,
+});
+
+export const LinkExternalIdentityInputSchema = v.object({
+  accountId: AccountIdInputSchema,
+  provider: ExternalIdentityProviderSchema,
+  issuer: ExternalIdentityIssuerSchema,
+  subject: ExternalIdentitySubjectSchema,
+  metadata: ExternalIdentityMetadataSchema,
+});
+
+export const UnlinkExternalIdentityInputSchema = v.object({
+  accountId: AccountIdInputSchema,
+  provider: ExternalIdentityProviderSchema,
+  issuer: ExternalIdentityIssuerSchema,
+  subject: ExternalIdentitySubjectSchema,
+});
+
+export const IncrementAccountCredentialVersionInputSchema = v.object({
+  accountId: AccountIdInputSchema,
+});
+
+export const UpsertAccountPasswordInputSchema = v.object({
+  accountId: AccountIdInputSchema,
+  password: PasswordInputSchema,
 });
 
 export function parseFindAccountByIdentityInput(input: unknown) {

@@ -1,0 +1,18 @@
+DEFINE TABLE auth_transaction SCHEMAFULL COMMENT 'Opaque, expiring authentication and organization-grant workflow. Stable lifecycle and relationship fields are explicit; kind-specific state is stored in validated metadata.';
+DEFINE FIELD kind ON auth_transaction TYPE string ASSERT $value IN ['authorization', 'registration', 'organization_invitation', 'password_recovery', 'upsert_password'];
+DEFINE FIELD status ON auth_transaction TYPE string DEFAULT 'pending' ASSERT $value IN ['pending', 'awaiting_provider', 'awaiting_sso', 'awaiting_primary', 'awaiting_registration', 'awaiting_mfa', 'authorized', 'completed', 'failed', 'revoked', 'expired'];
+DEFINE FIELD parent ON auth_transaction TYPE option<record<auth_transaction>>;
+DEFINE FIELD account ON auth_transaction TYPE option<record<account>>;
+DEFINE FIELD organization ON auth_transaction TYPE option<record<organization>>;
+DEFINE FIELD browser_verifier_hash ON auth_transaction TYPE option<string>;
+DEFINE FIELD return_to ON auth_transaction TYPE option<string>;
+DEFINE FIELD metadata ON auth_transaction TYPE object FLEXIBLE DEFAULT {};
+DEFINE FIELD attempts ON auth_transaction TYPE int DEFAULT 0;
+DEFINE FIELD max_attempts ON auth_transaction TYPE int DEFAULT 5;
+DEFINE FIELD expires_at ON auth_transaction TYPE datetime;
+DEFINE FIELD consumed_at ON auth_transaction TYPE option<datetime>;
+DEFINE FIELD version ON auth_transaction TYPE int DEFAULT 0;
+DEFINE FIELD created_at ON auth_transaction TYPE datetime DEFAULT time::now() READONLY;
+DEFINE FIELD updated_at ON auth_transaction TYPE datetime VALUE time::now();
+DEFINE INDEX idx_auth_transaction_expires_at ON auth_transaction COLUMNS expires_at;
+DEFINE INDEX idx_auth_transaction_parent ON auth_transaction COLUMNS parent;

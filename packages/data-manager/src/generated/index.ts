@@ -5,191 +5,137 @@ import type { RecordId } from 'surrealdb';
 
 export interface Account {
   id: RecordId<'account'>;
-  createdAt: Date;
-  displayName: string;
-  mfaEnabled: boolean;
-  name: string;
+  created_at: Date;
+  credential_version: number;
+  display_name: string;
   status: string;
-  updatedAt: Date;
+  updated_at: Date;
 }
 
-export interface AccountContact {
-  id: RecordId<'account_contact'>;
+export interface AccountAuthenticator {
+  id: RecordId<'account_authenticator'>;
   account: RecordId<'account'>;
-  createdAt: Date;
-  disabledAt?: Date;
+  created_at: Date;
+  disabled_at?: Date;
+  expires_at?: Date;
+  identifier?: string;
+  identity?: RecordId<'account_identity'>;
+  kind: string;
+  metadata: {
+    backed_up?: boolean;
+    counter?: number;
+    device_type?: string;
+    label?: string;
+    last_used_at?: Date;
+    transports?: string[];
+    webauthn_user_id?: string;
+  };
+  public_key?: string;
+  purpose: string;
+  secret_ciphertext?: string;
+  secret_hash?: string;
   status: string;
-  type: unknown;
-  updatedAt: Date;
-  value: string;
-  verifiedAt?: Date;
-}
-
-export interface AccountFederatedIdentity {
-  id: RecordId<'account_federated_identity'>;
-  account: RecordId<'account'>;
-  connection: RecordId<'organization_sso_connection'>;
-  createdAt: Date;
-  issuer: string;
-  metadata: { [key: string]: unknown };
-  subject: string;
-  updatedAt: Date;
+  updated_at: Date;
+  verified_at?: Date;
 }
 
 export interface AccountIdentity {
   id: RecordId<'account_identity'>;
   account: RecordId<'account'>;
-  createdAt: Date;
+  created_at: Date;
+  disabled_at?: Date;
   identifier: string;
-  metadata: { [key: string]: unknown };
+  issuer: string;
+  kind: string;
+  metadata: unknown;
   provider: string;
-}
-
-export interface AccountKey {
-  id: RecordId<'account_key'>;
-  account: RecordId<'account'>;
-  createdAt: Date;
-  expiresAt?: Date;
-  type: unknown;
-  value: string;
-}
-
-export interface AccountMfaFactor {
-  id: RecordId<'account_mfa_factor'>;
-  account: RecordId<'account'>;
-  createdAt: Date;
-  disabledAt?: Date;
-  label?: string;
-  secretCiphertext?: string;
   status: string;
-  type: unknown;
-  updatedAt: Date;
-  verifiedAt?: Date;
-}
-
-export interface AccountPasskey {
-  id: RecordId<'account_passkey'>;
-  account: RecordId<'account'>;
-  backedUp: boolean;
-  counter: number;
-  createdAt: Date;
-  credentialId: string;
-  deviceType: string;
-  label?: string;
-  lastUsedAt?: Date;
-  publicKey: string;
-  transports: string[];
-  webauthnUserId: string;
+  updated_at: Date;
+  verified_at?: Date;
 }
 
 export interface AuthOtpChallenge {
   id: RecordId<'auth_otp_challenge'>;
   account?: RecordId<'account'>;
   attempts: number;
-  codeHash: string;
-  consumedAt?: Date;
-  contact?: RecordId<'account_contact'>;
-  createdAt: Date;
-  expiresAt: Date;
-  maxAttempts: number;
+  authenticator?: RecordId<'account_authenticator'>;
+  code_hash: string;
+  consumed_at?: Date;
+  created_at: Date;
+  expires_at: Date;
+  identity?: RecordId<'account_identity'>;
+  max_attempts: number;
   purpose: string;
-}
-
-export interface AuthSession {
-  id: RecordId<'auth_session'>;
-  account: RecordId<'account'>;
-  createdAt: Date;
-  expiresAt: Date;
-  idleExpiresAt?: Date;
-  lastUsedAt: Date;
-  revokeReason?: string;
-  revokedAt?: Date;
-  tokenHash: string;
-  tokenPrefix: string;
+  transaction?: RecordId<'auth_transaction'>;
 }
 
 export interface AuthTransaction {
   id: RecordId<'auth_transaction'>;
   account?: RecordId<'account'>;
   attempts: number;
-  browserVerifierHash: string;
-  consumedAt?: Date;
-  createdAt: Date;
-  expiresAt: Date;
-  intent: string;
-  invitation?: RecordId<'organization_invitation'>;
-  maxAttempts: number;
-  oidcNonceHash?: string;
-  oidcStateHash?: string;
+  browser_verifier_hash?: string;
+  consumed_at?: Date;
+  created_at: Date;
+  expires_at: Date;
+  kind: string;
+  max_attempts: number;
+  metadata: unknown;
   organization?: RecordId<'organization'>;
-  pendingMfaMethod?: string;
-  pkceVerifierCiphertext?: string;
-  primaryMethod?: string;
-  returnTo?: string;
-  ssoConnection?: RecordId<'organization_sso_connection'>;
+  parent?: RecordId<'auth_transaction'>;
+  return_to?: string;
   status: string;
-  updatedAt: Date;
+  updated_at: Date;
   version: number;
 }
 
 export interface BelongsTo {
   id: RecordId<'belongs_to'>;
-  activatedAt?: Date;
+  activated_at?: Date;
+  federated_metadata: unknown;
+  federated_subject?: string;
+  grant_transaction?: RecordId<'auth_transaction'>;
   in: RecordId<'account'>;
-  invitation?: RecordId<'organization_invitation'>;
-  joinedAt: Date;
+  joined_at: Date;
   origin: string;
   out: RecordId<'organization'>;
-  revokedAt?: Date;
-  revokedReason?: string;
+  revoked_at?: Date;
+  revoked_reason?: string;
   role: string;
-  ssoConnection?: RecordId<'organization_sso_connection'>;
+  sso_connection?: RecordId<'organization_sso_connection'>;
+  sso_last_verified_at?: Date;
+  sso_required_at?: Date;
+  sso_verified_at?: Date;
   status: string;
 }
 
 export interface Organization {
   id: RecordId<'organization'>;
-  createdAt: Date;
+  created_at: Date;
   name: string;
   slug: string;
   type: unknown;
-  updatedAt: Date;
-}
-
-export interface OrganizationInvitation {
-  id: RecordId<'organization_invitation'>;
-  consumedAt?: Date;
-  consumedBy?: RecordId<'account'>;
-  createdAt: Date;
-  createdBy: RecordId<'account'>;
-  expiresAt: Date;
-  organization: RecordId<'organization'>;
-  revokedAt?: Date;
-  role: string;
-  ssoConnection?: RecordId<'organization_sso_connection'>;
-  targetEmail?: string;
-  tokenHash: string;
+  updated_at: Date;
 }
 
 export interface OrganizationSsoConnection {
   id: RecordId<'organization_sso_connection'>;
-  claimPolicy: { [key: string]: unknown };
-  clientId?: string;
-  createdAt: Date;
+  claim_policy: { [key: string]: unknown };
+  client_id?: string;
+  created_at: Date;
   issuer: string;
   metadata: { [key: string]: unknown };
   organization: RecordId<'organization'>;
   protocol: string;
   status: string;
-  updatedAt: Date;
+  updated_at: Date;
 }
 
 export interface Project {
   id: RecordId<'project'>;
   config: { [key: string]: unknown };
-  createdAt: Date;
+  created_at: Date;
   name: string;
   organization: RecordId<'organization'>;
   slug: string;
-  updatedAt: Date;
+  updated_at: Date;
 }

@@ -1,0 +1,13 @@
+DEFINE TABLE auth_otp_challenge SCHEMAFULL COMMENT 'Short-lived hashed one-time-code challenge for identity verification, MFA, or recovery.';
+DEFINE FIELD account ON auth_otp_challenge TYPE option<record<account>>;
+DEFINE FIELD identity ON auth_otp_challenge TYPE option<record<account_identity>>;
+DEFINE FIELD authenticator ON auth_otp_challenge TYPE option<record<account_authenticator>>;
+DEFINE FIELD transaction ON auth_otp_challenge TYPE option<record<auth_transaction>>;
+DEFINE FIELD purpose ON auth_otp_challenge TYPE string ASSERT $value IN ['verify_identity', 'mfa', 'recovery'];
+DEFINE FIELD code_hash ON auth_otp_challenge TYPE string;
+DEFINE FIELD expires_at ON auth_otp_challenge TYPE datetime;
+DEFINE FIELD attempts ON auth_otp_challenge TYPE int DEFAULT 0;
+DEFINE FIELD max_attempts ON auth_otp_challenge TYPE int DEFAULT 5;
+DEFINE FIELD consumed_at ON auth_otp_challenge TYPE option<datetime>;
+DEFINE FIELD created_at ON auth_otp_challenge TYPE datetime DEFAULT time::now() READONLY;
+DEFINE INDEX idx_auth_otp_challenge_expires_at ON auth_otp_challenge COLUMNS expires_at;

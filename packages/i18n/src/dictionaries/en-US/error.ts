@@ -30,6 +30,9 @@ export const error = {
       already_exists: 'This email address or username is already in use.',
       lookup_failed: 'We could not verify this identity. Please try again.',
     },
+    sso_identity: {
+      already_linked: 'This corporate identity is already linked to another organization member.',
+    },
     pass: {
       required: 'Enter your password.',
       too_short: 'The password must be at least 8 characters long.',
@@ -38,12 +41,12 @@ export const error = {
       incorrect: 'The password is incorrect. Please try again.',
     },
     registration: {
-      session_missing: 'The registration session is missing.',
-      session_invalid: 'The registration session is invalid.',
+      transaction_missing: 'The registration transaction is missing.',
+      transaction_invalid: 'The registration transaction is invalid.',
       failed: 'We could not create your account. Please try again.',
     },
     login: {
-      session_invalid: 'The sign-in session is invalid.',
+      transaction_invalid: 'The sign-in transaction is invalid.',
       failed: 'Something went wrong. Please try again.',
     },
     transaction: {
@@ -54,9 +57,12 @@ export const error = {
     invitation: {
       invalid: 'This invitation is no longer valid.',
       already_used: 'This invitation has already been used.',
+      expired: 'This invitation has expired.',
+      revoked: 'This invitation has been revoked.',
+      sso_required: 'Corporate sign-in is required to accept this invitation.',
     },
-    session: {
-      invalid: 'Your session is no longer valid. Please sign in again.',
+    access: {
+      invalid: 'Your access credential is no longer valid. Please sign in again.',
     },
     otp: {
       invalid: 'The verification code is invalid or expired.',
