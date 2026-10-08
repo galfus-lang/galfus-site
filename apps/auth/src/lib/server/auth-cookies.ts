@@ -1,5 +1,5 @@
 import {
-  AUTH_SESSION_COOKIE_MAX_AGE,
+  AUTH_ACCESS_TOKEN_COOKIE_MAX_AGE,
   AUTH_TRANSACTION_COOKIE_MAX_AGE,
   createAuthCookieOptions,
 } from '@galfus/auth-utils';
@@ -25,18 +25,18 @@ export function clearAuthTransactionCookie(cookies: Cookies): void {
   cookies.delete(COOKIES_KEYS.auth_transaction, { path: '/' });
 }
 
-export function setAuthSessionCookie(cookies: Cookies, value: string): void {
+export function setAuthAccessTokenCookie(cookies: Cookies, value: string): void {
   cookies.set(
-    COOKIES_KEYS.auth_session,
+    COOKIES_KEYS.auth_access_token,
     value,
-    createAuthCookieOptions(AUTH_SESSION_COOKIE_MAX_AGE, secure),
+    createAuthCookieOptions(AUTH_ACCESS_TOKEN_COOKIE_MAX_AGE, secure),
   );
 }
 
-export function getAuthSessionCookie(cookies: Cookies): string | undefined {
-  return cookies.get(COOKIES_KEYS.auth_session);
+export function getAuthAccessTokenCookie(cookies: Cookies): string | undefined {
+  return cookies.get(COOKIES_KEYS.auth_access_token);
 }
 
-export function clearAuthSessionCookie(cookies: Cookies): void {
-  cookies.delete(COOKIES_KEYS.auth_session, { path: '/' });
+export function clearAuthAccessTokenCookie(cookies: Cookies): void {
+  cookies.delete(COOKIES_KEYS.auth_access_token, { path: '/' });
 }

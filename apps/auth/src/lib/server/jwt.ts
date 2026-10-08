@@ -13,3 +13,5 @@ export const jwt = new JwtService(secret, {
   audience: 'galfus:auth-flow',
   keyId: env.AUTH_JWT_KEY_ID ?? 'local-v1',
 });
+
+export const AUTH_ACCESS_JWT_AUDIENCE = 'galfus:access';

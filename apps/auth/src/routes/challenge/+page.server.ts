@@ -1,14 +1,12 @@
 import { fail, redirect, isRedirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { resolveMainAppRedirect } from '@galfus/constants';
-import {
-  getAccountAuthenticationState,
-  verifyAccountPassword,
-} from '@galfus/data-manager/server';
+import { getAccountAuthenticationState, verifyAccountPassword } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
 import { connectDb } from '$lib/server/db';
+import { setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { getRequestLocale } from '$lib/server/i18n';
-import { jwt } from '$lib/server/jwt';
+import { AUTH_ACCESS_JWT_AUDIENCE, jwt } from '$lib/server/jwt';
 
 export const load = async ({ url }) => {
   const state = url.searchParams.get('state');
@@ -45,7 +43,7 @@ export const load = async ({ url }) => {
     };
   } catch (e) {
     if (isRedirect(e)) throw e;
-    throw redirect(303, '/?error=invalid_session');
+    throw redirect(303, '/?error=invalid_transaction');
   }
 };
 
@@ -64,19 +62,19 @@ export const actions = {
       // 1. Validate the flow token
       const payload = await jwt.verify(state);
       if (payload.flow !== 'login' || !payload.accountId) {
-        return fail(403, { error: translate('error.auth.login.session_invalid', locale) });
+        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
       }
 
       const accountId = typeof payload.accountId === 'string' ? payload.accountId : '';
       const identifier = typeof payload.identifier === 'string' ? payload.identifier : '';
       if (!accountId || !identifier) {
-        return fail(403, { error: translate('error.auth.login.session_invalid', locale) });
+        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
       }
 
       const db = await connectDb();
       const authenticationStateResult = await getAccountAuthenticationState(db, { accountId });
       if (!authenticationStateResult.success || !authenticationStateResult.data) {
-        return fail(403, { error: translate('error.auth.login.session_invalid', locale) });
+        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
       }
       const authenticationState = authenticationStateResult.data;
 
@@ -114,23 +112,18 @@ export const actions = {
         throw redirect(303, `/mfa?state=${mfaToken}`);
       }
 
-      // 4. No MFA required. Issue the final Session JWT
-      const sessionToken = await jwt.sign(
+      // 4. No MFA required. Issue the stateless access JWT.
+      const accessToken = await jwt.sign(
         {
-          flow: 'session',
+          flow: 'access',
+          sub: accountId,
           accountId,
           identifier,
         },
-        { expirationTime: '7d' }, // Session valid for 7 days
+        { audience: AUTH_ACCESS_JWT_AUDIENCE, expirationTime: '7d' },
       );
 
-      cookies.set('galfus_auth_session', sessionToken, {
-        path: '/',
-        httpOnly: true,
-        secure: !dev,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7,
-      });
+      setAuthAccessTokenCookie(cookies, accessToken);
 
       // 5. Return to the requested main-app path, or to the environment fallback.
       const redirectUrl = resolveMainAppRedirect(dev, payload.rto);

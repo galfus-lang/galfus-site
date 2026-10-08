@@ -14,7 +14,7 @@ export const APP_URLS = {
 export const COOKIES_KEYS = {
   locale: 'galfus_locale',
   auth_transaction: 'galfus_auth_transaction',
-  auth_session: 'galfus_auth_session',
+  auth_access_token: 'galfus_auth_access_token',
   active_organization: 'galfus_active_organization',
 } as const;
 

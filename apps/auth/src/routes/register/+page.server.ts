@@ -9,8 +9,9 @@ import {
 import { createPasswordAccount } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
 import { connectDb } from '$lib/server/db';
+import { setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { getRequestLocale } from '$lib/server/i18n';
-import { jwt } from '$lib/server/jwt';
+import { AUTH_ACCESS_JWT_AUDIENCE, jwt } from '$lib/server/jwt';
 
 export const load = async ({ url }) => {
   const state = url.searchParams.get('state');
@@ -38,7 +39,7 @@ export const load = async ({ url }) => {
     };
   } catch (e) {
     // Token is invalid, expired, or tampered with
-    throw redirect(303, '/?error=invalid_session');
+    throw redirect(303, '/?error=invalid_transaction');
   }
 };
 
@@ -57,7 +58,7 @@ export const actions = {
 
     if (!state) {
       return fail(400, {
-        error: translate('error.auth.registration.session_missing', locale),
+        error: translate('error.auth.registration.transaction_missing', locale),
         fullName: fullName.trim(),
       });
     }
@@ -81,7 +82,7 @@ export const actions = {
       payload = await jwt.verify(state);
     } catch {
       return fail(403, {
-        error: translate('error.auth.registration.session_invalid', locale),
+        error: translate('error.auth.registration.transaction_invalid', locale),
         fullName: credentials.fullName,
       });
     }
@@ -96,7 +97,7 @@ export const actions = {
       provider !== identityResult.output.provider
     ) {
       return fail(403, {
-        error: translate('error.auth.registration.session_invalid', locale),
+        error: translate('error.auth.registration.transaction_invalid', locale),
         fullName: credentials.fullName,
       });
     }
@@ -129,25 +130,19 @@ export const actions = {
 
       const accountId = String(accountResult.data.id);
 
-      // 3. Issue the final Session JWT since the user successfully signed up!
-      const sessionToken = await jwt.sign(
+      // 3. Issue the stateless access JWT after successful registration.
+      const accessToken = await jwt.sign(
         {
-          flow: 'session',
+          flow: 'access',
+          sub: accountId,
           accountId: accountId,
           identifier: identifier,
           // They just created a password, so they are fully authenticated
         },
-        { expirationTime: '7d' }, // Session valid for 7 days
+        { audience: AUTH_ACCESS_JWT_AUDIENCE, expirationTime: '7d' },
       );
 
-      // Set the secure cookie
-      cookies.set('galfus_auth_session', sessionToken, {
-        path: '/',
-        httpOnly: true,
-        secure: !dev,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
+      setAuthAccessTokenCookie(cookies, accessToken);
 
       // 4. Return to the requested main-app path, or to the environment fallback.
       const redirectUrl = resolveMainAppRedirect(dev, payload.rto);
