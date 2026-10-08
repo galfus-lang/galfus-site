@@ -1,5 +1,11 @@
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
+const encryptionEnvelopePattern = /^([A-Za-z0-9_-]{1,64})\.([A-Za-z0-9_-]+)$/;
+
+export interface EncryptionKey {
+  keyId: string;
+  key: string;
+}
 
 function assertByteLength(byteLength: number): void {
   if (!Number.isSafeInteger(byteLength) || byteLength < 1) {
@@ -107,4 +113,25 @@ export async function decryptSecret(value: string, key: string): Promise<string>
     ciphertext,
   );
   return textDecoder.decode(plaintext);
+}
+
+/** Encrypts a secret in a self-describing envelope so keys can rotate safely. */
+export async function encryptSecretWithKey(value: string, encryptionKey: EncryptionKey): Promise<string> {
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(encryptionKey.keyId)) {
+    throw new Error('Encryption key IDs must be 1–64 base64url characters.');
+  }
+  return `${encryptionKey.keyId}.${await encryptSecret(value, encryptionKey.key)}`;
+}
+
+/** Decrypts an envelope using any retained key. Remove retired keys only after re-encryption. */
+export async function decryptSecretWithKeys(
+  value: string,
+  encryptionKeys: readonly EncryptionKey[],
+): Promise<{ value: string; keyId: string }> {
+  const match = encryptionEnvelopePattern.exec(value);
+  if (!match) throw new Error('Invalid encrypted secret envelope.');
+  const [, keyId, ciphertext] = match;
+  const encryptionKey = encryptionKeys.find((candidate) => candidate.keyId === keyId);
+  if (!encryptionKey) throw new Error('Encrypted secret key is not configured.');
+  return { value: await decryptSecret(ciphertext!, encryptionKey.key), keyId: keyId! };
 }
