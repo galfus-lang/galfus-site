@@ -48,10 +48,7 @@
             if (result.type === 'failure' && typeof result.data?.error === 'string') {
               errorMessage = result.data.error;
             } else if (result.type === 'error') {
-              errorMessage =
-                typeof result.error === 'object' && result.error && 'message' in result.error
-                  ? String(result.error.message)
-                  : translate('auth.title.sign_in_failed', data.locale);
+              errorMessage = translate('error.auth.login.failed', data.locale);
             }
 
             if (errorMessage) {

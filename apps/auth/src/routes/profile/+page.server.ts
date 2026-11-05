@@ -155,20 +155,21 @@ export const actions = {
   },
 
   passkeyRegistrationOptions: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
     const session = await requireUserSession(cookies);
 
     try {
       const db = await connectDb();
       const profileResult = await getAccountProfile(db, { accountId: session.accountId });
+      if (!profileResult.success || !profileResult.data) {
+        return fail(400, { error: translate('error.auth.account.invalid', locale) });
+      }
       const passkeys = await getAccountPasskeys(db, session.accountId);
 
       const origin = request.headers.get('origin');
       const relyingParty = getPasskeyRelyingParty(origin);
 
-      const displayName =
-        profileResult.success && profileResult.data
-          ? profileResult.data.account.displayName
-          : 'User';
+      const displayName = profileResult.data.account.displayName;
 
       const userName = session.identifier || displayName;
 
@@ -195,7 +196,7 @@ export const actions = {
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error('Passkey registration options error:', error);
-      return fail(500);
+      return fail(500, { error: translate('error.auth.login.failed', locale) });
     }
   },
 

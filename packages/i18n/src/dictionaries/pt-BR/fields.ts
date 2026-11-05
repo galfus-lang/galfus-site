@@ -1,4 +1,5 @@
 export const fields = {
+  error: 'Erro',
   next: 'Próximo',
   please_wait: 'Aguarde…',
   back: 'Voltar',

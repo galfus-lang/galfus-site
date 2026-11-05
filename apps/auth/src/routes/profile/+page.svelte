@@ -190,7 +190,7 @@
               });
             } else if (result.type === 'failure' && result.data?.error) {
               addToast({
-                title: 'Error',
+                title: translate('fields.error', data.locale),
                 description: result.data.error as string,
                 type: 'error',
                 duration: 5000,
@@ -261,7 +261,7 @@
                 });
               } else if (result.type === 'failure' && result.data?.error) {
                 addToast({
-                  title: 'Error',
+                  title: translate('fields.error', data.locale),
                   description: result.data.error as string,
                   type: 'error',
                   duration: 5000,
@@ -365,10 +365,19 @@
                 <div class="flex items-center space-x-2">
                   <span class="text-primary icon-[lucide--fingerprint] icon-md"></span>
                   <div>
-                    <p class="font-medium">{passkey.label || 'Passkey'}</p>
-                    <p class="text-muted-foreground text-[10px]">
-                      {passkey.deviceType || 'device'}
+                    <p class="font-medium">
+                      {passkey.label || translate('profile.label.passkey_default', data.locale)}
                     </p>
+                    {#if passkey.deviceType === 'singleDevice' || passkey.deviceType === 'multiDevice'}
+                      <p class="text-muted-foreground text-[10px]">
+                        {translate(
+                          passkey.deviceType === 'singleDevice'
+                            ? 'profile.label.passkey_single_device'
+                            : 'profile.label.passkey_multi_device',
+                          data.locale,
+                        )}
+                      </p>
+                    {/if}
                   </div>
                 </div>
 

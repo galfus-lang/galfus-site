@@ -42,7 +42,7 @@ export const auth = {
     identity: 'usuario@galfus.com',
     full_name: 'ex.: João da Silva',
     otp_code: '000000',
-    recovery_code: 'XXXX-XXXX-XXXX',
+    recovery_code: 'XXXX-XXXX',
   },
   action: {
     sign_in: 'Entrar',

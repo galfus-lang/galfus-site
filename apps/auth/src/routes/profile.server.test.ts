@@ -336,6 +336,22 @@ describe('profile server route', () => {
     });
   });
 
+  it('does not prepare passkey registration if the account profile is unavailable', async () => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+    mocks.jwtVerify.mockResolvedValue({
+      sub: 'account:test_account',
+      accountId: 'account:test_account',
+    });
+    mocks.getAccountProfile.mockResolvedValue({ success: true, data: null });
+    const result = await actions.passkeyRegistrationOptions({
+      request: new Request('http://localhost:5001/profile?/passkeyRegistrationOptions', {
+        method: 'POST',
+      }),
+      cookies: {} as never,
+    } as never);
+    expect(result).toMatchObject({ status: 400, data: { error: 'error.auth.account.invalid' } });
+  });
+
   it('stores the WebAuthn user ID in base64url format when registering a passkey', async () => {
     mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
     mocks.jwtVerify.mockResolvedValue({

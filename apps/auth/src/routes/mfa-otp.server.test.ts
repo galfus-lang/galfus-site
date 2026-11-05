@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   confirmRecoveryCodeAuthTransaction: vi.fn(),
   completeAuthTransaction: vi.fn(),
   verifyTotp: vi.fn(),
+  recoveryPepper: vi.fn(),
+  recordMfaFailure: vi.fn(),
   jwtSign: vi.fn(),
   jwtVerify: vi.fn(),
 }));
@@ -32,7 +34,7 @@ vi.mock('$lib/server/db', () => ({ connectDb: mocks.connectDb }));
 vi.mock('$lib/server/password-attempt', () => ({ reserveLoginAttempt: async () => true }));
 vi.mock('$lib/server/totp-secrets', () => ({
   decryptTotpSecret: async () => 'JBSWY3DPEHPK3PXP',
-  recoveryPepper: () => 'x'.repeat(32),
+  recoveryPepper: mocks.recoveryPepper,
 }));
 vi.mock('$lib/server/i18n', () => ({ getRequestLocale: () => 'en-US' }));
 vi.mock('$lib/server/access-session', () => ({
@@ -58,7 +60,7 @@ vi.mock('@galfus/data-manager/server', () => ({
   confirmTotpAuthTransaction: mocks.confirmTotpAuthTransaction,
   confirmRecoveryCodeAuthTransaction: mocks.confirmRecoveryCodeAuthTransaction,
   completeAuthTransaction: mocks.completeAuthTransaction,
-  recordMfaFailure: vi.fn().mockResolvedValue({ success: true, data: true }),
+  recordMfaFailure: mocks.recordMfaFailure,
 }));
 
 vi.mock('@galfus/i18n', async (importOriginal) => ({
@@ -75,6 +77,8 @@ describe('mfa-otp server route', () => {
     vi.clearAllMocks();
     mocks.connectDb.mockResolvedValue({});
     mocks.jwtSign.mockResolvedValue('signed-access-token');
+    mocks.recoveryPepper.mockReturnValue('x'.repeat(32));
+    mocks.recordMfaFailure.mockResolvedValue({ success: true, data: true });
   });
 
   describe('load', () => {
@@ -298,6 +302,36 @@ describe('mfa-otp server route', () => {
   });
 
   describe('actions.recovery', () => {
+    it('does not count a configuration failure as an incorrect recovery code', async () => {
+      mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
+      mocks.getAuthTransaction.mockResolvedValue({
+        success: true,
+        data: {
+          kind: 'authorization',
+          status: 'awaiting_mfa',
+          account: 'account:test',
+          version: 1,
+          metadata: { authorization: { pending_mfa_method: 'totp' } },
+        },
+      });
+      mocks.recoveryPepper.mockImplementation(() => {
+        throw new Error('Missing pepper');
+      });
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const form = new FormData();
+      form.set('recoveryCode', 'ABCD-EFGH');
+      const result = await actions.recovery({
+        request: new Request('http://localhost:5001/mfa-otp?/recovery', {
+          method: 'POST',
+          body: form,
+        }),
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
+      expect(result).toMatchObject({ status: 500 });
+      expect(mocks.recordMfaFailure).not.toHaveBeenCalled();
+      errorSpy.mockRestore();
+    });
     it('confirms recovery code and redirects to /success', async () => {
       mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
       mocks.getAuthTransaction.mockResolvedValue({

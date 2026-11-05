@@ -172,8 +172,9 @@ export const actions = {
       if (!(await reserveLoginAttempt(db, accountId, getClientAddress(), 'mfa')))
         return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
       let codeHash: string;
+      const pepper = recoveryPepper();
       try {
-        codeHash = await hashRecoveryCode(recoveryCode, recoveryPepper());
+        codeHash = await hashRecoveryCode(recoveryCode, pepper);
       } catch {
         await recordMfaFailure(db, {
           id: token.id,

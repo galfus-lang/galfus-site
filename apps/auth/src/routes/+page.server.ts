@@ -57,32 +57,27 @@ export const load = async ({ cookies, url }) => {
     return { transactionError: 'error.auth.transaction.invalid' as const };
   }
 
-  try {
-    const db = await connectDb();
-    const result = await getAuthTransaction(db, {
-      id: token.id,
-      browserVerifierHash: await hashSecret(token.verifier),
-    });
-    if (!result.success) {
-      clearAuthTransactionCookie(cookies);
-      return { transactionError: result.error.id };
-    }
-
-    const nextRoute = transactionRoute(
-      result.data.kind,
-      result.data.status,
-      result.data.kind === 'authorization'
-        ? result.data.metadata?.authorization?.pending_mfa_method
-        : undefined,
-    );
-    if (nextRoute) throw temporaryRedirect(nextRoute);
-
+  const db = await connectDb();
+  const result = await getAuthTransaction(db, {
+    id: token.id,
+    browserVerifierHash: await hashSecret(token.verifier),
+  });
+  if (!result.success) {
     clearAuthTransactionCookie(cookies);
-    return { transactionError: 'error.auth.transaction.invalid' as const };
-  } catch (error) {
-    if (isRedirect(error)) throw error;
-    throw error;
+    return { transactionError: result.error.id };
   }
+
+  const nextRoute = transactionRoute(
+    result.data.kind,
+    result.data.status,
+    result.data.kind === 'authorization'
+      ? result.data.metadata?.authorization?.pending_mfa_method
+      : undefined,
+  );
+  if (nextRoute) throw temporaryRedirect(nextRoute);
+
+  clearAuthTransactionCookie(cookies);
+  return { transactionError: 'error.auth.transaction.invalid' as const };
 };
 
 export const actions = {

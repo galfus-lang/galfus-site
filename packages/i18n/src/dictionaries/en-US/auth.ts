@@ -41,7 +41,7 @@ export const auth = {
     identity: 'user@galfus.com',
     full_name: 'e.g. John Doe',
     otp_code: '000000',
-    recovery_code: 'XXXX-XXXX-XXXX',
+    recovery_code: 'XXXX-XXXX',
   },
   action: {
     sign_in: 'Sign in',
