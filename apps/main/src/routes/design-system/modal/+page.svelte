@@ -37,7 +37,7 @@
   </p>
 
   <div class="card flex justify-center py-10">
-    <button class="color-group-primary btn btn-solid" onclick={() => dialog.showModal()}
+    <button class="btn btn-solid color-group-primary" onclick={() => dialog.showModal()}
       >Open Modal</button
     >
 
@@ -47,7 +47,7 @@
         <header class="modal-header">
           <h2 class="modal-title">Confirm Deletion</h2>
           <form method="dialog">
-            <button class="color-group-neutral btn btn-icon btn-ghost" aria-label="Close">
+            <button class="btn btn-icon btn-ghost color-group-neutral" aria-label="Close">
               <span class="icon-[lucide--x] icon-md"></span>
             </button>
           </form>
@@ -63,9 +63,9 @@
         <!-- Footer -->
         <div class="modal-footer">
           <form method="dialog">
-            <button class="color-group-neutral btn btn-outlined">Cancel</button>
+            <button class="btn btn-outlined color-group-neutral">Cancel</button>
           </form>
-          <button class="color-group-danger btn btn-solid" onclick={() => dialog.close()}>
+          <button class="btn btn-solid color-group-danger" onclick={() => dialog.close()}>
             Delete
           </button>
         </div>

@@ -163,7 +163,7 @@
 
 <div
   class={cn(
-    'color-group-primary flex h-full w-full flex-col text-primary-12',
+    'flex h-full w-full flex-col text-primary-12 color-group-primary',
     isEmbed ? 'bg-transparent' : 'bg-primary-1',
   )}
 >

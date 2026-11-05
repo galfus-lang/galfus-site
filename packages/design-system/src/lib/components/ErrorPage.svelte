@@ -8,7 +8,7 @@
   } = $props();
 </script>
 
-<div class="color-group-primary bg-background text-foreground flex min-h-screen flex-col">
+<div class="bg-background text-foreground flex min-h-screen flex-col color-group-primary">
   {#if showAppbar}
     <NavigationAppbar />
   {/if}
@@ -16,15 +16,15 @@
   <main class="flex flex-1 items-center justify-center p-6">
     <div class="card flex max-w-md flex-col items-center p-12 text-center">
       <div
-        class="bg-group-3 text-group-11 mb-6 flex h-24 w-24 items-center justify-center rounded-full"
+        class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-group-3 text-group-11"
       >
         <span class="icon-[lucide--alert-triangle] icon-3xl"></span>
       </div>
 
-      <h1 class="text-group-12 mb-2 text-5xl font-black">{status}</h1>
-      <h2 class="text-group-11 mb-6 text-xl font-semibold">Ops! Algo deu errado.</h2>
+      <h1 class="mb-2 text-5xl font-black text-group-12">{status}</h1>
+      <h2 class="mb-6 text-xl font-semibold text-group-11">Ops! Algo deu errado.</h2>
 
-      <p class="text-group-10 mb-8 text-sm">
+      <p class="mb-8 text-sm text-group-10">
         {message}
       </p>
 

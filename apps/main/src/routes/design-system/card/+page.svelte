@@ -30,8 +30,8 @@
       </p>
     </div>
     <footer class="card-footer">
-      <button class="color-group-neutral btn btn-outlined">Cancel</button>
-      <button class="color-group-primary btn btn-solid">Save</button>
+      <button class="btn btn-outlined color-group-neutral">Cancel</button>
+      <button class="btn btn-solid color-group-primary">Save</button>
     </footer>
   </article>
 

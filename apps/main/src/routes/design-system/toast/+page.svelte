@@ -19,7 +19,7 @@
 
   <div class="card relative flex justify-center overflow-hidden py-20">
     <!-- Notice: We use position absolute in the HTML itself to position the toast -->
-    <output role="status" class="color-group-neutral toast absolute right-4 bottom-4">
+    <output role="status" class="toast absolute right-4 bottom-4 color-group-neutral">
       <div class="toast-content">
         <div class="toast-title">Update available</div>
         <div class="toast-description">A new software version is ready.</div>

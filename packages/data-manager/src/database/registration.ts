@@ -28,9 +28,10 @@ export async function createRegistrationChallenge(
   const parsed = v.safeParse(sendSchema, input);
   if (!parsed.success) return invalidInput(parsed.issues);
   const output = parsed.output;
-  const results = await db
-    .query<unknown[]>(
-      `
+  const reserve = () =>
+    db
+      .query<unknown[]>(
+        `
     BEGIN TRANSACTION;
     LET $tx = (SELECT * FROM $transaction WHERE kind = 'registration'
       AND status = 'awaiting_primary' AND browser_verifier_hash = $verifier
@@ -43,7 +44,14 @@ export async function createRegistrationChallenge(
       AND transaction IN $related AND created_at > time::now() - 1h);
     LET $last = (SELECT id FROM auth_otp_challenge WHERE purpose = 'verify_identity'
       AND transaction IN $related AND created_at > time::now() - 1m LIMIT 1)[0];
-    LET $updated = IF $tx IS NONE OR $last IS NOT NONE OR array::len($recent) >= 5 THEN NONE ELSE (
+    -- A shared write makes concurrent reservations for the same email conflict.
+    LET $guard = IF $tx IS NONE OR $last IS NOT NONE OR array::len($recent) >= 5 THEN NONE ELSE (
+      UPSERT type::record('auth_transaction',
+        string::concat('resend_', crypto::sha256($tx.metadata.registration.identifier)))
+      SET kind = 'registration', status = 'pending', expires_at = time::now() + 1h,
+        version += 1 RETURN AFTER
+    )[0] END;
+    LET $updated = IF $guard IS NONE THEN NONE ELSE (
       UPDATE $transaction SET version = version + 1 WHERE version = $tx.version RETURN AFTER
     )[0] END;
     LET $challenge = IF $updated IS NONE THEN NONE ELSE (
@@ -58,14 +66,26 @@ export async function createRegistrationChallenge(
     COMMIT TRANSACTION;
     RETURN IF $challenge IS NONE THEN NONE ELSE { email: $tx.metadata.registration.identifier } END;
   `,
-      {
-        transaction: new RecordId('auth_transaction', output.id),
-        challenge: new RecordId('auth_otp_challenge', output.challengeId),
-        verifier: output.browserVerifierHash,
-        codeHash: output.codeHash,
-      },
+        {
+          transaction: new RecordId('auth_transaction', output.id),
+          challenge: new RecordId('auth_otp_challenge', output.challengeId),
+          verifier: output.browserVerifierHash,
+          codeHash: output.codeHash,
+        },
+      )
+      .json();
+  let results: unknown[];
+  try {
+    results = await reserve();
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes('query was not executed due to a failed transaction')
     )
-    .json();
+      throw error;
+    // A conflicting transaction may have just reserved a code. Recheck the window.
+    results = await reserve();
+  }
   const result = results.at(-1) as { email?: string } | null | undefined;
   return result?.email
     ? { success: true, data: { email: result.email } }

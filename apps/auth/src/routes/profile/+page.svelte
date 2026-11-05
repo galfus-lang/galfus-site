@@ -237,7 +237,7 @@
         <button
           type="submit"
           class={cn(
-            'color-group-primary btn w-full btn-solid text-xs',
+            'btn w-full btn-solid text-xs color-group-primary',
             isUpdatingProfile && 'is-loading',
           )}
           disabled={isUpdatingProfile}
@@ -361,7 +361,7 @@
           <button
             type="button"
             class={cn(
-              'color-group-primary btn btn-solid text-xs',
+              'btn btn-solid text-xs color-group-primary',
               isPasskeyRegistering && 'is-loading',
             )}
             disabled={isPasskeyRegistering}
@@ -578,7 +578,7 @@
                 <button
                   type="submit"
                   class={cn(
-                    'color-group-primary btn flex-1 btn-solid text-xs',
+                    'btn flex-1 btn-solid text-xs color-group-primary',
                     isTotpActivating && 'is-loading',
                   )}
                   disabled={isTotpActivating}

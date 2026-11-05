@@ -6,7 +6,7 @@
 @plugin '@iconify/tailwind4';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-@plugin './plugins/color-group';
+@plugin './plugins/color-group.ts';
 
 /* Iconify icons inherit their dimensions from font-size. Keep the scale semantic
  * so consumers never need arbitrary text-[…] classes for icon sizing. */

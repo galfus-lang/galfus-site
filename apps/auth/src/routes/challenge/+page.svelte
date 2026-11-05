@@ -99,7 +99,7 @@
       <button
         type="button"
         onclick={handlePasskeyLogin}
-        class={cn('color-group-primary btn w-full btn-solid', isPasskeyLoading && 'is-loading')}
+        class={cn('btn w-full btn-solid color-group-primary', isPasskeyLoading && 'is-loading')}
         disabled={isPasskeyLoading}
       >
         <span class="mr-2 icon-[lucide--fingerprint] icon-lg"></span>
@@ -185,7 +185,7 @@
 
       <button
         type="submit"
-        class={cn('color-group-primary btn w-full btn-solid', isLoading && 'is-loading')}
+        class={cn('btn w-full btn-solid color-group-primary', isLoading && 'is-loading')}
         disabled={isLoading}
       >
         {isLoading

@@ -27,7 +27,7 @@
       <img src="https://i.pravatar.cc/150?u=1" alt="User avatar" class="avatar" />
     </picture>
 
-    <div class="color-group-primary avatar">AB</div>
+    <div class="avatar color-group-primary">AB</div>
   </div>
 
   <div class="mt-8">

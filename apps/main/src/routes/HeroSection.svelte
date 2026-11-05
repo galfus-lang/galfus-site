@@ -61,8 +61,8 @@
         executable graph, and a deterministic VM runtime.
       </p>
 
-      <div class="color-group-primary mt-10 flex w-full max-w-xl flex-col">
-        <h3 class="text-group-12 mb-3 text-lg font-bold">Install Galfus Alpha</h3>
+      <div class="mt-10 flex w-full max-w-xl flex-col color-group-primary">
+        <h3 class="mb-3 text-lg font-bold text-group-12">Install Galfus Alpha</h3>
 
         <div class="flex items-end justify-between">
           <div role="tablist" class="tab-list mb-0">
@@ -86,19 +86,19 @@
           <a
             href={installTab === 'linux' ? '/install.sh' : '/install.ps1'}
             target="_blank"
-            class="text-group-10 hover:text-group-11 mb-3 ml-4 text-xs font-medium transition-colors hover:underline"
+            class="mb-3 ml-4 text-xs font-medium text-group-10 transition-colors hover:text-group-11 hover:underline"
           >
             View install script
           </a>
         </div>
 
         <div class="card flex gap-4">
-          <code class="text-group-12 flex-1 font-mono text-sm break-all">
+          <code class="flex-1 font-mono text-sm break-all text-group-12">
             {#if installTab === 'linux'}
-              <span class="text-group-9 mr-2 select-none">$</span>curl -fsSL
+              <span class="mr-2 text-group-9 select-none">$</span>curl -fsSL
               https://galfus.com/install.sh | bash
             {:else}
-              <span class="text-group-9 mr-2 select-none">&gt;</span>powershell -c "irm
+              <span class="mr-2 text-group-9 select-none">&gt;</span>powershell -c "irm
               https://galfus.com/install.ps1 | iex"
             {/if}
           </code>
@@ -128,7 +128,7 @@
           href={repoUrl}
           target="_blank"
           rel="noreferrer"
-          class="color-group-primary btn btn-solid"
+          class="btn btn-solid color-group-primary"
         >
           View Documentation
         </a>
@@ -137,7 +137,7 @@
           href={discussionsUrl}
           target="_blank"
           rel="noreferrer"
-          class="color-group-primary btn btn-soft"
+          class="btn btn-soft color-group-primary"
         >
           Join Discussions
         </a>

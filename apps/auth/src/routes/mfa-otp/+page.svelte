@@ -107,7 +107,7 @@
 
         <button
           type="submit"
-          class={cn('color-group-primary btn w-full btn-solid', isLoading && 'is-loading')}
+          class={cn('btn w-full btn-solid color-group-primary', isLoading && 'is-loading')}
           disabled={isLoading}
         >
           {isLoading
@@ -166,7 +166,7 @@
 
         <button
           type="submit"
-          class={cn('color-group-primary btn w-full btn-solid', isLoading && 'is-loading')}
+          class={cn('btn w-full btn-solid color-group-primary', isLoading && 'is-loading')}
           disabled={isLoading}
         >
           {isLoading

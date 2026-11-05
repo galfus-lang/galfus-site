@@ -107,4 +107,15 @@ describe('verified registration', () => {
       data: { error: 'error.auth.registration.delivery_failed' },
     });
   });
+  it('reports the resend limit instead of treating it as a successful delivery', async () => {
+    mocks.sendRegistrationCode.mockResolvedValue({
+      success: false,
+      error: { id: 'error.auth.registration.resend_limited' },
+    });
+    const result = await actions.resend({ request: form(), cookies: {} as never } as never);
+    expect(result).toMatchObject({
+      status: 429,
+      data: { error: 'error.auth.registration.resend_limited' },
+    });
+  });
 });

@@ -5,12 +5,12 @@
   let dialog: HTMLDialogElement;
 </script>
 
-<header class="color-group-primary @container sticky top-0 z-50 appbar w-full">
+<header class="@container sticky top-0 z-50 appbar w-full color-group-primary">
   <a href="/" class="group appbar-title">
     <div class="relative flex items-center justify-center">
-      <Brand size={40} class="text-group-9 relative z-10" />
+      <Brand size={40} class="relative z-10 text-group-9" />
     </div>
-    <span class="text-group-12 group-hover:text-group-10 transition-colors">Galfus</span>
+    <span class="text-group-12 transition-colors group-hover:text-group-10">Galfus</span>
   </a>
 
   <button

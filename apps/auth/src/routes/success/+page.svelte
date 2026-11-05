@@ -31,7 +31,7 @@
   </div>
 
   <div class="w-full pt-4">
-    <a href={data.destination} class="color-group-primary btn w-full btn-solid">
+    <a href={data.destination} class="btn w-full btn-solid color-group-primary">
       {translate('auth.action.continue', data.locale)}
       <span class="ml-2 icon-[lucide--arrow-right] icon-md"></span>
     </a>

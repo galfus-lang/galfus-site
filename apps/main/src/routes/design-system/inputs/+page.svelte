@@ -44,7 +44,7 @@
     <code>@utility input-label</code> classes.
   </p>
 
-  <div class="color-group-primary card">
+  <div class="card color-group-primary">
     <div class="card-title">Text Input</div>
     <div class="mt-4 flex flex-col gap-6 card-content">
       <label class="block">

@@ -43,7 +43,7 @@ export const error = {
     registration: {
       email_required: 'Enter an email address to create an account.',
       delivery_failed: 'We could not send the verification code. Please try again.',
-      resend_limited: 'Please wait before requesting another code.',
+      resend_limited: 'Wait at least one minute before requesting another code.',
       transaction_missing: 'The registration transaction is missing.',
       transaction_invalid: 'The registration transaction is invalid.',
       failed: 'We could not create your account. Please try again.',

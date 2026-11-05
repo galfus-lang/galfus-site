@@ -25,10 +25,10 @@
 
   <div class="grid grid-cols-2 gap-8">
     <!-- Primary Color Group -->
-    <div class="color-group-primary card relative overflow-hidden">
+    <div class="card relative overflow-hidden color-group-primary">
       <!-- Decorative background blur orb to show off the soft glass effect -->
       <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"
+        class="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-group-9 opacity-20 blur-2xl"
       ></div>
 
       <div class="relative z-10 card-title">Primary Group</div>
@@ -67,10 +67,10 @@
     </div>
 
     <!-- Danger Color Group -->
-    <div class="color-group-danger card relative overflow-hidden">
+    <div class="card relative overflow-hidden color-group-danger">
       <!-- Decorative background blur orb to show off the soft glass effect -->
       <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-20 blur-2xl"
+        class="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-group-9 opacity-20 blur-2xl"
       ></div>
 
       <div class="relative z-10 card-title">Danger Group</div>

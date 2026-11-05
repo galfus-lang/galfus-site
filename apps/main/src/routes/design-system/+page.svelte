@@ -9,7 +9,7 @@
   </div>
 
   <div class="grid grid-cols-2 gap-6">
-    <div class="color-group-primary card">
+    <div class="card color-group-primary">
       <div class="card-title">Foundations</div>
       <div class="card-content">
         <p class="mb-4">Colors and typography scales.</p>
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="color-group-blue card">
+    <div class="card color-group-blue">
       <div class="card-title">Inputs & Actions</div>
       <div class="card-content">
         <p class="mb-4">Forms, buttons, and interactive fields.</p>
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div class="color-group-green card">
+    <div class="card color-group-green">
       <div class="card-title">Data Display</div>
       <div class="card-content">
         <p class="mb-4">Components to display data and content.</p>
@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <div class="color-group-magenta card">
+    <div class="card color-group-magenta">
       <div class="card-title">Navigation</div>
       <div class="card-content">
         <p class="mb-4">Menus, breadcrumbs, and tabs.</p>
@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    <div class="color-group-orange card">
+    <div class="card color-group-orange">
       <div class="card-title">Overlays & Feedback</div>
       <div class="card-content">
         <p class="mb-4">Modals, popovers, alerts and toasts.</p>
@@ -134,7 +134,7 @@
       </div>
     </div>
 
-    <div class="color-group-pink card">
+    <div class="card color-group-pink">
       <div class="card-title">Layout</div>
       <div class="card-content">
         <p class="mb-4">Structural components for scaffolding.</p>
@@ -163,7 +163,7 @@
       </div>
     </div>
 
-    <div class="color-group-violet card col-span-2 max-w-sm">
+    <div class="card col-span-2 max-w-sm color-group-violet">
       <div class="card-title">Attachments</div>
       <div class="card-content">
         <p class="mb-4">Advanced logic for builder patterns like Select.</p>

@@ -38,7 +38,7 @@
   <div class="overflow-hidden rounded-md border border-neutral-4 bg-neutral-2">
     <header class="appbar">
       <div class="flex items-center gap-4">
-        <button class="color-group-neutral btn btn-icon btn-ghost" aria-label="Open Menu">
+        <button class="btn btn-icon btn-ghost color-group-neutral" aria-label="Open Menu">
           <span class="icon-[lucide--menu] icon-lg"></span>
         </button>
         <div class="appbar-title">
@@ -56,7 +56,7 @@
 
       <div>
         <button
-          class="color-group-neutral btn btn-icon btn-ghost rounded-full"
+          class="btn btn-icon btn-ghost rounded-full color-group-neutral"
           aria-label="User Profile"
         >
           <span class="icon-[lucide--user] icon-lg"></span>

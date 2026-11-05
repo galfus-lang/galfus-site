@@ -23,13 +23,13 @@
   </p>
 
   <div class="grid grid-cols-2 gap-8">
-    <div class="color-group-primary card relative overflow-hidden">
+    <div class="card relative overflow-hidden color-group-primary">
       <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
+        class="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-group-9 opacity-10 blur-2xl"
       ></div>
 
       <fieldset class="relative z-10">
-        <legend class="text-group-12 mb-4 font-bold">Checkboxes (Primary)</legend>
+        <legend class="mb-4 font-bold text-group-12">Checkboxes (Primary)</legend>
         <div class="flex flex-col gap-4">
           <label class="check-group">
             <input type="checkbox" class="checkbox" checked />
@@ -43,13 +43,13 @@
       </fieldset>
     </div>
 
-    <div class="color-group-danger card relative overflow-hidden">
+    <div class="card relative overflow-hidden color-group-danger">
       <div
-        class="bg-group-9 pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full opacity-10 blur-2xl"
+        class="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-group-9 opacity-10 blur-2xl"
       ></div>
 
       <fieldset class="relative z-10">
-        <legend class="text-group-12 mb-4 font-bold">Radio Buttons (Danger)</legend>
+        <legend class="mb-4 font-bold text-group-12">Radio Buttons (Danger)</legend>
         <div class="flex flex-col gap-4">
           <label class="check-group">
             <input type="radio" name="demo-radio" class="radio" checked />

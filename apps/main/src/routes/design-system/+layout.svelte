@@ -94,7 +94,7 @@
   <div class="flex flex-1 overflow-hidden">
     <!-- Use a slightly darker glass sidebar by overriding the bg/border if needed, but let's use the core class -->
     <aside
-      class="color-group-primary relative z-10 sidebar w-80 border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md"
+      class="relative z-10 sidebar w-80 border-neutral-6/30 bg-neutral-1/30 backdrop-blur-md color-group-primary"
     >
       <a
         href="/design-system"

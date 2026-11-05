@@ -52,7 +52,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Alice Smith</td>
           <td class="table-td text-neutral-11">Admin</td>
-          <td class="table-td"><span class="color-group-success badge">Active</span></td>
+          <td class="table-td"><span class="badge color-group-success">Active</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>
@@ -60,7 +60,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Bob Jones</td>
           <td class="table-td text-neutral-11">Editor</td>
-          <td class="table-td"><span class="color-group-neutral badge">Offline</span></td>
+          <td class="table-td"><span class="badge color-group-neutral">Offline</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>
@@ -68,7 +68,7 @@
         <tr class="table-row">
           <td class="table-td font-medium">Charlie Brown</td>
           <td class="table-td text-neutral-11">Viewer</td>
-          <td class="table-td"><span class="color-group-success badge">Active</span></td>
+          <td class="table-td"><span class="badge color-group-success">Active</span></td>
           <td class="table-td text-right">
             <button class="text-primary-9 hover:underline">Edit</button>
           </td>

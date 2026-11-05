@@ -49,7 +49,7 @@
   </p>
 
   <div class="flex h-125 overflow-hidden rounded-md border border-neutral-4 bg-neutral-2">
-    <aside class="color-group-primary sidebar">
+    <aside class="sidebar color-group-primary">
       <div class="sidebar-title">
         <span class="icon-[lucide--hexagon] icon-xl text-primary-9"></span>
         Acme Corp
@@ -64,7 +64,7 @@
           <span class="icon-[lucide--folder-kanban] icon-md"></span>
           Projects
           <div class="sidebar-trailing">
-            <span class="color-group-neutral badge rounded-full px-2 py-0.5 text-xs font-bold"
+            <span class="badge rounded-full px-2 py-0.5 text-xs font-bold color-group-neutral"
               >12</span
             >
           </div>

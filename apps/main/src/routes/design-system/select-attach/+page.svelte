@@ -22,9 +22,9 @@
   </p>
 
   <div class="grid grid-cols-2 gap-8">
-    <div class="color-group-primary card">
+    <div class="card color-group-primary">
       <label class="block">
-        <span class="text-group-12 input-label">Primary Select</span>
+        <span class="input-label text-group-12">Primary Select</span>
 
         <div class="input-group max-w-xs">
           <!-- The Input Trigger -->
@@ -74,9 +74,9 @@
       </ul>
     </div>
 
-    <div class="color-group-magenta card">
+    <div class="card color-group-magenta">
       <label class="block">
-        <span class="text-group-12 input-label">Magenta Select</span>
+        <span class="input-label text-group-12">Magenta Select</span>
 
         <div class="input-group max-w-xs">
           <!-- The Input Trigger -->

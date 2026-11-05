@@ -16,7 +16,7 @@
   </p>
 
   <div class="card relative flex justify-center py-20">
-    <button popovertarget="my-popover" class="color-group-primary btn btn-solid"
+    <button popovertarget="my-popover" class="btn btn-solid color-group-primary"
       >Toggle Popover</button
     >
 

@@ -41,7 +41,7 @@
 
   <div class="card flex justify-center">
     <nav aria-label="Pagination">
-      <ul class="color-group-primary pagination">
+      <ul class="pagination color-group-primary">
         <li>
           <a href="#" class="pagination-item" aria-label="Previous page">
             <span class="icon-[lucide--chevron-left] icon-md"></span>

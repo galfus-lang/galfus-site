@@ -18,7 +18,7 @@
     <code>@utility switch-label</code>, and <code>@utility switch-description</code>.
   </p>
 
-  <div class="color-group-primary card">
+  <div class="card color-group-primary">
     <div class="card-title">Theme Switches</div>
     <div class="mt-4 flex flex-col gap-6 card-content">
       <label class="switch-group">

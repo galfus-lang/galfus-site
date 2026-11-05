@@ -41,14 +41,14 @@
   <div class="rounded-md border border-neutral-4 bg-neutral-2 p-4">
     <menu role="toolbar" aria-label="Text Formatting" class="toolbar">
       <li>
-        <button type="button" class="color-group-neutral btn btn-icon btn-ghost" aria-label="Bold">
+        <button type="button" class="btn btn-icon btn-ghost color-group-neutral" aria-label="Bold">
           <span class="icon-[lucide--bold] icon-md"></span>
         </button>
       </li>
       <li>
         <button
           type="button"
-          class="color-group-neutral btn btn-icon btn-ghost"
+          class="btn btn-icon btn-ghost color-group-neutral"
           aria-label="Italic"
         >
           <span class="icon-[lucide--italic] icon-md"></span>
@@ -57,7 +57,7 @@
       <li>
         <button
           type="button"
-          class="color-group-neutral btn btn-icon btn-ghost"
+          class="btn btn-icon btn-ghost color-group-neutral"
           aria-label="Underline"
         >
           <span class="icon-[lucide--underline] icon-md"></span>
@@ -67,7 +67,7 @@
       <li>
         <button
           type="button"
-          class="color-group-neutral btn btn-icon btn-ghost"
+          class="btn btn-icon btn-ghost color-group-neutral"
           aria-label="Align Left"
         >
           <span class="icon-[lucide--align-left] icon-md"></span>
@@ -76,7 +76,7 @@
       <li>
         <button
           type="button"
-          class="color-group-neutral btn btn-icon btn-ghost"
+          class="btn btn-icon btn-ghost color-group-neutral"
           aria-label="Align Center"
         >
           <span class="icon-[lucide--align-center] icon-md"></span>

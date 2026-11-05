@@ -11,14 +11,14 @@
 
   {#each COLORS as color}
     <div class={getColorGroupClass(color)}>
-      <h2 class="text-group-12 mb-4 text-xl font-bold capitalize">{color}</h2>
+      <h2 class="mb-4 text-xl font-bold text-group-12 capitalize">{color}</h2>
       <div class="flex flex-wrap gap-4">
         {#each levels as num}
           <div class="flex flex-col items-center">
             <div
-              class="border-group-5 h-16 w-16 rounded-md border shadow-sm {getGroupBg(num)}"
+              class="h-16 w-16 rounded-md border border-group-5 shadow-sm {getGroupBg(num)}"
             ></div>
-            <span class="text-group-11 mt-2 font-mono text-xs">{num}</span>
+            <span class="mt-2 font-mono text-xs text-group-11">{num}</span>
           </div>
         {/each}
       </div>

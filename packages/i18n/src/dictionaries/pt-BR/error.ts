@@ -44,7 +44,7 @@ export const error = {
     registration: {
       email_required: 'Informe um e-mail para criar uma conta.',
       delivery_failed: 'Não foi possível enviar o código de verificação. Tente novamente.',
-      resend_limited: 'Aguarde antes de solicitar outro código.',
+      resend_limited: 'Aguarde pelo menos um minuto antes de solicitar outro código.',
       transaction_missing: 'A transação de registro está ausente.',
       transaction_invalid: 'A transação de registro é inválida.',
       failed: 'Não foi possível criar sua conta. Tente novamente.',

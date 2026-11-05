@@ -50,7 +50,7 @@
             <li class="breadcrumb-active" aria-current="page">Post</li>
           </ol>
 
-          <form action="/blog" method="GET" class="color-group-primary input-group sm:w-64">
+          <form action="/blog" method="GET" class="input-group color-group-primary sm:w-64">
             <div class="input-icon">
               <span class="icon-[lucide--search] icon-md"></span>
             </div>

@@ -23,14 +23,14 @@
   </p>
 
   <div class="card flex flex-col gap-4">
-    <div role="alert" class="color-group-danger alert">
+    <div role="alert" class="alert color-group-danger">
       <div>
         <div class="alert-title">Error</div>
         <div class="alert-description">Something went wrong while connecting to the server.</div>
       </div>
     </div>
 
-    <div role="alert" class="color-group-success alert">
+    <div role="alert" class="alert color-group-success">
       <div>
         <div class="alert-title">Success</div>
         <div class="alert-description">Your profile has been updated successfully.</div>

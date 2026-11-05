@@ -25,12 +25,12 @@
   <div class="card flex items-center gap-6">
     <div class="flex items-center gap-2">
       <span class="font-bold">Status:</span>
-      <span class="color-group-primary badge"> Active </span>
+      <span class="badge color-group-primary"> Active </span>
     </div>
 
     <button class="btn-neutral btn relative">
       Notifications
-      <sup class="color-group-danger badge-indicator"> 3 </sup>
+      <sup class="badge-indicator color-group-danger"> 3 </sup>
     </button>
   </div>
 

@@ -79,7 +79,7 @@
       </div>
 
       <!-- Search Input -->
-      <div class="color-group-primary input-group mt-6 md:mt-0 md:w-80">
+      <div class="input-group mt-6 color-group-primary md:mt-0 md:w-80">
         <div class="input-icon">
           <span class="icon-[lucide--search] icon-md"></span>
         </div>
@@ -121,7 +121,7 @@
       {#if totalPages > 1}
         <div class="mt-16 flex justify-center border-t border-primary-4 pt-6">
           <nav aria-label="Pagination">
-            <ul class="color-group-primary pagination">
+            <ul class="pagination color-group-primary">
               <li>
                 <button
                   onclick={prevPage}
