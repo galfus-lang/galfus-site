@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 
+import { parseAuthenticationIdentity } from './authentication';
+
 const RecordIdSchema = v.pipe(
   v.string('error.input.invalid'),
   v.trim(),
@@ -76,7 +78,10 @@ export interface AuthTransactionMetadataByKind {
   authorization: {
     authorization?: {
       primary_method?: 'password' | 'passkey' | 'registration' | 'sso' | 'external_provider';
+      primary_credential_version?: number;
       pending_mfa_method?: 'totp' | 'email_otp' | 'sms_otp';
+      identifier?: string;
+      provider?: 'email' | 'username';
       sso?: {
         connection: string;
         subject?: string;
@@ -102,6 +107,8 @@ export interface AuthTransactionMetadataByKind {
   registration: {
     registration?: {
       primary_method?: 'registration';
+      identifier?: string;
+      provider?: 'email' | 'username';
     };
   };
   organization_invitation: {
@@ -133,6 +140,31 @@ export const StartAuthTransactionInputSchema = v.object({
   returnTo: OptionalStringSchema,
 });
 
+export const StartIdentityAuthTransactionInputSchema = v.object({
+  id: PublicIdSchema,
+  browserVerifierHash: SecretHashSchema,
+  identifier: v.string('error.auth.identity.invalid'),
+  expiresAt: DateTimeSchema,
+  returnTo: OptionalStringSchema,
+});
+
+/** Parses the identity again at the data boundary to normalize and strip caller input. */
+export function parseStartIdentityAuthTransactionInput(input: unknown) {
+  const result = v.safeParse(StartIdentityAuthTransactionInputSchema, input);
+  if (!result.success) return result;
+
+  const identity = parseAuthenticationIdentity(result.output.identifier);
+  if (!identity.success) return identity;
+
+  return {
+    success: true as const,
+    output: {
+      ...result.output,
+      ...identity.output,
+    },
+  };
+}
+
 const ExternalProviderSchema = v.picklist(['google', 'github', 'steam']);
 const ExternalProviderProtocolSchema = v.picklist(['oauth2', 'oidc', 'openid2']);
 const ExternalProviderIssuerSchema = v.pipe(
@@ -159,10 +191,7 @@ export const StartExternalProviderAuthTransactionInputSchema = v.pipe(
     nonceCiphertext: OptionalStringSchema,
     pkceVerifierCiphertext: OptionalStringSchema,
   }),
-  v.check(
-    ({ mode, accountId }) => mode !== 'link' || Boolean(accountId),
-    'error.input.invalid',
-  ),
+  v.check(({ mode, accountId }) => mode !== 'link' || Boolean(accountId), 'error.input.invalid'),
 );
 
 /** Input produced only after the configured external provider adapter validates its callback. */
@@ -186,7 +215,9 @@ export const CompleteExternalProviderAuthTransactionInputSchema = v.object(
 );
 
 /** Input produced after a provider callback is verified for an authenticated account. */
-export const CompleteExternalProviderLinkInputSchema = v.object(CompleteExternalProviderInputEntries);
+export const CompleteExternalProviderLinkInputSchema = v.object(
+  CompleteExternalProviderInputEntries,
+);
 
 export const AuthorizeExternalProviderRegistrationInputSchema = v.object({
   id: PublicIdSchema,
@@ -250,7 +281,10 @@ export const SetPasskeyAuthTransactionChallengeInputSchema = v.object({
     v.minValue(0, 'error.input.invalid'),
   ),
   accountId: RecordIdSchema,
-  challengeCiphertext: v.pipe(v.string('error.input.invalid'), v.minLength(1, 'error.input.invalid')),
+  challengeCiphertext: v.pipe(
+    v.string('error.input.invalid'),
+    v.minLength(1, 'error.input.invalid'),
+  ),
 });
 
 /** Input produced only after verifyPasskeyAuthentication succeeds at the server boundary. */
@@ -282,6 +316,18 @@ export const ConfirmTotpAuthTransactionInputSchema = v.object({
   ),
   accountId: RecordIdSchema,
   authenticatorId: RecordIdSchema,
+});
+
+export const ConfirmRecoveryCodeAuthTransactionInputSchema = v.object({
+  id: PublicIdSchema,
+  browserVerifierHash: SecretHashSchema,
+  expectedVersion: v.pipe(
+    v.number('error.input.invalid'),
+    v.integer('error.input.invalid'),
+    v.minValue(0, 'error.input.invalid'),
+  ),
+  accountId: RecordIdSchema,
+  codeHash: SecretHashSchema,
 });
 
 export const CreateOrganizationInvitationTransactionInputSchema = v.object({
@@ -515,3 +561,72 @@ export const TouchPasskeyAuthenticatorInputSchema = v.object({
     v.minValue(0, 'error.input.invalid'),
   ),
 });
+
+export const StartPasswordRecoveryTransactionInputSchema = v.object({
+  id: PublicIdSchema,
+  browserVerifierHash: SecretHashSchema,
+  identifier: v.pipe(
+    v.string('error.input.invalid'),
+    v.trim(),
+    v.minLength(1, 'error.auth.identity.required'),
+  ),
+  expiresAt: DateTimeSchema,
+});
+export type StartPasswordRecoveryTransactionInput = v.InferOutput<
+  typeof StartPasswordRecoveryTransactionInputSchema
+>;
+
+export const CompleteUpsertPasswordTransactionInputSchema = v.object({
+  id: PublicIdSchema,
+  browserVerifierHash: SecretHashSchema,
+  expectedVersion: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  accountId: RecordIdSchema,
+  password: PasswordSchema,
+});
+export type CompleteUpsertPasswordTransactionInput = v.InferOutput<
+  typeof CompleteUpsertPasswordTransactionInputSchema
+>;
+
+export const GetAccountProfileInputSchema = v.object({
+  accountId: RecordIdSchema,
+});
+export type GetAccountProfileInput = v.InferOutput<typeof GetAccountProfileInputSchema>;
+
+export const UpdateAccountProfileInputSchema = v.object({
+  accountId: RecordIdSchema,
+  displayName: v.pipe(
+    v.string('error.input.invalid'),
+    v.trim(),
+    v.minLength(2, 'error.fields.full_name.too_short'),
+    v.maxLength(100, 'error.fields.full_name.too_long'),
+  ),
+});
+export type UpdateAccountProfileInput = v.InferOutput<typeof UpdateAccountProfileInputSchema>;
+
+export const RemoveAccountAuthenticatorInputSchema = v.object({
+  accountId: RecordIdSchema,
+  authenticatorId: RecordIdSchema,
+});
+export type RemoveAccountAuthenticatorInput = v.InferOutput<
+  typeof RemoveAccountAuthenticatorInputSchema
+>;
+
+export const DisableAccountMfaInputSchema = v.object({
+  accountId: RecordIdSchema,
+});
+export type DisableAccountMfaInput = v.InferOutput<typeof DisableAccountMfaInputSchema>;
+
+export const ActivateDirectTotpAuthenticatorInputSchema = v.object({
+  accountId: RecordIdSchema,
+  authenticatorId: PublicIdSchema,
+  secretCiphertext: v.pipe(v.string('error.input.invalid'), v.trim(), v.minLength(1)),
+  codes: v.array(
+    v.object({
+      id: PublicIdSchema,
+      secretHash: SecretHashSchema,
+    }),
+  ),
+});
+export type ActivateDirectTotpAuthenticatorInput = v.InferOutput<
+  typeof ActivateDirectTotpAuthenticatorInputSchema
+>;

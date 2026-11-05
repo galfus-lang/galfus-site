@@ -25,8 +25,7 @@
     <details class="group accordion">
       <summary class="accordion-trigger">
         Is this accessible by default?
-        <span class="accordion-icon"
-          ><span class="icon-[lucide--chevron-down] icon-md"></span></span
+        <span class="accordion-icon"><span class="icon-[lucide--chevron-down] icon-md"></span></span
         >
       </summary>
       <div class="accordion-content">
@@ -38,8 +37,7 @@
     <details class="group accordion">
       <summary class="accordion-trigger">
         Can I style the marker?
-        <span class="accordion-icon"
-          ><span class="icon-[lucide--chevron-down] icon-md"></span></span
+        <span class="accordion-icon"><span class="icon-[lucide--chevron-down] icon-md"></span></span
         >
       </summary>
       <div class="accordion-content">

@@ -20,16 +20,35 @@
   </div>
 
   <div class="w-full space-y-4">
+    {#if form?.error}
+      <div
+        class="rounded-lg border border-danger-9/30 bg-danger-1/10 p-3 text-xs font-medium text-danger-9"
+      >
+        {form.error}
+      </div>
+    {/if}
+
     <form
       method="POST"
       use:enhance={() => {
         isLoading = true;
         return async ({ result, update }) => {
           isLoading = false;
-          if (result.type === 'failure' && result.data?.error) {
+          let errorMessage: string | undefined;
+
+          if (result.type === 'failure' && typeof result.data?.error === 'string') {
+            errorMessage = result.data.error;
+          } else if (result.type === 'error') {
+            errorMessage =
+              typeof result.error === 'object' && result.error && 'message' in result.error
+                ? String(result.error.message)
+                : translate('auth.title.identity_failed', data.locale);
+          }
+
+          if (errorMessage) {
             addToast({
               title: translate('auth.title.identity_failed', data.locale),
-              description: result.data.error as string,
+              description: errorMessage,
               type: 'error',
               duration: 6000,
             });

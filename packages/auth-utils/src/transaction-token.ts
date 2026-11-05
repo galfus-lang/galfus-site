@@ -24,9 +24,9 @@ export async function createAuthTransactionToken(): Promise<AuthTransactionToken
   };
 }
 
-export function parseAuthTransactionToken(value: string | null | undefined):
-  | Pick<AuthTransactionToken, 'id' | 'verifier'>
-  | null {
+export function parseAuthTransactionToken(
+  value: string | null | undefined,
+): Pick<AuthTransactionToken, 'id' | 'verifier'> | null {
   if (!value) return null;
 
   const [id, verifier, ...rest] = value.split('.');

@@ -1,11 +1,15 @@
 import { auth } from './auth';
+import { email } from './email';
 import { error } from './error';
 import { fields } from './fields';
+import { profile } from './profile';
 
 export const enUS = {
   auth,
+  email,
   error,
   fields,
+  profile,
 } as const;
 
 export type DictionaryShape<T> = {

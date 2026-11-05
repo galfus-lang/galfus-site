@@ -1,163 +1,106 @@
-import { isRedirect, redirect, fail } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-import { resolveMainAppRedirect } from '@galfus/constants';
-import {
-  messageIdFromIssues,
-  parseAuthenticationIdentity,
-  parseRegistrationCredentials,
-} from '@galfus/data-manager';
-import { createPasswordAccount } from '@galfus/data-manager/server';
+import { fail, isRedirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+import { hashOtp } from '@galfus/auth-utils';
+import { messageIdFromIssues, parseRegistrationCredentials } from '@galfus/data-manager';
+import { completeVerifiedRegistration } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
+import { clearAuthTransactionCookie, setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
+import { requireAuthTransaction } from '$lib/server/auth-transaction';
 import { connectDb } from '$lib/server/db';
-import { setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { getRequestLocale } from '$lib/server/i18n';
-import { AUTH_ACCESS_JWT_AUDIENCE, jwt } from '$lib/server/jwt';
+import { issueAccessToken } from '$lib/server/access-session';
+import { sendRegistrationCode } from '$lib/server/registration-email';
+import { temporaryRedirect } from '$lib/server/temporary-redirect';
 
-export const load = async ({ url }) => {
-  const state = url.searchParams.get('state');
-
-  if (!state) {
-    throw redirect(303, '/');
+export const load = async ({ cookies, url }) => {
+  const { transaction } = await requireAuthTransaction(cookies, {
+    allowedKinds: ['registration'],
+    allowedStatuses: ['awaiting_primary'],
+  });
+  if (transaction.metadata?.registration?.provider !== 'email') {
+    clearAuthTransactionCookie(cookies);
+    throw temporaryRedirect('/');
   }
-
-  try {
-    const payload = await jwt.verify(state);
-    const identityResult = parseAuthenticationIdentity(payload.identifier);
-
-    if (
-      payload.flow !== 'register' ||
-      !identityResult.success ||
-      (payload.provider !== 'email' && payload.provider !== 'username') ||
-      payload.provider !== identityResult.output.provider
-    ) {
-      throw redirect(303, '/');
-    }
-
-    return {
-      identifier: identityResult.output.identifier,
-      stateToken: state,
-    };
-  } catch (e) {
-    // Token is invalid, expired, or tampered with
-    throw redirect(303, '/?error=invalid_transaction');
-  }
+  return {
+    identifier: transaction.metadata.registration.identifier ?? '',
+    delivery: url.searchParams.get('delivery'),
+  };
 };
 
 export const actions = {
-  default: async ({ request, cookies }) => {
+  register: async ({ request, cookies }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
-    const stateInput = data.get('state');
-    const fullNameInput = data.get('fullName');
-    const passwordInput = data.get('password');
-    const confirmPasswordInput = data.get('confirmPassword');
-    const state = typeof stateInput === 'string' ? stateInput : '';
-    const fullName = typeof fullNameInput === 'string' ? fullNameInput : '';
-    const password = typeof passwordInput === 'string' ? passwordInput : '';
-    const confirmPassword = typeof confirmPasswordInput === 'string' ? confirmPasswordInput : '';
-
-    if (!state) {
+    const fullName = String(data.get('fullName') ?? '');
+    const password = String(data.get('password') ?? '');
+    const confirmPassword = String(data.get('confirmPassword') ?? '');
+    const code = String(data.get('code') ?? '').trim();
+    const credentials = parseRegistrationCredentials({ fullName, password, confirmPassword });
+    if (!credentials.success) {
       return fail(400, {
-        error: translate('error.auth.registration.transaction_missing', locale),
+        error: translate(messageIdFromIssues(credentials.issues), locale),
         fullName: fullName.trim(),
       });
     }
-
-    const registrationResult = parseRegistrationCredentials({
-      fullName,
-      password,
-      confirmPassword,
+    if (!/^\d{6}$/.test(code)) {
+      return fail(400, {
+        error: translate('error.auth.otp.invalid', locale),
+        fullName: fullName.trim(),
+      });
+    }
+    const { token, transaction } = await requireAuthTransaction(cookies, {
+      allowedKinds: ['registration'],
+      allowedStatuses: ['awaiting_primary'],
     });
-    if (!registrationResult.success) {
-      return fail(400, {
-        error: translate(messageIdFromIssues(registrationResult.issues), locale),
-        fullName: fullName.trim(),
-      });
-    }
-
-    const credentials = registrationResult.output;
-    let payload;
-
     try {
-      payload = await jwt.verify(state);
-    } catch {
-      return fail(403, {
-        error: translate('error.auth.registration.transaction_invalid', locale),
-        fullName: credentials.fullName,
-      });
-    }
-
-    const identityResult = parseAuthenticationIdentity(payload.identifier);
-    const provider = payload.provider;
-
-    if (
-      payload.flow !== 'register' ||
-      !identityResult.success ||
-      (provider !== 'email' && provider !== 'username') ||
-      provider !== identityResult.output.provider
-    ) {
-      return fail(403, {
-        error: translate('error.auth.registration.transaction_invalid', locale),
-        fullName: credentials.fullName,
-      });
-    }
-
-    const { identifier } = identityResult.output;
-
-    try {
+      const pepper = env.AUTH_OTP_SECRET;
+      if (!pepper || pepper.length < 32)
+        throw new Error('Registration verification is not configured.');
       const db = await connectDb();
-
-      // 2. Create the account and its credentials in one database transaction.
-      const accountResult = await createPasswordAccount(db, {
-        fullName: credentials.fullName,
-        identifier,
-        password: credentials.password,
+      const result = await completeVerifiedRegistration(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        codeHash: await hashOtp(code, pepper),
+        ...credentials.output,
       });
-
-      if (!accountResult.success) {
-        if (accountResult.error.code === 'conflict') {
-          return fail(409, {
-            error: translate(accountResult.error.id, locale),
-            fullName: credentials.fullName,
-          });
-        }
-
-        return fail(400, {
-          error: translate(accountResult.error.id, locale),
-          fullName: credentials.fullName,
-        });
+      if (!result.success) {
+        return fail(400, { error: translate(result.error.id, locale), fullName: fullName.trim() });
       }
-
-      const accountId = String(accountResult.data.id);
-
-      // 3. Issue the stateless access JWT after successful registration.
-      const accessToken = await jwt.sign(
+      const accessToken = await issueAccessToken(
+        db,
         {
-          flow: 'access',
-          sub: accountId,
-          accountId: accountId,
-          identifier: identifier,
-          // They just created a password, so they are fully authenticated
+          accountId: result.data.accountId,
+          identifier: transaction.metadata?.registration?.identifier,
+          ...(result.data.returnTo ? { rto: result.data.returnTo } : {}),
         },
-        { audience: AUTH_ACCESS_JWT_AUDIENCE, expirationTime: '7d' },
+        0,
       );
-
       setAuthAccessTokenCookie(cookies, accessToken);
-
-      // 4. Return to the requested main-app path, or to the environment fallback.
-      const redirectUrl = resolveMainAppRedirect(dev, payload.rto);
-
-      throw redirect(303, redirectUrl);
-    } catch (e) {
-      if (isRedirect(e)) {
-        throw e;
-      }
-
-      console.error('Registration error:', e);
+      clearAuthTransactionCookie(cookies);
+      throw temporaryRedirect('/success');
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Registration failed.');
       return fail(500, {
         error: translate('error.auth.registration.failed', locale),
-        fullName: credentials.fullName,
+        fullName: fullName.trim(),
       });
+    }
+  },
+  resend: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const { token } = await requireAuthTransaction(cookies, {
+      allowedKinds: ['registration'],
+      allowedStatuses: ['awaiting_primary'],
+    });
+    try {
+      const result = await sendRegistrationCode(await connectDb(), token, locale);
+      if (!result.success) return fail(429, { error: translate(result.error.id, locale) });
+      return { sent: true };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Registration email delivery failed.');
+      return fail(503, { error: translate('error.auth.registration.delivery_failed', locale) });
     }
   },
 };

@@ -14,23 +14,30 @@ const password = env.SURREALDB_PASSWORD || env.SURREAL_PASS || 'root';
 // Create a singleton instance
 export const db = new Surreal();
 
-let isConnected = false;
+let connectPromise: Promise<Surreal> | null = null;
 
-export async function connectDb() {
-  if (isConnected) return db;
+export async function connectDb(): Promise<Surreal> {
+  if (db.status === 'connected') return db;
+  if (connectPromise) return connectPromise;
 
-  try {
-    await db.connect(url);
-    await db.signin({
-      username,
-      password,
-    });
-    await db.use({ namespace, database });
-    isConnected = true;
-    console.log(`Connected to SurrealDB at ${url} (ns: ${namespace}, db: ${database})`);
-    return db;
-  } catch (error) {
-    console.error('Failed to connect to SurrealDB:', error);
-    throw error;
-  }
+  connectPromise = (async () => {
+    try {
+      await db.connect(url, {
+        namespace,
+        database,
+        authentication: {
+          username,
+          password,
+        },
+      });
+      return db;
+    } catch (error) {
+      console.error('Failed to connect to SurrealDB:', error);
+      throw error;
+    } finally {
+      connectPromise = null;
+    }
+  })();
+
+  return connectPromise;
 }

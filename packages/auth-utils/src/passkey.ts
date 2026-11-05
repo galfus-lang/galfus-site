@@ -8,6 +8,8 @@ import {
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 
+export type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
+
 import { fromBase64Url, toBase64Url } from './secrets';
 
 export interface PasskeyRelyingParty {

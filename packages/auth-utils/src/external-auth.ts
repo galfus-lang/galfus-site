@@ -67,9 +67,7 @@ export interface SteamExternalAuthConfig {
 }
 
 export type ExternalAuthConfig =
-  | GoogleExternalAuthConfig
-  | GitHubExternalAuthConfig
-  | SteamExternalAuthConfig;
+  GoogleExternalAuthConfig | GitHubExternalAuthConfig | SteamExternalAuthConfig;
 
 export class ExternalAuthError extends Error {
   constructor(
@@ -107,7 +105,8 @@ function assertRedirectUri(value: string): URL {
     throw new Error('redirectUri must be an absolute URL.');
   }
 
-  const isLocalHttp = url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+  const isLocalHttp =
+    url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
   if (url.protocol !== 'https:' && !isLocalHttp) {
     throw new Error('redirectUri must use HTTPS outside localhost.');
   }
@@ -226,7 +225,9 @@ class GoogleExternalAuthAdapter implements ExternalAuthAdapter {
       subject: payload.sub,
       profile: {
         ...(optionalString(payload.email) ? { email: payload.email } : {}),
-        ...(typeof payload.email_verified === 'boolean' ? { email_verified: payload.email_verified } : {}),
+        ...(typeof payload.email_verified === 'boolean'
+          ? { email_verified: payload.email_verified }
+          : {}),
         ...(optionalString(payload.name) ? { name: payload.name } : {}),
         ...(optionalString(payload.picture) ? { picture: payload.picture } : {}),
       },

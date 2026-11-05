@@ -33,7 +33,10 @@ function flattenDictionary(dictionary: object, prefix = ''): Record<string, stri
 }
 
 const messagesByLocale = Object.fromEntries(
-  Object.entries(dictionaries).map(([locale, dictionary]) => [locale, flattenDictionary(dictionary)]),
+  Object.entries(dictionaries).map(([locale, dictionary]) => [
+    locale,
+    flattenDictionary(dictionary),
+  ]),
 ) as Record<Locale, Record<MessageId, string>>;
 
 const intlCache = createIntlCache();
@@ -87,7 +90,9 @@ export function negotiateLocale(acceptLanguage?: string | null): Locale {
     if (exactLocale) return exactLocale;
 
     const language = tag.split('-', 1)[0]?.toLowerCase();
-    const matchedLocale = LOCALES.find((locale) => locale.split('-', 1)[0].toLowerCase() === language);
+    const matchedLocale = LOCALES.find(
+      (locale) => locale.split('-', 1)[0].toLowerCase() === language,
+    );
     if (matchedLocale) return matchedLocale;
   }
 

@@ -1,140 +1,293 @@
-import { fail, redirect, isRedirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-import { resolveMainAppRedirect } from '@galfus/constants';
-import { getAccountAuthenticationState, verifyAccountPassword } from '@galfus/data-manager/server';
-import { translate } from '@galfus/i18n';
+import { fail, isRedirect } from '@sveltejs/kit';
+import { clearAuthTransactionCookie, setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
+import { requireAuthTransaction } from '$lib/server/auth-transaction';
 import { connectDb } from '$lib/server/db';
-import { setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { getRequestLocale } from '$lib/server/i18n';
-import { AUTH_ACCESS_JWT_AUDIENCE, jwt } from '$lib/server/jwt';
+import { getPrimaryCredentialVersion, issueAccessToken } from '$lib/server/access-session';
+import { getPasskeyRelyingParty } from '$lib/server/passkey';
+import { temporaryRedirect } from '$lib/server/temporary-redirect';
+import {
+  createPasskeyAuthenticationOptions,
+  verifyPasskeyAuthentication,
+  type AuthenticationResponseJSON,
+} from '@galfus/auth-utils';
+import {
+  authorizePasskeyAuthTransaction,
+  completeAuthTransaction,
+  confirmPasswordAuthTransaction,
+  getAccountAuthenticationState,
+  getAccountPasskeys,
+  setPasskeyAuthTransactionChallenge,
+  type AuthTransactionView,
+} from '@galfus/data-manager/server';
+import { translate } from '@galfus/i18n';
 
-export const load = async ({ url }) => {
-  const state = url.searchParams.get('state');
-
-  if (!state) {
-    throw redirect(303, '/');
+function extractAccountId(account: unknown): string {
+  if (!account) return '';
+  if (typeof account === 'string') return account;
+  if (typeof account === 'object' && 'id' in account) {
+    return (account as { toString(): string }).toString();
   }
+  return String(account);
+}
+
+export const load = async ({ cookies }) => {
+  const { transaction } = await requireAuthTransaction(cookies, {
+    allowedKinds: ['authorization'],
+    allowedStatuses: ['awaiting_primary'],
+  });
+
+  const accountId = extractAccountId(transaction.account);
+  const identifier = transaction.metadata?.authorization?.identifier ?? '';
 
   try {
-    const payload = await jwt.verify(state);
-
-    if (payload.flow !== 'login') {
-      throw redirect(303, '/');
-    }
-
-    const accountId = typeof payload.accountId === 'string' ? payload.accountId : '';
-    const identifier = typeof payload.identifier === 'string' ? payload.identifier : '';
-    if (!accountId || !identifier) {
-      throw redirect(303, '/');
-    }
-
     const db = await connectDb();
     const authenticationStateResult = await getAccountAuthenticationState(db, { accountId });
-    if (!authenticationStateResult.success || !authenticationStateResult.data) {
-      throw redirect(303, '/');
-    }
-    const authenticationState = authenticationStateResult.data;
+    const hasPasskey = authenticationStateResult.success
+      ? Boolean(authenticationStateResult.data?.hasPasskey)
+      : false;
 
     return {
       identifier,
-      accountId,
-      hasPasskey: authenticationState.hasPasskey,
-      stateToken: state,
+      hasPasskey,
     };
-  } catch (e) {
-    if (isRedirect(e)) throw e;
-    throw redirect(303, '/?error=invalid_transaction');
+  } catch (error) {
+    if (isRedirect(error)) throw error;
+    console.error('Failed to load authentication state for challenge:', error);
+    return {
+      identifier,
+      hasPasskey: false,
+    };
   }
 };
 
 export const actions = {
-  default: async ({ request, cookies }) => {
+  password: async ({ request, cookies }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
-    const state = data.get('state')?.toString();
     const password = data.get('password')?.toString();
 
-    if (!state || !password) {
+    if (!password) {
       return fail(400, { error: translate('error.auth.pass.required', locale) });
     }
 
+    const { token, transaction } = await requireAuthTransaction(cookies, {
+      allowedKinds: ['authorization'],
+      allowedStatuses: ['awaiting_primary'],
+    });
+
+    const accountId = extractAccountId(transaction.account);
+    const identifier = transaction.metadata?.authorization?.identifier ?? '';
+
     try {
-      // 1. Validate the flow token
-      const payload = await jwt.verify(state);
-      if (payload.flow !== 'login' || !payload.accountId) {
-        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
-      }
-
-      const accountId = typeof payload.accountId === 'string' ? payload.accountId : '';
-      const identifier = typeof payload.identifier === 'string' ? payload.identifier : '';
-      if (!accountId || !identifier) {
-        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
-      }
-
       const db = await connectDb();
-      const authenticationStateResult = await getAccountAuthenticationState(db, { accountId });
-      if (!authenticationStateResult.success || !authenticationStateResult.data) {
-        return fail(403, { error: translate('error.auth.login.transaction_invalid', locale) });
-      }
-      const authenticationState = authenticationStateResult.data;
 
-      // 2. Verify the password through the authentication repository.
-      const passwordResult = await verifyAccountPassword(db, {
+      const confirmResult = await confirmPasswordAuthTransaction(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        expectedVersion: transaction.version,
         accountId,
         password,
       });
 
-      if (!passwordResult.success) {
-        return fail(400, {
-          error: translate(passwordResult.error.id, locale),
-        });
-      }
-
-      const passwordMatches = passwordResult.data;
-
-      if (!passwordMatches) {
-        // Password did not match or no password key exists
+      if (!confirmResult.success) {
         return fail(401, { error: translate('error.auth.pass.incorrect', locale) });
       }
 
-      // 3. Password is correct!
-      // If MFA is required, issue an MFA flow token
-      if (authenticationState.mfaEnabled) {
-        const mfaToken = await jwt.sign(
-          {
-            flow: 'mfa',
-            accountId,
-            identifier,
-            rto: payload.rto,
-          },
-          { expirationTime: '1h' },
-        );
-        throw redirect(303, `/mfa?state=${mfaToken}`);
+      const confirmedTx = confirmResult.data as AuthTransactionView<'authorization'>;
+      const credentialVersion = getPrimaryCredentialVersion(confirmedTx);
+
+      // Handle MFA requirement
+      if (confirmedTx.status === 'awaiting_mfa') {
+        const pendingMfaMethod = confirmedTx.metadata?.authorization?.pending_mfa_method;
+        if (pendingMfaMethod === 'totp') {
+          throw temporaryRedirect('/mfa-otp');
+        }
+        throw temporaryRedirect('/mfa-pass');
       }
 
-      // 4. No MFA required. Issue the stateless access JWT.
-      const accessToken = await jwt.sign(
+      if (confirmedTx.status !== 'authorized') {
+        clearAuthTransactionCookie(cookies);
+        throw temporaryRedirect('/');
+      }
+
+      // Complete the authorized transaction
+      const completeResult = await completeAuthTransaction(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        expectedVersion: confirmedTx.version,
+        accountId,
+      });
+
+      if (!completeResult.success) {
+        clearAuthTransactionCookie(cookies);
+        throw temporaryRedirect('/');
+      }
+
+      // Issue global stateless access token
+      const accessToken = await issueAccessToken(
+        db,
         {
-          flow: 'access',
-          sub: accountId,
           accountId,
           identifier,
+          ...(completeResult.data.return_to ? { rto: completeResult.data.return_to } : {}),
         },
-        { audience: AUTH_ACCESS_JWT_AUDIENCE, expirationTime: '7d' },
+        credentialVersion,
       );
 
       setAuthAccessTokenCookie(cookies, accessToken);
+      clearAuthTransactionCookie(cookies);
 
-      // 5. Return to the requested main-app path, or to the environment fallback.
-      const redirectUrl = resolveMainAppRedirect(dev, payload.rto);
+      throw temporaryRedirect('/success');
+    } catch (error) {
+      if (isRedirect(error)) throw error;
 
-      throw redirect(303, redirectUrl);
-    } catch (e) {
-      if (isRedirect(e)) {
-        throw e;
+      console.error('Challenge error:', error);
+      return fail(500, { error: translate('error.auth.login.failed', locale) });
+    }
+  },
+
+  passkeyOptions: async ({ request, cookies }) => {
+    const { token, transaction } = await requireAuthTransaction(cookies, {
+      allowedKinds: ['authorization'],
+      allowedStatuses: ['awaiting_primary'],
+    });
+
+    const accountId = extractAccountId(transaction.account);
+
+    try {
+      const db = await connectDb();
+      const passkeys = await getAccountPasskeys(db, accountId);
+
+      const origin = request.headers.get('origin');
+      const relyingParty = getPasskeyRelyingParty(origin);
+
+      const options = await createPasskeyAuthenticationOptions({
+        relyingParty,
+        passkeys: passkeys.map((p) => ({
+          credentialId: p.credentialId,
+          transports: p.transports,
+        })),
+      });
+
+      // Save challenge in transaction
+      const challengeResult = await setPasskeyAuthTransactionChallenge(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        expectedVersion: transaction.version,
+        accountId,
+        challengeCiphertext: options.challenge,
+      });
+
+      if (!challengeResult.success) {
+        return fail(400);
       }
 
-      console.error('Challenge error:', e);
+      return { options };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Passkey options error:', error);
+      return fail(500);
+    }
+  },
+
+  passkeyVerify: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const { token, transaction } = await requireAuthTransaction(cookies, {
+      allowedKinds: ['authorization'],
+      allowedStatuses: ['awaiting_primary'],
+    });
+
+    const accountId = extractAccountId(transaction.account);
+    const identifier = transaction.metadata?.authorization?.identifier ?? '';
+
+    try {
+      const body = await request.json();
+      const response = body?.response as AuthenticationResponseJSON | undefined;
+
+      if (!response?.id) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      const expectedChallenge = transaction.metadata?.authorization?.passkey?.challenge_ciphertext;
+      if (!expectedChallenge) {
+        return fail(400, { error: translate('error.auth.transaction.invalid', locale) });
+      }
+
+      const db = await connectDb();
+      const passkeys = await getAccountPasskeys(db, accountId);
+      const matchedPasskey = passkeys.find((p) => p.credentialId === response.id);
+
+      if (!matchedPasskey) {
+        return fail(400, { error: translate('error.auth.identity.invalid', locale) });
+      }
+
+      const origin = request.headers.get('origin');
+      const relyingParty = getPasskeyRelyingParty(origin);
+
+      const verification = await verifyPasskeyAuthentication({
+        relyingParty,
+        expectedChallenge,
+        response,
+        passkey: matchedPasskey,
+      });
+
+      if (!verification.verified) {
+        return fail(401, { error: translate('error.auth.login.failed', locale) });
+      }
+
+      const authorizeResult = await authorizePasskeyAuthTransaction(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        expectedVersion: transaction.version,
+        accountId,
+        authenticatorId: matchedPasskey.id,
+        newCounter: verification.newCounter,
+      });
+
+      if (!authorizeResult.success) {
+        return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
+      }
+
+      const authorizedTx = authorizeResult.data;
+      const credentialVersion = getPrimaryCredentialVersion(authorizedTx);
+
+      if (authorizedTx.status === 'awaiting_mfa') {
+        const pendingMfa = authorizedTx.metadata?.authorization?.pending_mfa_method;
+        return {
+          redirectUrl: pendingMfa === 'totp' ? '/mfa-otp' : '/mfa-pass',
+        };
+      }
+
+      const completeResult = await completeAuthTransaction(db, {
+        id: token.id,
+        browserVerifierHash: token.verifierHash,
+        expectedVersion: authorizedTx.version,
+        accountId,
+      });
+
+      if (!completeResult.success) {
+        clearAuthTransactionCookie(cookies);
+        return { redirectUrl: '/' };
+      }
+
+      const accessToken = await issueAccessToken(
+        db,
+        {
+          accountId,
+          identifier,
+          ...(completeResult.data.return_to ? { rto: completeResult.data.return_to } : {}),
+        },
+        credentialVersion,
+      );
+
+      setAuthAccessTokenCookie(cookies, accessToken);
+      clearAuthTransactionCookie(cookies);
+
+      return { redirectUrl: '/success' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Passkey verification error:', error);
       return fail(500, { error: translate('error.auth.login.failed', locale) });
     }
   },

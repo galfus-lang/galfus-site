@@ -93,7 +93,11 @@ function encryptionKey(key: string): Promise<CryptoKey> {
 export async function encryptSecret(value: string, key: string): Promise<string> {
   const iv = randomBytes(12);
   const ciphertext = new Uint8Array(
-    await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await encryptionKey(key), textEncoder.encode(value)),
+    await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      await encryptionKey(key),
+      textEncoder.encode(value),
+    ),
   );
   const result = new Uint8Array(iv.length + ciphertext.length);
   result.set(iv);
@@ -116,7 +120,10 @@ export async function decryptSecret(value: string, key: string): Promise<string>
 }
 
 /** Encrypts a secret in a self-describing envelope so keys can rotate safely. */
-export async function encryptSecretWithKey(value: string, encryptionKey: EncryptionKey): Promise<string> {
+export async function encryptSecretWithKey(
+  value: string,
+  encryptionKey: EncryptionKey,
+): Promise<string> {
   if (!/^[A-Za-z0-9_-]{1,64}$/.test(encryptionKey.keyId)) {
     throw new Error('Encryption key IDs must be 1–64 base64url characters.');
   }

@@ -14,6 +14,10 @@
     },
     "./styles/*": "./src/lib/styles/*",
     "./utils/*": "./src/lib/utils/*.ts",
+    "./email/*": {
+      "svelte": "./src/lib/email/*",
+      "default": "./src/lib/email/*"
+    },
     "./seo/*": {
       "svelte": "./src/lib/seo/*",
       "default": "./src/lib/seo/*"

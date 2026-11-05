@@ -139,7 +139,7 @@ cookies or redirects.
 | `account`, `organization`                          | Optional references defining immutable journey scope.                                                                                      |
 | `return_to`                                        | Destination validated at the start; never accept a new `rto` from a later form.                                                            |
 | `browser_verifier_hash`                            | SHA-256 hash of the secret kept in the cookie.                                                                                             |
-| `metadata`                                         | Validated, kind-specific state. Invitation data, SSO proof, provider callback state, and selected authentication methods belong here.     |
+| `metadata`                                         | Validated, kind-specific state. Invitation data, SSO proof, provider callback state, and selected authentication methods belong here.      |
 | `attempts`, `expires_at`, `consumed_at`, `version` | Rate limiting, expiration, single-use status, and optimistic concurrency.                                                                  |
 
 Do not store a password, OTP, access token, IdP access token, or IdP refresh

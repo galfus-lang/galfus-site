@@ -14,9 +14,31 @@ import {
   VerifyAccountPasswordInputSchema,
   GetAccountAuthenticationStateInputSchema,
 } from '../inputs/accounts';
+import {
+  GetAccountProfileInputSchema,
+  UpdateAccountProfileInputSchema,
+  RemoveAccountAuthenticatorInputSchema,
+  DisableAccountMfaInputSchema,
+  ActivateDirectTotpAuthenticatorInputSchema,
+} from '../inputs/auth-foundation';
 import * as v from 'valibot';
 
 export type AuthenticationAccount = Pick<Account, 'id' | 'status' | 'credential_version'>;
+
+/** Read the current account state used to validate access credentials. */
+export async function getAccountAccessState(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<AuthenticationAccount | null>> {
+  const parsed = v.safeParse(GetAccountAuthenticationStateInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+  const account = await querySingle<AuthenticationAccount>(
+    db,
+    'SELECT id, status, credential_version FROM account WHERE id = type::record($accountId) LIMIT 1;',
+    parsed.output,
+  );
+  return { success: true, data: account };
+}
 
 export interface AccountAuthenticationState {
   hasPasskey: boolean;
@@ -467,4 +489,264 @@ export async function getAccountAuthenticationState(
       mfaEnabled: mfaAuthenticators.length > 0,
     },
   };
+}
+
+export interface AccountProfileData {
+  account: {
+    id: string;
+    displayName: string;
+    status: string;
+    credentialVersion: number;
+    createdAt: Date;
+  };
+  identities: Array<{
+    id: string;
+    kind: string;
+    provider: string;
+    identifier: string;
+    status: string;
+    createdAt: Date;
+  }>;
+  security: {
+    hasPassword: boolean;
+    passkeys: Array<{
+      id: string;
+      credentialId: string;
+      label?: string;
+      deviceType?: string;
+      backedUp?: boolean;
+      createdAt: Date;
+    }>;
+    mfa: {
+      enabled: boolean;
+      kind?: string;
+    };
+  };
+}
+
+export async function getAccountProfile(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<AccountProfileData | null>> {
+  const parsed = v.safeParse(GetAccountProfileInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  const [accounts, identities, authenticators] = await db
+    .query<
+      [
+        Array<{
+          id: unknown;
+          display_name: string;
+          status: string;
+          credential_version: number;
+          created_at: string;
+        }>,
+        Array<{
+          id: unknown;
+          kind: string;
+          provider: string;
+          identifier: string;
+          status: string;
+          created_at: string;
+        }>,
+        Array<{
+          id: unknown;
+          kind: string;
+          purpose: string;
+          status: string;
+          identifier?: string;
+          metadata?: {
+            label?: string;
+            device_type?: string;
+            backed_up?: boolean;
+          };
+          created_at: string;
+        }>,
+      ]
+    >(
+      `
+        SELECT id, display_name, status, credential_version, created_at
+        FROM account
+        WHERE id = type::record($accountId) AND status = 'active'
+        LIMIT 1;
+
+        SELECT id, kind, provider, identifier, status, created_at
+        FROM account_identity
+        WHERE account = type::record($accountId) AND status = 'active'
+        ORDER BY created_at ASC;
+
+        SELECT id, kind, purpose, status, identifier, metadata, created_at
+        FROM account_authenticator
+        WHERE account = type::record($accountId) AND status = 'active';
+      `,
+      parsed.output,
+    )
+    .json();
+
+  const account = accounts[0];
+  if (!account) return { success: true, data: null };
+
+  const hasPassword = authenticators.some((a) => a.kind === 'password' && a.purpose === 'primary');
+  const passkeys = authenticators
+    .filter((a) => a.kind === 'passkey' && a.purpose === 'primary' && a.identifier)
+    .map((a) => ({
+      id: a.id ? a.id.toString() : '',
+      credentialId: a.identifier!,
+      label: a.metadata?.label,
+      deviceType: a.metadata?.device_type,
+      backedUp: a.metadata?.backed_up,
+      createdAt: new Date(a.created_at),
+    }));
+
+  const mfaAuth = authenticators.find((a) => a.purpose === 'mfa');
+
+  return {
+    success: true,
+    data: {
+      account: {
+        id: account.id ? account.id.toString() : '',
+        displayName: account.display_name,
+        status: account.status,
+        credentialVersion: account.credential_version,
+        createdAt: new Date(account.created_at),
+      },
+      identities: identities.map((i) => ({
+        id: i.id ? i.id.toString() : '',
+        kind: i.kind,
+        provider: i.provider,
+        identifier: i.identifier,
+        status: i.status,
+        createdAt: new Date(i.created_at),
+      })),
+      security: {
+        hasPassword,
+        passkeys,
+        mfa: {
+          enabled: Boolean(mfaAuth),
+          kind: mfaAuth?.kind,
+        },
+      },
+    },
+  };
+}
+
+export async function updateAccountProfile(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<{ id: string; displayName: string }>> {
+  const parsed = v.safeParse(UpdateAccountProfileInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  const results = await db
+    .query<[{ id: unknown; display_name: string }[]]>(
+      `
+        UPDATE type::record($accountId)
+        SET display_name = $displayName
+        WHERE status = 'active'
+        RETURN id, display_name;
+      `,
+      parsed.output,
+    )
+    .json();
+
+  const updated = results[0]?.[0];
+  if (!updated) return authenticationError('error.auth.account.invalid');
+
+  return {
+    success: true,
+    data: {
+      id: updated.id ? updated.id.toString() : '',
+      displayName: updated.display_name,
+    },
+  };
+}
+
+export async function removeAccountAuthenticator(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<boolean>> {
+  const parsed = v.safeParse(RemoveAccountAuthenticatorInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  const results = await db
+    .query<unknown[]>(
+      `
+        BEGIN TRANSACTION;
+        LET $auth = (
+          SELECT id, kind, purpose FROM account_authenticator
+          WHERE id = type::record($authenticatorId) AND account = type::record($accountId)
+          LIMIT 1
+        )[0];
+        LET $deleted = IF $auth IS NONE THEN NONE ELSE (
+          DELETE $auth.id RETURN BEFORE
+        )[0] END;
+        COMMIT TRANSACTION;
+        RETURN $deleted;
+      `,
+      parsed.output,
+    )
+    .json();
+
+  const deleted = results.at(-1);
+  return { success: true, data: Boolean(deleted) };
+}
+
+export async function disableAccountMfa(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<boolean>> {
+  const parsed = v.safeParse(DisableAccountMfaInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  await db.query(
+    `
+      DELETE account_authenticator
+      WHERE account = type::record($accountId)
+        AND (purpose = 'mfa' OR purpose = 'recovery');
+    `,
+    parsed.output,
+  );
+
+  return { success: true, data: true };
+}
+
+export async function activateDirectTotpAuthenticator(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<boolean>> {
+  const parsed = v.safeParse(ActivateDirectTotpAuthenticatorInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  await db.query(
+    `
+      BEGIN TRANSACTION;
+      DELETE account_authenticator
+      WHERE account = type::record($accountId)
+        AND (purpose = 'mfa' OR purpose = 'recovery');
+
+      CREATE type::record('account_authenticator', $authenticatorId) CONTENT {
+        account: type::record($accountId),
+        kind: 'totp',
+        purpose: 'mfa',
+        status: 'active',
+        secret_ciphertext: $secretCiphertext,
+        verified_at: time::now()
+      };
+
+      FOR $code IN $codes {
+        CREATE type::record('account_authenticator', $code.id) CONTENT {
+          account: type::record($accountId),
+          kind: 'recovery_code',
+          purpose: 'recovery',
+          status: 'active',
+          secret_hash: $code.secretHash,
+          verified_at: time::now()
+        };
+      };
+      COMMIT TRANSACTION;
+    `,
+    parsed.output,
+  );
+
+  return { success: true, data: true };
 }

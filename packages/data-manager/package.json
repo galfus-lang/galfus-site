@@ -12,7 +12,13 @@
     "dev:typegen": "bun run scripts/surrealkit.ts development typegen",
     "prod:check": "bun run scripts/surrealkit.ts production sync --dry-run",
     "prod:sync": "bun run scripts/surrealkit.ts production sync --allow-shared-prune",
-    "prod:typegen": "bun run scripts/surrealkit.ts production typegen"
+    "prod:typegen": "bun run scripts/surrealkit.ts production typegen",
+    "auth:clear:local:check": "bun run scripts/clear-auth-data.ts local --dry-run",
+    "auth:clear:local": "bun run scripts/clear-auth-data.ts local",
+    "auth:clear:development:check": "bun run scripts/clear-auth-data.ts development --dry-run",
+    "auth:clear:development": "bun run scripts/clear-auth-data.ts development",
+    "auth:clear:production:check": "bun run scripts/clear-auth-data.ts production --dry-run",
+    "auth:clear:production": "bun run scripts/clear-auth-data.ts production"
   },
   "exports": {
     ".": "./src/index.ts",

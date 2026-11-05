@@ -90,6 +90,25 @@ After completing the code, ask the user if they want a playground link. Only cal
   Development reads `SURREALDB_DEVELOPMENT_*`; production reads
   `SURREALDB_PRODUCTION_*`. Do not print secrets or add them to source control.
 
+- Authentication-data cleanup is destructive. It deletes accounts, identities,
+  authenticators, OTP challenges, authentication transactions, and account-to-
+  organization memberships, while preserving organizations, projects, and SSO
+  connections. Inspect counts first and explicitly confirm the exact target:
+
+  ```sh
+  bun run db:local:auth:clear:check
+  CONFIRM_AUTH_DATA_CLEAR=local bun run db:local:auth:clear
+
+  bun run db:dev:auth:clear:check
+  CONFIRM_AUTH_DATA_CLEAR=development bun run db:dev:auth:clear
+
+  bun run db:prod:auth:clear:check
+  CONFIRM_AUTH_DATA_CLEAR=production bun run db:prod:auth:clear
+  ```
+
+  Never run a cleanup command against a cloud target unless the user explicitly
+  requested that exact target.
+
 ## Internationalisation
 
 - `packages/i18n` owns all user-facing messages. Add a group to the base

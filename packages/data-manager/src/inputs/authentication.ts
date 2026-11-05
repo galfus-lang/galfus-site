@@ -17,10 +17,7 @@ export const UsernameIdentifierSchema = v.pipe(
   v.trim(),
   v.minLength(3, 'error.fields.username.too_short'),
   v.maxLength(32, 'error.fields.username.too_long'),
-  v.regex(
-    /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/,
-    'error.fields.username.malformed',
-  ),
+  v.regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/, 'error.fields.username.malformed'),
 );
 
 /**

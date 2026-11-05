@@ -1,0 +1,456 @@
+import { fail, isRedirect } from '@sveltejs/kit';
+import {
+  clearAuthAccessTokenCookie,
+  clearAuthTransactionCookie,
+  setAuthAccessTokenCookie,
+} from '$lib/server/auth-cookies';
+import { connectDb } from '$lib/server/db';
+import { getRequestLocale } from '$lib/server/i18n';
+import { issueAccessToken, validateAndRenewAccessSession } from '$lib/server/access-session';
+import { getPasskeyRelyingParty } from '$lib/server/passkey';
+import { temporaryRedirect } from '$lib/server/temporary-redirect';
+import {
+  createPasskeyRegistrationOptions,
+  createQrCodeSvg,
+  createTotpEnrollment,
+  generateId,
+  generateRecoveryCodes,
+  hashRecoveryCode,
+  verifyPasskeyRegistration,
+  verifyTotp,
+  type RegistrationResponseJSON,
+} from '@galfus/auth-utils';
+import {
+  activateDirectTotpAuthenticator,
+  disableAccountMfa,
+  getAccountPasskeys,
+  getAccountProfile,
+  incrementAccountCredentialVersion,
+  persistVerifiedPasskeyAuthenticator,
+  removeAccountAuthenticator,
+  updateAccountProfile,
+  upsertAccountPassword,
+  verifyAccountPassword,
+} from '@galfus/data-manager/server';
+import { translate } from '@galfus/i18n';
+
+async function requireUserSession(
+  cookies: Parameters<typeof validateAndRenewAccessSession>[0],
+): Promise<{
+  accountId: string;
+  identifier: string;
+  credentialVersion: number;
+}> {
+  const session = await validateAndRenewAccessSession(cookies);
+  if (!session) {
+    throw temporaryRedirect('/');
+  }
+  return {
+    accountId: session.accountId,
+    identifier: session.identifier ?? '',
+    credentialVersion: session.credentialVersion,
+  };
+}
+
+export const load = async ({ cookies }) => {
+  const session = await requireUserSession(cookies);
+
+  try {
+    const db = await connectDb();
+    const profileResult = await getAccountProfile(db, { accountId: session.accountId });
+
+    if (!profileResult.success || !profileResult.data) {
+      clearAuthAccessTokenCookie(cookies);
+      throw temporaryRedirect('/');
+    }
+
+    return {
+      profile: profileResult.data,
+      identifier: session.identifier,
+    };
+  } catch (error) {
+    if (isRedirect(error)) throw error;
+    console.error('Failed to load profile:', error);
+    throw error;
+  }
+};
+
+export const actions = {
+  updateProfile: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+    const data = await request.formData();
+    const displayName = data.get('displayName')?.toString()?.trim();
+
+    if (!displayName || displayName.length < 2) {
+      return fail(400, { error: translate('error.fields.full_name.too_short', locale) });
+    }
+
+    try {
+      const db = await connectDb();
+      const result = await updateAccountProfile(db, {
+        accountId: session.accountId,
+        displayName,
+      });
+
+      if (!result.success) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      return { success: true, updatedField: 'profile' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Profile update error:', error);
+      return fail(500, { error: translate('error.input.invalid', locale) });
+    }
+  },
+
+  changePassword: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+    const data = await request.formData();
+    const currentPassword = data.get('currentPassword')?.toString();
+    const newPassword = data.get('newPassword')?.toString();
+    const confirmNewPassword = data.get('confirmNewPassword')?.toString();
+
+    if (!newPassword || !confirmNewPassword) {
+      return fail(400, { error: translate('error.auth.pass.required', locale) });
+    }
+
+    if (newPassword.length < 8) {
+      return fail(400, { error: translate('error.auth.pass.too_short', locale) });
+    }
+
+    if (newPassword.length > 128) {
+      return fail(400, { error: translate('error.auth.pass.too_long', locale) });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return fail(400, { error: translate('error.auth.pass.password_dont_match', locale) });
+    }
+
+    try {
+      const db = await connectDb();
+      const profileResult = await getAccountProfile(db, { accountId: session.accountId });
+
+      if (!profileResult.success || !profileResult.data) {
+        return fail(400, { error: translate('error.auth.login.failed', locale) });
+      }
+
+      if (profileResult.data.security.hasPassword) {
+        if (!currentPassword) {
+          return fail(400, { error: translate('error.auth.pass.required', locale) });
+        }
+        const verifyResult = await verifyAccountPassword(db, {
+          accountId: session.accountId,
+          password: currentPassword,
+        });
+        if (!verifyResult.success || !verifyResult.data) {
+          return fail(401, { error: translate('error.auth.pass.incorrect', locale) });
+        }
+      }
+
+      const upsertResult = await upsertAccountPassword(db, {
+        accountId: session.accountId,
+        password: newPassword,
+      });
+
+      if (!upsertResult.success) {
+        return fail(400, { error: translate('error.auth.login.failed', locale) });
+      }
+
+      const refreshedToken = await issueAccessToken(
+        db,
+        { accountId: session.accountId, identifier: session.identifier },
+        session.credentialVersion + 1,
+      );
+      setAuthAccessTokenCookie(cookies, refreshedToken);
+
+      return { success: true, updatedField: 'password' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Password change error:', error);
+      return fail(500, { error: translate('error.auth.login.failed', locale) });
+    }
+  },
+
+  passkeyRegistrationOptions: async ({ request, cookies }) => {
+    const session = await requireUserSession(cookies);
+
+    try {
+      const db = await connectDb();
+      const profileResult = await getAccountProfile(db, { accountId: session.accountId });
+      const passkeys = await getAccountPasskeys(db, session.accountId);
+
+      const origin = request.headers.get('origin');
+      const relyingParty = getPasskeyRelyingParty(origin);
+
+      const displayName =
+        profileResult.success && profileResult.data
+          ? profileResult.data.account.displayName
+          : 'User';
+
+      const userName = session.identifier || displayName;
+
+      const options = await createPasskeyRegistrationOptions({
+        relyingParty,
+        accountId: session.accountId,
+        userName,
+        userDisplayName: displayName,
+        existingPasskeys: passkeys.map((p) => ({
+          credentialId: p.credentialId,
+          transports: p.transports,
+        })),
+      });
+
+      cookies.set('passkey_reg_challenge', options.challenge, {
+        path: '/profile',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: request.url.startsWith('https://'),
+        maxAge: 300,
+      });
+
+      return { options };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Passkey registration options error:', error);
+      return fail(500);
+    }
+  },
+
+  verifyPasskeyRegistration: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+
+    try {
+      const body = await request.json();
+      const response = body?.response as RegistrationResponseJSON | undefined;
+      const label = typeof body?.label === 'string' ? body.label.trim() : undefined;
+
+      if (!response?.id) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      const expectedChallenge = cookies.get('passkey_reg_challenge');
+      if (!expectedChallenge) {
+        return fail(400, { error: translate('error.auth.transaction.expired', locale) });
+      }
+
+      cookies.delete('passkey_reg_challenge', { path: '/profile' });
+
+      const origin = request.headers.get('origin');
+      const relyingParty = getPasskeyRelyingParty(origin);
+
+      const verification = await verifyPasskeyRegistration({
+        relyingParty,
+        expectedChallenge,
+        response,
+        webauthnUserId: session.accountId,
+      });
+
+      if (!verification.verified || !verification.passkey) {
+        return fail(400, { error: translate('error.auth.login.failed', locale) });
+      }
+
+      const db = await connectDb();
+      const persistResult = await persistVerifiedPasskeyAuthenticator(db, {
+        id: generateId(),
+        accountId: session.accountId,
+        credentialId: verification.passkey.credentialId,
+        webauthnUserId: verification.passkey.webauthnUserId,
+        publicKey: verification.passkey.publicKey,
+        counter: verification.passkey.counter,
+        transports: verification.passkey.transports,
+        deviceType: verification.passkey.deviceType,
+        backedUp: verification.passkey.backedUp,
+        label,
+      });
+
+      if (!persistResult.success) {
+        return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Passkey registration verification error:', error);
+      return fail(500, { error: translate('error.auth.login.failed', locale) });
+    }
+  },
+
+  removePasskey: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+    const data = await request.formData();
+    const authenticatorId = data.get('authenticatorId')?.toString();
+
+    if (!authenticatorId) {
+      return fail(400, { error: translate('error.input.invalid', locale) });
+    }
+
+    try {
+      const db = await connectDb();
+      const result = await removeAccountAuthenticator(db, {
+        accountId: session.accountId,
+        authenticatorId,
+      });
+
+      if (!result.success) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      return { success: true, updatedField: 'passkey_removed' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Remove passkey error:', error);
+      return fail(500, { error: translate('error.input.invalid', locale) });
+    }
+  },
+
+  setupTotp: async ({ request, cookies }) => {
+    const session = await requireUserSession(cookies);
+
+    try {
+      const enrollment = createTotpEnrollment({
+        issuer: 'Galfus',
+        label: session.identifier || 'user',
+      });
+
+      const qrCodeSvg = await createQrCodeSvg(enrollment.uri);
+      const recoveryCodes = generateRecoveryCodes(10);
+
+      cookies.set('totp_enrollment_secret', enrollment.secret, {
+        path: '/profile',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: request.url.startsWith('https://'),
+        maxAge: 600,
+      });
+
+      return {
+        totpSetup: {
+          secret: enrollment.secret,
+          qrCodeSvg,
+          recoveryCodes,
+        },
+      };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Setup TOTP error:', error);
+      return fail(500);
+    }
+  },
+
+  activateTotp: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+    const data = await request.formData();
+    const code = data.get('code')?.toString()?.trim();
+    const recoveryCodesRaw = data.get('recoveryCodes')?.toString();
+
+    const secret = cookies.get('totp_enrollment_secret');
+    if (!secret || !code) {
+      return fail(400, { error: translate('error.auth.otp.invalid', locale) });
+    }
+
+    const isValid = verifyTotp(code, {
+      issuer: 'Galfus',
+      label: session.identifier || 'user',
+      secret,
+    });
+
+    if (!isValid) {
+      return fail(400, { error: translate('error.auth.otp.invalid', locale) });
+    }
+
+    try {
+      const recoveryCodesList: string[] = recoveryCodesRaw
+        ? JSON.parse(recoveryCodesRaw)
+        : generateRecoveryCodes(10);
+
+      const pepper = 'galfus-recovery-code-pepper';
+      const hashedCodes = await Promise.all(
+        recoveryCodesList.map(async (rc) => ({
+          id: generateId(),
+          secretHash: await hashRecoveryCode(rc, pepper),
+        })),
+      );
+
+      const db = await connectDb();
+      const result = await activateDirectTotpAuthenticator(db, {
+        accountId: session.accountId,
+        authenticatorId: generateId(),
+        secretCiphertext: secret,
+        codes: hashedCodes,
+      });
+
+      if (!result.success) {
+        return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
+      }
+
+      cookies.delete('totp_enrollment_secret', { path: '/profile' });
+
+      return { success: true, updatedField: 'mfa_enabled' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Activate TOTP error:', error);
+      return fail(500, { error: translate('error.auth.login.failed', locale) });
+    }
+  },
+
+  disableTotp: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+
+    try {
+      const db = await connectDb();
+      const result = await disableAccountMfa(db, { accountId: session.accountId });
+
+      if (!result.success) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      return { success: true, updatedField: 'mfa_disabled' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Disable TOTP error:', error);
+      return fail(500, { error: translate('error.input.invalid', locale) });
+    }
+  },
+
+  revokeOtherSessions: async ({ request, cookies }) => {
+    const locale = getRequestLocale({ request, cookies });
+    const session = await requireUserSession(cookies);
+
+    try {
+      const db = await connectDb();
+      const result = await incrementAccountCredentialVersion(db, {
+        accountId: session.accountId,
+      });
+
+      if (!result.success) {
+        return fail(400, { error: translate('error.input.invalid', locale) });
+      }
+
+      const refreshedToken = await issueAccessToken(
+        db,
+        { accountId: session.accountId, identifier: session.identifier },
+        session.credentialVersion + 1,
+      );
+      setAuthAccessTokenCookie(cookies, refreshedToken);
+
+      return { success: true, updatedField: 'sessions_revoked' };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      console.error('Revoke sessions error:', error);
+      return fail(500, { error: translate('error.input.invalid', locale) });
+    }
+  },
+
+  logout: async ({ cookies }) => {
+    clearAuthAccessTokenCookie(cookies);
+    clearAuthTransactionCookie(cookies);
+    throw temporaryRedirect('/');
+  },
+};

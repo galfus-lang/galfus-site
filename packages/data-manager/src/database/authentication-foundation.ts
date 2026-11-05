@@ -2,11 +2,7 @@ import type { Surreal } from 'surrealdb';
 import { RecordId, TextCodec } from 'surrealdb';
 import * as v from 'valibot';
 
-import type {
-  AuthOtpChallenge,
-  AuthTransaction,
-  BelongsTo,
-} from '../generated';
+import type { AuthOtpChallenge, AuthTransaction, BelongsTo } from '../generated';
 import { authenticationError, invalidInput, type DataManagerResult } from '../errors';
 import {
   type AuthTransactionKind,
@@ -19,6 +15,7 @@ import {
   CompleteExternalProviderLinkInputSchema,
   CompleteOrganizationInvitationInputSchema,
   ConfirmTotpAuthTransactionInputSchema,
+  ConfirmRecoveryCodeAuthTransactionInputSchema,
   ConfirmOtpAuthTransactionInputSchema,
   ConfirmPasswordAuthTransactionInputSchema,
   ConsumeOtpChallengeInputSchema,
@@ -33,7 +30,10 @@ import {
   RevokeOrganizationInvitationTransactionInputSchema,
   RevokeOrganizationAccessInputSchema,
   StartAuthTransactionInputSchema,
+  parseStartIdentityAuthTransactionInput,
   StartExternalProviderAuthTransactionInputSchema,
+  StartPasswordRecoveryTransactionInputSchema,
+  CompleteUpsertPasswordTransactionInputSchema,
   SetPasskeyAuthTransactionChallengeInputSchema,
   AuthorizePasskeyAuthTransactionInputSchema,
   VerifyOrganizationMembershipSsoInputSchema,
@@ -77,12 +77,17 @@ export interface RedeemableOrganizationInvitation {
 
 export type CompletedAuthTransaction = Pick<
   AuthTransaction,
-  'id' | 'account' | 'status' | 'consumed_at' | 'version'
+  'id' | 'account' | 'status' | 'return_to' | 'consumed_at' | 'version'
 >;
 
 export interface PurgedAuthTransactions {
   otpChallenges: number;
   transactions: number;
+}
+
+export interface StartedIdentityAuthTransaction {
+  nextRoute: '/challenge' | '/register';
+  transaction: AuthTransactionView<'authorization' | 'registration'>;
 }
 
 function recordId<T extends string>(table: T, id: string): RecordId<T> {
@@ -169,6 +174,104 @@ export async function startAuthTransaction(
 }
 
 /**
+ * Resolves a normalized local identity and starts its browser-bound journey in
+ * one database transaction. The caller receives no account-existence detail.
+ */
+export async function startIdentityAuthTransaction(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<StartedIdentityAuthTransaction>> {
+  const parsed = parseStartIdentityAuthTransactionInput(input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+  if (!hasAllowedExpiry(parsed.output.expiresAt, AUTH_TRANSACTION_MAX_DURATION_MS)) {
+    return authenticationError('error.auth.transaction.invalid');
+  }
+
+  const output = parsed.output;
+  const returnToField = output.returnTo ? 'return_to: $returnTo,' : '';
+  const results = await db
+    .query<unknown[]>(
+      `
+        BEGIN TRANSACTION;
+        LET $identity = (
+          SELECT account
+          FROM account_identity
+          WHERE kind = 'local'
+            AND issuer = 'galfus'
+            AND provider = $provider
+            AND identifier = $identifier
+            AND status = 'active'
+          LIMIT 1
+          FETCH account
+        )[0];
+        LET $account = IF $identity IS NONE THEN NONE ELSE $identity.account END;
+        LET $transaction = IF $account IS NONE THEN (
+          CREATE type::record('auth_transaction', $transactionId) CONTENT {
+            kind: 'registration',
+            status: 'awaiting_primary',
+            browser_verifier_hash: $browserVerifierHash,
+            expires_at: $expiresAt,
+            metadata: {
+              registration: {
+                provider: $provider,
+                identifier: $identifier,
+              },
+            },
+            ${returnToField}
+          }
+        )[0] ELSE IF $account.status = 'active' THEN (
+          CREATE type::record('auth_transaction', $transactionId) CONTENT {
+            kind: 'authorization',
+            status: 'awaiting_primary',
+            account: $account.id,
+            browser_verifier_hash: $browserVerifierHash,
+            expires_at: $expiresAt,
+            metadata: {
+              authorization: {
+                provider: $provider,
+                identifier: $identifier,
+              },
+            },
+            ${returnToField}
+          }
+        )[0] ELSE NONE END;
+        COMMIT TRANSACTION;
+        RETURN { account_status: $account.status, transaction: $transaction };
+      `,
+      {
+        transactionId: output.id,
+        browserVerifierHash: output.browserVerifierHash,
+        provider: output.provider,
+        identifier: output.identifier,
+        expiresAt: asDate(output.expiresAt),
+        ...(output.returnTo ? { returnTo: output.returnTo } : {}),
+      },
+    )
+    .json();
+
+  const result = results.at(-1) as
+    | {
+        account_status?: string;
+        transaction?: AuthTransactionView<'authorization' | 'registration'>;
+      }
+    | undefined;
+  if (result?.transaction) {
+    return {
+      success: true,
+      data: {
+        nextRoute: result.transaction.kind === 'authorization' ? '/challenge' : '/register',
+        transaction: result.transaction,
+      },
+    };
+  }
+  if (result?.account_status === 'suspended' || result?.account_status === 'disabled') {
+    return authenticationError('error.auth.account.blocked');
+  }
+
+  throw new Error('SurrealDB did not create an identity authentication transaction.');
+}
+
+/**
  * Starts a browser-bound external sign-in journey. The caller persists the raw
  * state, nonce, and PKCE verifier only as needed for its provider redirect.
  */
@@ -224,7 +327,8 @@ export async function startExternalProviderAuthTransaction(
       },
     },
   );
-  if (!transaction) throw new Error('SurrealDB did not create the external authorization transaction.');
+  if (!transaction)
+    throw new Error('SurrealDB did not create the external authorization transaction.');
   return { success: true, data: transaction };
 }
 
@@ -504,7 +608,7 @@ export async function confirmPasswordAuthTransaction(
       `
         BEGIN TRANSACTION;
         LET $activeAccount = (
-          SELECT id FROM account WHERE id = $account AND status = 'active' LIMIT 1
+          SELECT id, credential_version FROM account WHERE id = $account AND status = 'active' LIMIT 1
         )[0];
         LET $passwordAuthenticator = IF $activeAccount IS NONE THEN NONE ELSE (
           SELECT id FROM account_authenticator
@@ -523,12 +627,13 @@ export async function confirmPasswordAuthTransaction(
         LET $transaction = IF $passwordAuthenticator IS NONE THEN NONE ELSE (
           UPDATE $transaction
           SET metadata.authorization.primary_method = 'password',
+            metadata.authorization.primary_credential_version = $activeAccount.credential_version,
             metadata.authorization.pending_mfa_method = $mfaAuthenticator.kind,
             status = IF $mfaAuthenticator IS NONE THEN 'authorized' ELSE 'awaiting_mfa' END,
             version = version + 1
           WHERE browser_verifier_hash = $browserVerifierHash
             AND account = $account
-            AND status = 'pending'
+            AND status IN ['pending', 'awaiting_primary']
             AND version = $expectedVersion
             AND attempts < max_attempts
             AND expires_at > time::now()
@@ -557,7 +662,7 @@ export async function confirmPasswordAuthTransaction(
         status = IF attempts + 1 >= max_attempts THEN 'failed' ELSE status END
       WHERE browser_verifier_hash = $browserVerifierHash
         AND account = $account
-        AND status = 'pending'
+        AND status IN ['pending', 'awaiting_primary']
         AND version = $expectedVersion
         AND attempts < max_attempts
         AND expires_at > time::now()
@@ -571,6 +676,54 @@ export async function confirmPasswordAuthTransaction(
     },
   );
   return authenticationError('error.auth.pass.incorrect');
+}
+
+export interface AccountPasskeyItem {
+  id: string;
+  credentialId: string;
+  publicKey: string;
+  counter: number;
+  transports?: string[];
+}
+
+/** Reads active passkeys for an account. */
+export async function getAccountPasskeys(
+  db: Surreal,
+  accountId: string,
+): Promise<AccountPasskeyItem[]> {
+  const account = recordId('account', accountId);
+  const rows = await db
+    .query<
+      [
+        Array<{
+          id: RecordId<'account_authenticator'>;
+          identifier?: string;
+          public_key?: string;
+          metadata?: { counter?: number; transports?: string[] };
+        }>,
+      ]
+    >(
+      `
+        SELECT id, identifier, public_key, metadata
+        FROM account_authenticator
+        WHERE account = $account
+          AND kind = 'passkey'
+          AND purpose = 'primary'
+          AND status = 'active';
+      `,
+      { account },
+    )
+    .json();
+
+  return (rows[0] ?? [])
+    .filter((r) => r.identifier && r.public_key)
+    .map((r) => ({
+      id: r.id.toString(),
+      credentialId: r.identifier!,
+      publicKey: r.public_key!,
+      counter: r.metadata?.counter ?? 0,
+      transports: r.metadata?.transports,
+    }));
 }
 
 /** Stores an encrypted WebAuthn challenge before presenting passkey authentication options. */
@@ -590,7 +743,7 @@ export async function setPasskeyAuthTransactionChallenge(
         version = version + 1
       WHERE kind = 'authorization'
         AND account = $account
-        AND status = 'pending'
+        AND status IN ['pending', 'awaiting_primary']
         AND version = $expectedVersion
         AND browser_verifier_hash = $browserVerifierHash
         AND expires_at > time::now()
@@ -634,7 +787,9 @@ export async function authorizePasskeyAuthTransaction(
             AND consumed_at IS NONE
           LIMIT 1
         )[0];
-        LET $passkey = IF $transaction IS NONE THEN NONE ELSE (
+        LET $activeAccount = (SELECT id, credential_version FROM account
+          WHERE id = $account AND status = 'active' LIMIT 1)[0];
+        LET $passkey = IF $transaction IS NONE OR $activeAccount IS NONE THEN NONE ELSE (
           UPDATE $authenticator
           SET metadata.counter = $newCounter,
             metadata.last_used_at = time::now()
@@ -653,6 +808,7 @@ export async function authorizePasskeyAuthTransaction(
         LET $transactionUpdate = IF $passkey IS NONE THEN NONE ELSE (
           UPDATE $transaction.id
           SET metadata.authorization.primary_method = 'passkey',
+            metadata.authorization.primary_credential_version = $activeAccount.credential_version,
             metadata.authorization.pending_mfa_method = $mfaAuthenticator.kind,
             metadata.authorization.passkey.challenge_ciphertext = NONE,
             status = IF $mfaAuthenticator IS NONE THEN 'authorized' ELSE 'awaiting_mfa' END,
@@ -715,6 +871,112 @@ export async function confirmTotpAuthTransaction(
   return transaction
     ? { success: true, data: transaction }
     : authenticationError('error.auth.transaction.state_conflict');
+}
+
+/** Consumes a recovery code and advances the awaiting_mfa transaction to authorized. */
+export async function confirmRecoveryCodeAuthTransaction(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<AuthTransactionView<'authorization'>>> {
+  const parsed = v.safeParse(ConfirmRecoveryCodeAuthTransactionInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  const results = await db
+    .query<unknown[]>(
+      `
+        BEGIN TRANSACTION;
+        LET $recoveryCode = (
+          UPDATE account_authenticator
+          SET status = 'disabled', disabled_at = time::now()
+          WHERE account = $account
+            AND kind = 'recovery_code'
+            AND purpose = 'recovery'
+            AND status = 'active'
+            AND secret_hash = $codeHash
+          RETURN AFTER
+        )[0];
+        LET $transactionUpdate = IF $recoveryCode IS NONE THEN NONE ELSE (
+          UPDATE $transaction
+          SET status = 'authorized',
+            metadata.authorization.pending_mfa_method = NONE,
+            metadata.authorization.primary_method = IF metadata.authorization.primary_method IS NONE THEN 'recovery' ELSE metadata.authorization.primary_method END,
+            version = version + 1
+          WHERE browser_verifier_hash = $browserVerifierHash
+            AND account = $account
+            AND status = 'awaiting_mfa'
+            AND version = $expectedVersion
+            AND expires_at > time::now()
+            AND consumed_at IS NONE
+          RETURN AFTER
+        )[0] END;
+        COMMIT TRANSACTION;
+        RETURN $transactionUpdate;
+      `,
+      {
+        transaction: transactionRecordId(parsed.output.id),
+        account: recordId('account', parsed.output.accountId),
+        browserVerifierHash: parsed.output.browserVerifierHash,
+        expectedVersion: parsed.output.expectedVersion,
+        codeHash: parsed.output.codeHash,
+      },
+    )
+    .json();
+
+  const transaction = results.at(-1) as AuthTransactionView<'authorization'> | null | undefined;
+  return transaction
+    ? { success: true, data: transaction }
+    : authenticationError('error.auth.otp.invalid');
+}
+
+export interface ActiveMfaAuthenticatorInfo {
+  id: string;
+  kind: 'totp' | 'email_otp' | 'sms_otp';
+  secretCiphertext?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/** Finds an active MFA authenticator for an account. */
+export async function getActiveMfaAuthenticator(
+  db: Surreal,
+  input: {
+    accountId: string;
+    kind?: 'totp' | 'email_otp' | 'sms_otp';
+  },
+): Promise<DataManagerResult<ActiveMfaAuthenticatorInfo | null>> {
+  const account = recordId('account', input.accountId);
+  const rows = await db
+    .query<
+      [
+        Array<{
+          id: RecordId<'account_authenticator'>;
+          kind: string;
+          secret_ciphertext?: string;
+          metadata?: Record<string, unknown>;
+        }>,
+      ]
+    >(
+      input.kind
+        ? `SELECT id, kind, secret_ciphertext, metadata FROM account_authenticator WHERE account = $account AND purpose = 'mfa' AND status = 'active' AND kind = $kind LIMIT 1;`
+        : `SELECT id, kind, secret_ciphertext, metadata FROM account_authenticator WHERE account = $account AND purpose = 'mfa' AND status = 'active' LIMIT 1;`,
+      {
+        account,
+        ...(input.kind ? { kind: input.kind } : {}),
+      },
+    )
+    .json();
+
+  const candidate = rows[0]?.[0];
+  if (!candidate) return { success: true, data: null };
+
+  return {
+    success: true,
+    data: {
+      id: candidate.id.toString(),
+      kind: candidate.kind as 'totp' | 'email_otp' | 'sms_otp',
+      secretCiphertext: candidate.secret_ciphertext,
+      metadata: candidate.metadata,
+    },
+  };
 }
 
 /** Consumes a transaction-bound MFA OTP and advances the transaction to authorized. */
@@ -1521,4 +1783,181 @@ export async function purgeExpiredAuthTransactions(
       transactions: transactions.length,
     },
   };
+}
+
+export interface StartedPasswordRecovery {
+  transaction: AuthTransactionView<'upsert_password'>;
+  targetEmail?: string;
+}
+
+/**
+ * Starts a password recovery transaction for a given identifier (email or username).
+ * Returns { success: true, data: null } if no matching active local account was found,
+ * preventing account enumeration attacks.
+ */
+export async function startPasswordRecoveryTransaction(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<StartedPasswordRecovery | null>> {
+  const parsed = v.safeParse(StartPasswordRecoveryTransactionInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  if (!hasAllowedExpiry(parsed.output.expiresAt, AUTH_TRANSACTION_MAX_DURATION_MS)) {
+    return authenticationError('error.auth.transaction.invalid');
+  }
+
+  const results = await db
+    .query<
+      [
+        {
+          transaction?: AuthTransactionView<'upsert_password'>;
+          targetEmail?: string;
+        }[],
+      ]
+    >(
+      `
+        BEGIN TRANSACTION;
+        LET $identity = (
+          SELECT account, identifier, provider
+          FROM account_identity
+          WHERE kind = 'local'
+            AND issuer = 'galfus'
+            AND (provider = 'email' OR provider = 'username')
+            AND identifier = $identifier
+            AND status = 'active'
+          LIMIT 1
+          FETCH account
+        )[0];
+        LET $account = IF $identity IS NONE THEN NONE ELSE $identity.account END;
+        LET $transaction = IF $account IS NONE OR $account.status != 'active' THEN NONE ELSE (
+          CREATE type::record('auth_transaction', $transactionId) CONTENT {
+            kind: 'upsert_password',
+            status: 'pending',
+            account: $account.id,
+            browser_verifier_hash: $browserVerifierHash,
+            expires_at: $expiresAt,
+            metadata: {
+              upsert_password: {
+                reason: 'recovery',
+              },
+            },
+          }
+        )[0] END;
+        LET $targetEmail = IF $account IS NONE THEN NONE ELSE IF $identity.provider = 'email' THEN $identity.identifier ELSE (
+          SELECT VALUE identifier FROM account_identity
+          WHERE account = $account.id AND provider = 'email' AND status = 'active'
+          LIMIT 1
+        )[0] END;
+        COMMIT TRANSACTION;
+        RETURN { transaction: $transaction, targetEmail: $targetEmail };
+      `,
+      {
+        transactionId: parsed.output.id,
+        browserVerifierHash: parsed.output.browserVerifierHash,
+        identifier: parsed.output.identifier,
+        expiresAt: asDate(parsed.output.expiresAt),
+      },
+    )
+    .json();
+
+  const row = results.at(-1) as
+    | {
+        transaction?: AuthTransactionView<'upsert_password'>;
+        targetEmail?: string;
+      }
+    | null
+    | undefined;
+
+  if (!row?.transaction) {
+    return { success: true, data: null };
+  }
+
+  return {
+    success: true,
+    data: {
+      transaction: row.transaction,
+      targetEmail: row.targetEmail,
+    },
+  };
+}
+
+/**
+ * Resets an account password through a verified upsert_password / password_recovery transaction
+ * and completes the transaction in a single atomic database operation.
+ */
+export async function completeUpsertPasswordTransaction(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<CompletedAuthTransaction>> {
+  const parsed = v.safeParse(CompleteUpsertPasswordTransactionInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+
+  const account = recordId('account', parsed.output.accountId);
+  const transaction = transactionRecordId(parsed.output.id);
+
+  const results = await db
+    .query<[unknown[]]>(
+      `
+        BEGIN TRANSACTION;
+        LET $tx = (
+          SELECT id, version FROM $transaction
+          WHERE id = $transaction
+            AND kind IN ['upsert_password', 'password_recovery']
+            AND status IN ['pending', 'awaiting_primary', 'authorized']
+            AND browser_verifier_hash = $browserVerifierHash
+            AND version = $expectedVersion
+            AND account = $account
+            AND expires_at > time::now()
+            AND consumed_at IS NONE
+          LIMIT 1
+        )[0];
+        LET $updatedAccount = IF $tx IS NONE THEN NONE ELSE (
+          UPDATE $account SET credential_version = credential_version + 1 RETURN AFTER
+        )[0] END;
+        LET $existingAuth = IF $updatedAccount IS NONE THEN NONE ELSE (
+          SELECT id FROM account_authenticator
+          WHERE account = $account AND kind = 'password' AND purpose = 'primary'
+          LIMIT 1
+        )[0] END;
+        LET $savedAuth = IF $updatedAccount IS NONE THEN NONE ELSE IF $existingAuth IS NONE THEN (
+          CREATE account_authenticator SET
+            account = $account,
+            kind = 'password',
+            purpose = 'primary',
+            status = 'active',
+            secret_hash = crypto::argon2::generate($password),
+            verified_at = time::now()
+        )[0] ELSE (
+          UPDATE $existingAuth.id
+          SET status = 'active',
+            disabled_at = NONE,
+            secret_hash = crypto::argon2::generate($password),
+            verified_at = time::now()
+          RETURN AFTER
+        )[0] END;
+        LET $completedTx = IF $savedAuth IS NONE THEN NONE ELSE (
+          UPDATE $tx.id
+          SET status = 'completed',
+            consumed_at = time::now(),
+            version = version + 1
+          RETURN id, account, status, return_to, consumed_at, version
+        )[0] END;
+        COMMIT TRANSACTION;
+        RETURN $completedTx;
+      `,
+      {
+        transaction,
+        account,
+        browserVerifierHash: parsed.output.browserVerifierHash,
+        expectedVersion: parsed.output.expectedVersion,
+        password: parsed.output.password,
+      },
+    )
+    .json();
+
+  const completed = results.at(-1) as CompletedAuthTransaction | null | undefined;
+
+  return completed
+    ? { success: true, data: completed }
+    : authenticationError('error.auth.transaction.state_conflict');
 }

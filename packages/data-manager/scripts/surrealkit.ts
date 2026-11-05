@@ -4,9 +4,7 @@ type Target = (typeof targets)[number];
 const [targetName, ...argumentsForSurrealKit] = process.argv.slice(2);
 
 if (!targets.includes(targetName as Target)) {
-  throw new Error(
-    `Informe um target: ${targets.join(', ')}. Exemplo: bun run schema:local:check`,
-  );
+  throw new Error(`Informe um target: ${targets.join(', ')}. Exemplo: bun run schema:local:check`);
 }
 
 const target = targetName as Target;
@@ -46,7 +44,11 @@ if (target === 'local') {
   environment.SURREALDB_AUTH_LEVEL = targetValue('AUTH_LEVEL', 'root');
 }
 
-const executable = process.env.SURREALKIT_BIN || Bun.which('surrealkit');
+const homeCargoBin = process.env.HOME ? `${process.env.HOME}/.cargo/bin/surrealkit` : undefined;
+const executable =
+  process.env.SURREALKIT_BIN ||
+  Bun.which('surrealkit') ||
+  (homeCargoBin && (await Bun.file(homeCargoBin).exists()) ? homeCargoBin : undefined);
 
 if (!executable) {
   throw new Error(

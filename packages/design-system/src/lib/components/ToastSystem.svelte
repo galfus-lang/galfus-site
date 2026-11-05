@@ -75,7 +75,7 @@
       out:fade={{ duration: 200 }}
       class={cn('pointer-events-auto toast relative', getColorGroup(toast.type))}
     >
-      <span class={cn('icon-xl shrink-0', getIcon(toast.type))}></span>
+      <span class={cn('shrink-0 icon-xl', getIcon(toast.type))}></span>
 
       <div class="flex toast-content flex-col">
         <span class="toast-title">{toast.title}</span>

@@ -31,7 +31,8 @@ export const error = {
       lookup_failed: 'Não foi possível verificar esta identidade. Tente novamente.',
     },
     sso_identity: {
-      already_linked: 'Esta identidade corporativa já está vinculada a outro membro da organização.',
+      already_linked:
+        'Esta identidade corporativa já está vinculada a outro membro da organização.',
     },
     pass: {
       required: 'Informe sua senha.',
@@ -41,6 +42,9 @@ export const error = {
       incorrect: 'A senha está incorreta. Tente novamente.',
     },
     registration: {
+      email_required: 'Informe um e-mail para criar uma conta.',
+      delivery_failed: 'Não foi possível enviar o código de verificação. Tente novamente.',
+      resend_limited: 'Aguarde antes de solicitar outro código.',
       transaction_missing: 'A transação de registro está ausente.',
       transaction_invalid: 'A transação de registro é inválida.',
       failed: 'Não foi possível criar sua conta. Tente novamente.',
@@ -66,6 +70,7 @@ export const error = {
     },
     otp: {
       invalid: 'O código de verificação é inválido ou expirou.',
+      incorrect: 'O código está incorreto. Tente novamente.',
     },
   },
 } as const;

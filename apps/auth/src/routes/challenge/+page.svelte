@@ -1,11 +1,71 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { startAuthentication } from '@simplewebauthn/browser';
   import { addToast } from '@galfus/design-system/components/ToastSystem.svelte';
   import { cn } from '@galfus/design-system/utils/cn';
   import { translate } from '@galfus/i18n';
 
   let { data, form } = $props();
   let isLoading = $state(false);
+  let isPasskeyLoading = $state(false);
+
+  async function handlePasskeyLogin() {
+    isPasskeyLoading = true;
+    try {
+      const response = await fetch('?/passkeyOptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+      });
+      const result = await response.json();
+      const rawData = typeof result?.data === 'string' ? JSON.parse(result.data) : result?.data;
+      const options = rawData?.options;
+
+      if (!options) {
+        throw new Error('Failed to obtain passkey options');
+      }
+
+      const assertion = await startAuthentication({ optionsJSON: options });
+
+      const verifyResponse = await fetch('?/passkeyVerify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ response: assertion }),
+      });
+      const verifyResult = await verifyResponse.json();
+      const verifyData =
+        typeof verifyResult?.data === 'string' ? JSON.parse(verifyResult.data) : verifyResult?.data;
+
+      if (verifyData?.redirectUrl) {
+        window.location.href = verifyData.redirectUrl;
+      } else {
+        const error = verifyData?.error || translate('auth.title.sign_in_failed', data.locale);
+        addToast({
+          title: translate('auth.title.sign_in_failed', data.locale),
+          description: error,
+          type: 'error',
+          duration: 6000,
+        });
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      if (error?.name !== 'NotAllowedError') {
+        addToast({
+          title: translate('auth.title.sign_in_failed', data.locale),
+          description: error?.message || translate('auth.title.sign_in_failed', data.locale),
+          type: 'error',
+          duration: 6000,
+        });
+      }
+    } finally {
+      isPasskeyLoading = false;
+    }
+  }
 </script>
 
 <div class="flex w-full flex-col items-center justify-center space-y-6">
@@ -36,36 +96,49 @@
 
   <div class="mt-6 w-full">
     {#if data.hasPasskey}
-      <!-- The WebAuthn action is added with the passkey authentication flow. -->
-      <button type="button" class="color-group-primary btn w-full btn-solid">
+      <button
+        type="button"
+        onclick={handlePasskeyLogin}
+        class={cn('color-group-primary btn w-full btn-solid', isPasskeyLoading && 'is-loading')}
+        disabled={isPasskeyLoading}
+      >
         <span class="mr-2 icon-[lucide--fingerprint] icon-lg"></span>
-        {translate('auth.action.sign_in_with_passkey', data.locale)}
+        {isPasskeyLoading
+          ? translate('fields.please_wait', data.locale)
+          : translate('auth.action.sign_in_with_passkey', data.locale)}
       </button>
 
       <div class="relative flex items-center py-5">
-        <div class="border-border flex-grow border-t"></div>
-        <span class="text-muted-foreground mx-4 flex-shrink-0 text-xs">
+        <div class="border-border grow border-t"></div>
+        <span class="text-muted-foreground mx-4 shrink-0 text-xs">
           {translate('auth.connective.or_use_password', data.locale)}
         </span>
-        <div class="border-border flex-grow border-t"></div>
+        <div class="border-border grow border-t"></div>
       </div>
     {/if}
 
     <form
+      action="?/password"
       method="POST"
       use:enhance={() => {
         isLoading = true;
         return async ({ result, update }) => {
           isLoading = false;
-          const error =
-            result.type === 'failure' && typeof result.data?.error === 'string'
-              ? result.data.error
-              : undefined;
+          let errorMessage: string | undefined;
 
-          if (error) {
+          if (result.type === 'failure' && typeof result.data?.error === 'string') {
+            errorMessage = result.data.error;
+          } else if (result.type === 'error') {
+            errorMessage =
+              typeof result.error === 'object' && result.error && 'message' in result.error
+                ? String(result.error.message)
+                : translate('error.auth.login.failed', data.locale);
+          }
+
+          if (errorMessage) {
             addToast({
               title: translate('auth.title.sign_in_failed', data.locale),
-              description: error,
+              description: errorMessage,
               type: 'error',
               duration: 6000,
             });
@@ -75,8 +148,13 @@
       }}
       class="space-y-4"
     >
-      <input type="hidden" name="state" value={data.stateToken} />
-
+      {#if form?.error}
+        <div
+          class="rounded-lg border border-danger-9/30 bg-danger-1/10 p-3 text-xs font-medium text-danger-9"
+        >
+          {form.error}
+        </div>
+      {/if}
       <div class="space-y-1">
         <label for="password" class="text-sm font-medium">
           {translate('auth.label.password', data.locale)}
@@ -100,9 +178,9 @@
       </div>
 
       <div class="mb-6 flex justify-start">
-        <button type="button" class="text-muted-foreground hover:text-foreground text-xs">
+        <a href="/recover" class="text-muted-foreground hover:text-foreground text-xs">
           {translate('auth.action.forgot_password', data.locale)}
-        </button>
+        </a>
       </div>
 
       <button

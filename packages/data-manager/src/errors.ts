@@ -21,8 +21,7 @@ export interface AuthenticationError {
 export type DataManagerError = ValidationError | ConflictError | AuthenticationError;
 
 export type DataManagerResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: DataManagerError };
+  { success: true; data: T } | { success: false; error: DataManagerError };
 
 export function invalidInput(issues: v.BaseIssue<unknown>[]): DataManagerResult<never> {
   return {
@@ -36,7 +35,10 @@ export function invalidInput(issues: v.BaseIssue<unknown>[]): DataManagerResult<
 }
 
 export function conflict(resource: ConflictError['resource']): DataManagerResult<never> {
-  return { success: false, error: { code: 'conflict', id: 'error.auth.identity.already_exists', resource } };
+  return {
+    success: false,
+    error: { code: 'conflict', id: 'error.auth.identity.already_exists', resource },
+  };
 }
 
 export function authenticationError(id: ErrorMessageId): DataManagerResult<never> {

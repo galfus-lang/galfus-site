@@ -56,7 +56,7 @@
       <li role="separator" class="menu-separator"></li>
       <li>
         <button class="menu-item menu-item-danger">
-          <span class="icon-md icon-[lucide--trash-2]"></span>
+          <span class="icon-[lucide--trash-2] icon-md"></span>
           Delete
           <span class="menu-shortcut">⌘⌫</span>
         </button>
