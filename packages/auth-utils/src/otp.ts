@@ -44,8 +44,19 @@ export function verifyTotp(
   options: Required<Pick<TotpOptions, 'issuer' | 'label' | 'secret'>> &
     Pick<TotpOptions, 'period' | 'digits'>,
 ): boolean {
-  if (!/^\d{6,8}$/.test(token)) return false;
-  return createTotp(options).validate({ token, window: 1 }) !== null;
+  return verifyTotpStep(token, options) !== null;
+}
+
+/** Returns the accepted 30-second counter so callers can reject replay. */
+export function verifyTotpStep(
+  token: string,
+  options: Required<Pick<TotpOptions, 'issuer' | 'label' | 'secret'>> &
+    Pick<TotpOptions, 'period' | 'digits'>,
+): number | null {
+  if (!/^\d{6,8}$/.test(token)) return null;
+  const timestamp = Date.now();
+  const delta = createTotp(options).validate({ token, window: 1, timestamp });
+  return delta === null ? null : Math.floor(timestamp / ((options.period ?? 30) * 1000)) + delta;
 }
 
 /** Generates a decimal OTP without modulo bias. */

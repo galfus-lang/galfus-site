@@ -12,7 +12,7 @@
 <div class="flex w-full flex-col items-center justify-center space-y-6">
   <div class="relative mb-2 flex w-full items-center justify-center">
     <a
-      href="/"
+      href="/?restart=1"
       class="text-muted-foreground hover:text-foreground btn absolute left-0 btn-icon btn-ghost"
       aria-label={translate('auth.action.use_different_identity', data.locale)}
     >

@@ -29,6 +29,11 @@ vi.mock('$lib/server/auth-cookies', () => ({
 }));
 
 vi.mock('$lib/server/db', () => ({ connectDb: mocks.connectDb }));
+vi.mock('$lib/server/password-attempt', () => ({ reserveLoginAttempt: async () => true }));
+vi.mock('$lib/server/totp-secrets', () => ({
+  decryptTotpSecret: async () => 'JBSWY3DPEHPK3PXP',
+  recoveryPepper: () => 'x'.repeat(32),
+}));
 vi.mock('$lib/server/i18n', () => ({ getRequestLocale: () => 'en-US' }));
 vi.mock('$lib/server/access-session', () => ({
   issueAccessToken: (...args: unknown[]) => mocks.jwtSign(...args),
@@ -44,7 +49,7 @@ vi.mock('$lib/server/jwt', () => ({
 
 vi.mock('@galfus/auth-utils', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@galfus/auth-utils')>()),
-  verifyTotp: mocks.verifyTotp,
+  verifyTotpStep: (...args: unknown[]) => (mocks.verifyTotp(...args) ? 100 : null),
 }));
 
 vi.mock('@galfus/data-manager/server', () => ({
@@ -53,6 +58,7 @@ vi.mock('@galfus/data-manager/server', () => ({
   confirmTotpAuthTransaction: mocks.confirmTotpAuthTransaction,
   confirmRecoveryCodeAuthTransaction: mocks.confirmRecoveryCodeAuthTransaction,
   completeAuthTransaction: mocks.completeAuthTransaction,
+  recordMfaFailure: vi.fn().mockResolvedValue({ success: true, data: true }),
 }));
 
 vi.mock('@galfus/i18n', async (importOriginal) => ({
@@ -76,7 +82,7 @@ describe('mfa-otp server route', () => {
       mocks.getAuthTransactionCookie.mockReturnValue(undefined);
 
       try {
-        await load({ cookies: {} as never } as never);
+        await load({ cookies: {} as never, getClientAddress: () => '127.0.0.1' } as never);
         throw new Error('Expected redirect');
       } catch (error) {
         expect(isRedirect(error)).toBe(true);
@@ -84,7 +90,7 @@ describe('mfa-otp server route', () => {
       }
     });
 
-    it('redirects to /mfa-pass when pending MFA method is email_otp', async () => {
+    it('rejects an unsupported MFA method', async () => {
       mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
       mocks.getAuthTransaction.mockResolvedValue({
         success: true,
@@ -104,11 +110,11 @@ describe('mfa-otp server route', () => {
       });
 
       try {
-        await load({ cookies: {} as never } as never);
+        await load({ cookies: {} as never, getClientAddress: () => '127.0.0.1' } as never);
         throw new Error('Expected redirect');
       } catch (error) {
         expect(isRedirect(error)).toBe(true);
-        expect(error).toMatchObject({ status: 303, location: '/mfa-pass' });
+        expect(error).toMatchObject({ status: 303, location: '/' });
       }
     });
 
@@ -131,7 +137,10 @@ describe('mfa-otp server route', () => {
         },
       });
 
-      const result = await load({ cookies: {} as never } as never);
+      const result = await load({
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
 
       expect(result).toEqual({
         identifier: 'user@galfus.com',
@@ -140,6 +149,32 @@ describe('mfa-otp server route', () => {
   });
 
   describe('actions.verify', () => {
+    it('rejects an authenticator without a secret', async () => {
+      mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
+      mocks.getAuthTransaction.mockResolvedValue({
+        success: true,
+        data: {
+          kind: 'authorization',
+          status: 'awaiting_mfa',
+          account: 'account:test',
+          version: 1,
+          metadata: { authorization: { pending_mfa_method: 'totp' } },
+        },
+      });
+      mocks.getActiveMfaAuthenticator.mockResolvedValue({
+        success: true,
+        data: { id: 'authenticator:totp', kind: 'totp' },
+      });
+      const form = new FormData();
+      form.set('otp', '123456');
+      const result = await actions.verify({
+        request: new Request('http://localhost/mfa-otp', { method: 'POST', body: form }),
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
+      expect(result).toMatchObject({ status: 400 });
+      expect(mocks.confirmTotpAuthTransaction).not.toHaveBeenCalled();
+    });
     it('fails with 400 when OTP code is not 6 digits', async () => {
       const form = new FormData();
       form.set('otp', '123');
@@ -147,6 +182,7 @@ describe('mfa-otp server route', () => {
       const result = await actions.verify({
         request: new Request('http://localhost:5001/mfa-otp', { method: 'POST', body: form }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toMatchObject({
@@ -186,6 +222,7 @@ describe('mfa-otp server route', () => {
       const result = await actions.verify({
         request: new Request('http://localhost:5001/mfa-otp', { method: 'POST', body: form }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toMatchObject({
@@ -243,6 +280,7 @@ describe('mfa-otp server route', () => {
         await actions.verify({
           request: new Request('http://localhost:5001/mfa-otp', { method: 'POST', body: form }),
           cookies: {} as never,
+          getClientAddress: () => '127.0.0.1',
         } as never);
         throw new Error('Expected redirect');
       } catch (error) {
@@ -294,7 +332,7 @@ describe('mfa-otp server route', () => {
       });
 
       const form = new FormData();
-      form.set('recoveryCode', 'ABCD-EFGH-IJKL');
+      form.set('recoveryCode', 'ABCD-EFGH');
 
       try {
         await actions.recovery({
@@ -303,6 +341,7 @@ describe('mfa-otp server route', () => {
             body: form,
           }),
           cookies: {} as never,
+          getClientAddress: () => '127.0.0.1',
         } as never);
         throw new Error('Expected redirect');
       } catch (error) {

@@ -10,6 +10,11 @@ export const profile = {
     sessions: 'Sessões Ativas',
   },
   description: {
+    scan_totp: 'Leia o código QR com seu aplicativo autenticador.',
+    save_recovery_codes:
+      'Guarde estes códigos em um lugar seguro. Cada código pode ser usado uma vez.',
+    mfa_help:
+      'Use um aplicativo autenticador para proteger sua conta com um código de verificação.',
     page: 'Gerencie seus dados pessoais, credenciais e preferências de segurança.',
     personal_info: 'Atualize seu nome de exibição e informações públicas.',
     password: 'Garanta que sua conta utilize uma senha forte e exclusiva.',
@@ -29,6 +34,12 @@ export const profile = {
     totp_code: 'Código de 6 dígitos do autenticador',
   },
   action: {
+    show_recovery_codes: 'Ver códigos de recuperação',
+    hide_recovery_codes: 'Ocultar códigos de recuperação',
+    cancel: 'Cancelar',
+    confirm_enable: 'Confirmar e ativar',
+    manage_2fa: 'Gerenciar verificação em duas etapas',
+    back_to_profile: 'Voltar para a conta',
     save_changes: 'Salvar alterações',
     change_password: 'Alterar senha',
     add_passkey: 'Adicionar chave de acesso',

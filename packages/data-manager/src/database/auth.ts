@@ -400,6 +400,11 @@ export async function upsertAccountPassword(
         IF $passwordAuthenticator IS NOT NONE THEN (
           UPDATE $account.id SET credential_version = credential_version + 1
         ) END;
+        IF $passwordAuthenticator IS NOT NONE THEN (
+          UPDATE auth_transaction SET status = 'revoked'
+          WHERE account = $account.id AND kind IN ['upsert_password', 'password_recovery']
+            AND consumed_at IS NONE AND status IN ['pending', 'awaiting_primary', 'authorized']
+        ) END;
         COMMIT TRANSACTION;
         RETURN $passwordAuthenticator;
       `,
@@ -668,27 +673,18 @@ export async function removeAccountAuthenticator(
   const parsed = v.safeParse(RemoveAccountAuthenticatorInputSchema, input);
   if (!parsed.success) return invalidInput(parsed.issues);
 
-  const results = await db
-    .query<unknown[]>(
-      `
-        BEGIN TRANSACTION;
-        LET $auth = (
-          SELECT id, kind, purpose FROM account_authenticator
-          WHERE id = type::record($authenticatorId) AND account = type::record($accountId)
-          LIMIT 1
-        )[0];
-        LET $deleted = IF $auth IS NONE THEN NONE ELSE (
-          DELETE $auth.id RETURN BEFORE
-        )[0] END;
-        COMMIT TRANSACTION;
-        RETURN $deleted;
-      `,
+  const [deleted] = await db
+    .query<[Pick<AccountAuthenticator, 'id'>[]]>(
+      `DELETE account_authenticator
+        WHERE id = type::record($authenticatorId)
+          AND account = type::record($accountId)
+          AND kind = 'passkey' AND purpose = 'primary'
+        RETURN BEFORE;`,
       parsed.output,
     )
     .json();
 
-  const deleted = results.at(-1);
-  return { success: true, data: Boolean(deleted) };
+  return { success: true, data: deleted.length > 0 };
 }
 
 export async function disableAccountMfa(
@@ -730,6 +726,7 @@ export async function activateDirectTotpAuthenticator(
         purpose: 'mfa',
         status: 'active',
         secret_ciphertext: $secretCiphertext,
+        metadata: { last_used_at: $stepTime },
         verified_at: time::now()
       };
 
@@ -745,7 +742,7 @@ export async function activateDirectTotpAuthenticator(
       };
       COMMIT TRANSACTION;
     `,
-    parsed.output,
+    { ...parsed.output, stepTime: new Date(parsed.output.verifiedStep * 30_000) },
   );
 
   return { success: true, data: true };

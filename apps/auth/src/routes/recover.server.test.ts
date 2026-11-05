@@ -7,9 +7,23 @@ const mocks = vi.hoisted(() => ({
   connectDb: vi.fn(),
   startPasswordRecoveryTransaction: vi.fn(),
   jwtVerify: vi.fn(),
+  sendRecoveryEmail: vi.fn(),
 }));
 
 vi.mock('$app/environment', () => ({ dev: true }));
+vi.mock('$env/dynamic/private', () => ({
+  env: {
+    RESEND_API_KEY: 'test',
+    RESEND_FROM: 'test@example.com',
+    AUTH_RATE_LIMIT_SECRET: 'x'.repeat(32),
+  },
+}));
+vi.mock('@galfus/email-utils', () => ({
+  createEmailSender: () => ({ send: mocks.sendRecoveryEmail }),
+  renderPasswordRecoveryEmail: vi
+    .fn()
+    .mockResolvedValue({ subject: 'test', html: 'test', text: 'test' }),
+}));
 
 vi.mock('$lib/server/auth-cookies', () => ({
   clearAuthAccessTokenCookie: mocks.clearAuthAccessTokenCookie,
@@ -38,6 +52,7 @@ vi.mock('$lib/server/jwt', () => ({
 
 vi.mock('@galfus/data-manager/server', () => ({
   startPasswordRecoveryTransaction: mocks.startPasswordRecoveryTransaction,
+  reservePasswordAttempt: vi.fn().mockResolvedValue({ success: true, data: true }),
 }));
 
 vi.mock('@galfus/i18n', async (importOriginal) => ({
@@ -51,6 +66,7 @@ describe('recover server route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.connectDb.mockResolvedValue({});
+    mocks.sendRecoveryEmail.mockResolvedValue({ id: 'test' });
   });
 
   describe('load', () => {
@@ -61,6 +77,7 @@ describe('recover server route', () => {
       try {
         await load({
           cookies: {} as never,
+          getClientAddress: () => '127.0.0.1',
           url: new URL('http://localhost:5001/recover?rto=/dashboard'),
         } as never);
         throw new Error('Expected redirect');
@@ -74,6 +91,7 @@ describe('recover server route', () => {
       mocks.getAuthAccessTokenCookie.mockReturnValue(undefined);
       const result = await load({
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
         url: new URL('http://localhost:5001/recover'),
       } as never);
       expect(result).toEqual({});
@@ -89,6 +107,7 @@ describe('recover server route', () => {
         request: new Request('http://localhost:5001/recover', { method: 'POST', body: form }),
         url: new URL('http://localhost:5001/recover'),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toMatchObject({
@@ -110,12 +129,14 @@ describe('recover server route', () => {
         request: new Request('http://localhost:5001/recover', { method: 'POST', body: form }),
         url: new URL('http://localhost:5001/recover'),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toEqual({
         success: true,
         identifier: 'nonexistent@example.com',
       });
+      expect(mocks.sendRecoveryEmail).not.toHaveBeenCalled();
     });
 
     it('creates recovery transaction and dispatches email when account exists', async () => {
@@ -134,6 +155,7 @@ describe('recover server route', () => {
         request: new Request('http://localhost:5001/recover', { method: 'POST', body: form }),
         url: new URL('http://localhost:5001/recover'),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toEqual({
@@ -145,6 +167,25 @@ describe('recover server route', () => {
         expect.objectContaining({
           identifier: 'user@galfus.com',
         }),
+      );
+      expect(mocks.sendRecoveryEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@galfus.com' }),
+      );
+    });
+
+    it('does not persist an unsafe return destination', async () => {
+      mocks.startPasswordRecoveryTransaction.mockResolvedValue({ success: true, data: null });
+      const form = new FormData();
+      form.set('identifier', 'person@example.com');
+      await actions.default({
+        request: new Request('http://localhost:5001/recover', { method: 'POST', body: form }),
+        url: new URL('http://localhost:5001/recover?rto=https%3A%2F%2Fattacker.example'),
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
+      expect(mocks.startPasswordRecoveryTransaction).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ returnTo: undefined }),
       );
     });
   });

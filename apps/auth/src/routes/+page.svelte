@@ -20,6 +20,12 @@
   </div>
 
   <div class="w-full space-y-4">
+    {#if data.transactionError}
+      <p class="text-sm text-danger-9">{translate(data.transactionError, data.locale)}</p>
+    {/if}
+    {#if data.passwordReset}
+      <p class="text-sm">{translate('auth.description.password_reset_complete', data.locale)}</p>
+    {/if}
     {#if form?.error}
       <div
         class="rounded-lg border border-danger-9/30 bg-danger-1/10 p-3 text-xs font-medium text-danger-9"

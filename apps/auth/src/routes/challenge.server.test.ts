@@ -18,9 +18,11 @@ const mocks = vi.hoisted(() => ({
   verifyPasskeyAuthentication: vi.fn(),
   jwtSign: vi.fn(),
   jwtVerify: vi.fn(),
+  reservePasswordAttempt: vi.fn(),
 }));
 
 vi.mock('$app/environment', () => ({ dev: true }));
+vi.mock('$env/dynamic/private', () => ({ env: { AUTH_RATE_LIMIT_SECRET: 'x'.repeat(32) } }));
 
 vi.mock('$lib/server/auth-cookies', () => ({
   clearAuthAccessTokenCookie: mocks.clearAuthAccessTokenCookie,
@@ -32,6 +34,9 @@ vi.mock('$lib/server/auth-cookies', () => ({
 }));
 
 vi.mock('$lib/server/db', () => ({ connectDb: mocks.connectDb }));
+vi.mock('$lib/server/password-attempt', () => ({
+  reserveLoginAttempt: async () => (await mocks.reservePasswordAttempt()).data,
+}));
 vi.mock('$lib/server/i18n', () => ({ getRequestLocale: () => 'en-US' }));
 vi.mock('$lib/server/access-session', () => ({
   issueAccessToken: (...args: unknown[]) => mocks.jwtSign(...args),
@@ -66,6 +71,7 @@ vi.mock('@galfus/data-manager/server', () => ({
   getAccountPasskeys: mocks.getAccountPasskeys,
   setPasskeyAuthTransactionChallenge: mocks.setPasskeyAuthTransactionChallenge,
   authorizePasskeyAuthTransaction: mocks.authorizePasskeyAuthTransaction,
+  reservePasswordAttempt: mocks.reservePasswordAttempt,
 }));
 
 vi.mock('@galfus/i18n', async (importOriginal) => ({
@@ -82,6 +88,7 @@ describe('challenge server route', () => {
     vi.clearAllMocks();
     mocks.connectDb.mockResolvedValue({});
     mocks.jwtSign.mockResolvedValue('signed-access-token');
+    mocks.reservePasswordAttempt.mockResolvedValue({ success: true, data: true });
   });
 
   describe('load', () => {
@@ -130,6 +137,32 @@ describe('challenge server route', () => {
   });
 
   describe('actions.password', () => {
+    it('rejects attempts exceeding the account or address limit', async () => {
+      mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
+      mocks.getAuthTransaction.mockResolvedValue({
+        success: true,
+        data: {
+          kind: 'authorization',
+          status: 'awaiting_primary',
+          account: 'account:test',
+          version: 0,
+          metadata: { authorization: {} },
+        },
+      });
+      mocks.reservePasswordAttempt.mockResolvedValue({ success: true, data: false });
+      const body = new FormData();
+      body.set('password', 'some-password');
+      const result = await actions.password({
+        request: new Request('http://localhost/challenge', { method: 'POST', body }),
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
+      expect(result).toMatchObject({
+        status: 429,
+        data: { error: 'error.auth.login.rate_limited' },
+      });
+      expect(mocks.confirmPasswordAuthTransaction).not.toHaveBeenCalled();
+    });
     it('fails with 400 when password is missing', async () => {
       const form = new FormData();
       const result = await actions.password({
@@ -138,6 +171,7 @@ describe('challenge server route', () => {
           body: form,
         }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toMatchObject({
@@ -173,6 +207,7 @@ describe('challenge server route', () => {
           body: form,
         }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toMatchObject({
@@ -219,6 +254,7 @@ describe('challenge server route', () => {
             body: form,
           }),
           cookies: {} as never,
+          getClientAddress: () => '127.0.0.1',
         } as never);
         throw new Error('Expected redirect');
       } catch (error) {
@@ -269,6 +305,7 @@ describe('challenge server route', () => {
             body: form,
           }),
           cookies: {} as never,
+          getClientAddress: () => '127.0.0.1',
         } as never);
         throw new Error('Expected redirect');
       } catch (error) {
@@ -316,6 +353,7 @@ describe('challenge server route', () => {
           headers: { origin: 'http://localhost:5001' },
         }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toEqual({
@@ -385,8 +423,10 @@ describe('challenge server route', () => {
         },
       });
 
-      const body = JSON.stringify({
-        response: {
+      const body = new FormData();
+      body.set(
+        'response',
+        JSON.stringify({
           id: 'cred-123',
           rawId: 'cred-123',
           response: {
@@ -394,16 +434,17 @@ describe('challenge server route', () => {
             authenticatorData: 'abc',
             signature: 'sig',
           },
-        },
-      });
+        }),
+      );
 
       const result = await actions.passkeyVerify({
         request: new Request('http://localhost:5001/challenge?/passkeyVerify', {
           method: 'POST',
-          headers: { 'content-type': 'application/json', origin: 'http://localhost:5001' },
+          headers: { origin: 'http://localhost:5001' },
           body,
         }),
         cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
       } as never);
 
       expect(result).toEqual({ redirectUrl: '/success' });

@@ -1,19 +1,15 @@
 import { fail, isRedirect } from '@sveltejs/kit';
 import {
   clearAuthTransactionCookie,
-  setAuthAccessTokenCookie,
+  clearAuthAccessTokenCookie,
   setAuthTransactionCookie,
 } from '$lib/server/auth-cookies';
 import { requireAuthTransaction } from '$lib/server/auth-transaction';
 import { connectDb } from '$lib/server/db';
 import { getRequestLocale } from '$lib/server/i18n';
-import { issueAccessToken } from '$lib/server/access-session';
 import { temporaryRedirect } from '$lib/server/temporary-redirect';
 import { parseAuthTransactionToken } from '@galfus/auth-utils';
-import {
-  completeUpsertPasswordTransaction,
-  getAccountAccessState,
-} from '@galfus/data-manager/server';
+import { completeUpsertPasswordTransaction } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
 
 function extractAccountId(account: unknown): string {
@@ -25,7 +21,8 @@ function extractAccountId(account: unknown): string {
   return String(account);
 }
 
-export const load = async ({ cookies, url }) => {
+export const load = async ({ cookies, url, setHeaders }) => {
+  setHeaders({ 'cache-control': 'no-store', 'referrer-policy': 'no-referrer' });
   const code = url.searchParams.get('code');
   if (code) {
     const token = parseAuthTransactionToken(code);
@@ -79,10 +76,6 @@ export const actions = {
 
     try {
       const db = await connectDb();
-      const account = await getAccountAccessState(db, { accountId });
-      if (!account.success || !account.data || account.data.status !== 'active') {
-        return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
-      }
       const completeResult = await completeUpsertPasswordTransaction(db, {
         id: token.id,
         browserVerifierHash: token.verifierHash,
@@ -95,19 +88,11 @@ export const actions = {
         return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
       }
 
-      const accessToken = await issueAccessToken(
-        db,
-        {
-          accountId,
-          ...(completeResult.data.return_to ? { rto: completeResult.data.return_to } : {}),
-        },
-        account.data.credential_version + 1,
-      );
-
-      setAuthAccessTokenCookie(cookies, accessToken);
+      clearAuthAccessTokenCookie(cookies);
       clearAuthTransactionCookie(cookies);
-
-      throw temporaryRedirect('/success');
+      const query = new URLSearchParams({ password_reset: '1' });
+      if (completeResult.data.return_to) query.set('rto', completeResult.data.return_to);
+      throw temporaryRedirect(`/?${query}`);
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error('Upsert password error:', error);

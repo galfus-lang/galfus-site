@@ -6,23 +6,19 @@ import {
 } from '$lib/server/auth-cookies';
 import { connectDb } from '$lib/server/db';
 import { getRequestLocale } from '$lib/server/i18n';
-import { issueAccessToken, validateAndRenewAccessSession } from '$lib/server/access-session';
+import { issueAccessToken } from '$lib/server/access-session';
+import { requireUserSession } from '$lib/server/user-session';
 import { getPasskeyRelyingParty } from '$lib/server/passkey';
+import { reserveLoginAttempt } from '$lib/server/password-attempt';
 import { temporaryRedirect } from '$lib/server/temporary-redirect';
 import {
   createPasskeyRegistrationOptions,
-  createQrCodeSvg,
-  createTotpEnrollment,
   generateId,
-  generateRecoveryCodes,
-  hashRecoveryCode,
+  toBase64Url,
   verifyPasskeyRegistration,
-  verifyTotp,
   type RegistrationResponseJSON,
 } from '@galfus/auth-utils';
 import {
-  activateDirectTotpAuthenticator,
-  disableAccountMfa,
   getAccountPasskeys,
   getAccountProfile,
   incrementAccountCredentialVersion,
@@ -33,24 +29,6 @@ import {
   verifyAccountPassword,
 } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
-
-async function requireUserSession(
-  cookies: Parameters<typeof validateAndRenewAccessSession>[0],
-): Promise<{
-  accountId: string;
-  identifier: string;
-  credentialVersion: number;
-}> {
-  const session = await validateAndRenewAccessSession(cookies);
-  if (!session) {
-    throw temporaryRedirect('/');
-  }
-  return {
-    accountId: session.accountId,
-    identifier: session.identifier ?? '',
-    credentialVersion: session.credentialVersion,
-  };
-}
 
 export const load = async ({ cookies }) => {
   const session = await requireUserSession(cookies);
@@ -105,7 +83,7 @@ export const actions = {
     }
   },
 
-  changePassword: async ({ request, cookies }) => {
+  changePassword: async ({ request, cookies, getClientAddress }) => {
     const locale = getRequestLocale({ request, cookies });
     const session = await requireUserSession(cookies);
     const data = await request.formData();
@@ -141,6 +119,8 @@ export const actions = {
         if (!currentPassword) {
           return fail(400, { error: translate('error.auth.pass.required', locale) });
         }
+        if (!(await reserveLoginAttempt(db, session.accountId, getClientAddress())))
+          return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
         const verifyResult = await verifyAccountPassword(db, {
           accountId: session.accountId,
           password: currentPassword,
@@ -224,9 +204,10 @@ export const actions = {
     const session = await requireUserSession(cookies);
 
     try {
-      const body = await request.json();
-      const response = body?.response as RegistrationResponseJSON | undefined;
-      const label = typeof body?.label === 'string' ? body.label.trim() : undefined;
+      const body = await request.formData();
+      const response = JSON.parse(String(body.get('response') ?? 'null')) as
+        RegistrationResponseJSON | undefined;
+      const label = body.get('label')?.toString().trim();
 
       if (!response?.id) {
         return fail(400, { error: translate('error.input.invalid', locale) });
@@ -246,7 +227,7 @@ export const actions = {
         relyingParty,
         expectedChallenge,
         response,
-        webauthnUserId: session.accountId,
+        webauthnUserId: toBase64Url(new TextEncoder().encode(session.accountId)),
       });
 
       if (!verification.verified || !verification.passkey) {
@@ -296,126 +277,15 @@ export const actions = {
         authenticatorId,
       });
 
-      if (!result.success) {
-        return fail(400, { error: translate('error.input.invalid', locale) });
+      if (!result.success || !result.data) {
+        return fail(400, { error: translate('error.auth.passkey.remove_failed', locale) });
       }
 
       return { success: true, updatedField: 'passkey_removed' };
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error('Remove passkey error:', error);
-      return fail(500, { error: translate('error.input.invalid', locale) });
-    }
-  },
-
-  setupTotp: async ({ request, cookies }) => {
-    const session = await requireUserSession(cookies);
-
-    try {
-      const enrollment = createTotpEnrollment({
-        issuer: 'Galfus',
-        label: session.identifier || 'user',
-      });
-
-      const qrCodeSvg = await createQrCodeSvg(enrollment.uri);
-      const recoveryCodes = generateRecoveryCodes(10);
-
-      cookies.set('totp_enrollment_secret', enrollment.secret, {
-        path: '/profile',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: request.url.startsWith('https://'),
-        maxAge: 600,
-      });
-
-      return {
-        totpSetup: {
-          secret: enrollment.secret,
-          qrCodeSvg,
-          recoveryCodes,
-        },
-      };
-    } catch (error) {
-      if (isRedirect(error)) throw error;
-      console.error('Setup TOTP error:', error);
-      return fail(500);
-    }
-  },
-
-  activateTotp: async ({ request, cookies }) => {
-    const locale = getRequestLocale({ request, cookies });
-    const session = await requireUserSession(cookies);
-    const data = await request.formData();
-    const code = data.get('code')?.toString()?.trim();
-    const recoveryCodesRaw = data.get('recoveryCodes')?.toString();
-
-    const secret = cookies.get('totp_enrollment_secret');
-    if (!secret || !code) {
-      return fail(400, { error: translate('error.auth.otp.invalid', locale) });
-    }
-
-    const isValid = verifyTotp(code, {
-      issuer: 'Galfus',
-      label: session.identifier || 'user',
-      secret,
-    });
-
-    if (!isValid) {
-      return fail(400, { error: translate('error.auth.otp.invalid', locale) });
-    }
-
-    try {
-      const recoveryCodesList: string[] = recoveryCodesRaw
-        ? JSON.parse(recoveryCodesRaw)
-        : generateRecoveryCodes(10);
-
-      const pepper = 'galfus-recovery-code-pepper';
-      const hashedCodes = await Promise.all(
-        recoveryCodesList.map(async (rc) => ({
-          id: generateId(),
-          secretHash: await hashRecoveryCode(rc, pepper),
-        })),
-      );
-
-      const db = await connectDb();
-      const result = await activateDirectTotpAuthenticator(db, {
-        accountId: session.accountId,
-        authenticatorId: generateId(),
-        secretCiphertext: secret,
-        codes: hashedCodes,
-      });
-
-      if (!result.success) {
-        return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
-      }
-
-      cookies.delete('totp_enrollment_secret', { path: '/profile' });
-
-      return { success: true, updatedField: 'mfa_enabled' };
-    } catch (error) {
-      if (isRedirect(error)) throw error;
-      console.error('Activate TOTP error:', error);
-      return fail(500, { error: translate('error.auth.login.failed', locale) });
-    }
-  },
-
-  disableTotp: async ({ request, cookies }) => {
-    const locale = getRequestLocale({ request, cookies });
-    const session = await requireUserSession(cookies);
-
-    try {
-      const db = await connectDb();
-      const result = await disableAccountMfa(db, { accountId: session.accountId });
-
-      if (!result.success) {
-        return fail(400, { error: translate('error.input.invalid', locale) });
-      }
-
-      return { success: true, updatedField: 'mfa_disabled' };
-    } catch (error) {
-      if (isRedirect(error)) throw error;
-      console.error('Disable TOTP error:', error);
-      return fail(500, { error: translate('error.input.invalid', locale) });
+      return fail(500, { error: translate('error.auth.passkey.remove_failed', locale) });
     }
   },
 

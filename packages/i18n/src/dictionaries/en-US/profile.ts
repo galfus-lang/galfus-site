@@ -10,6 +10,9 @@ export const profile = {
     sessions: 'Active Sessions',
   },
   description: {
+    scan_totp: 'Scan the QR code with your authenticator app.',
+    save_recovery_codes: 'Save these recovery codes in a safe place. Each code can be used once.',
+    mfa_help: 'Use an authenticator app to protect your account with a verification code.',
     page: 'Manage your personal details, credentials, and security preferences.',
     personal_info: 'Update your display name and public account info.',
     password: 'Ensure your account uses a strong and unique password.',
@@ -29,6 +32,12 @@ export const profile = {
     totp_code: 'Authenticator 6-digit code',
   },
   action: {
+    show_recovery_codes: 'View recovery codes',
+    hide_recovery_codes: 'Hide recovery codes',
+    cancel: 'Cancel',
+    confirm_enable: 'Confirm and activate',
+    manage_2fa: 'Manage two-step verification',
+    back_to_profile: 'Back to account',
     save_changes: 'Save changes',
     change_password: 'Change password',
     add_passkey: 'Add passkey',

@@ -7,7 +7,12 @@ vi.mock('resend', () => ({
   },
 }));
 
-import { createEmailSender, EmailDeliveryError, renderVerificationEmail } from './index';
+import {
+  createEmailSender,
+  EmailDeliveryError,
+  renderPasswordRecoveryEmail,
+  renderVerificationEmail,
+} from './index';
 
 describe('verification email', () => {
   it('renders a localized document and matching plain text', async () => {
@@ -34,6 +39,17 @@ describe('verification email', () => {
       renderVerificationEmail({ code: '012345', expiresInMinutes: 0 }),
     ).rejects.toThrow();
   });
+});
+
+it('renders a localized recovery link in HTML and plain text', async () => {
+  const email = await renderPasswordRecoveryEmail({
+    url: 'https://auth.galfus.com/upsert-password?code=example',
+    expiresInMinutes: 15,
+    locale: 'pt-BR',
+  });
+  expect(email.subject).toBe('Redefina sua senha Galfus');
+  expect(email.html).toContain('https://auth.galfus.com/upsert-password?code=example');
+  expect(email.text).toContain('15 minutos');
 });
 
 describe('Resend delivery', () => {

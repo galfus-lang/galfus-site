@@ -34,7 +34,7 @@ export async function requireAuthTransaction<K extends AuthTransactionKind = Aut
   const token = parseAuthTransactionToken(cookie);
   if (!token) {
     clearAuthTransactionCookie(cookies);
-    throw temporaryRedirect('/');
+    throw temporaryRedirect('/?auth_error=1');
   }
 
   try {
@@ -47,7 +47,7 @@ export async function requireAuthTransaction<K extends AuthTransactionKind = Aut
 
     if (!result.success) {
       clearAuthTransactionCookie(cookies);
-      throw temporaryRedirect('/');
+      throw temporaryRedirect('/?auth_error=1');
     }
 
     const tx = result.data;
@@ -55,8 +55,18 @@ export async function requireAuthTransaction<K extends AuthTransactionKind = Aut
       !options.allowedKinds.includes(tx.kind as K) ||
       !options.allowedStatuses.includes(tx.status as AuthTransactionStatus)
     ) {
+      if (
+        tx.kind === 'authorization' &&
+        tx.status === 'awaiting_mfa' &&
+        tx.metadata?.authorization?.pending_mfa_method === 'totp'
+      )
+        throw temporaryRedirect('/mfa-otp');
+      if (tx.kind === 'authorization' && tx.status === 'awaiting_primary')
+        throw temporaryRedirect('/challenge');
+      if (tx.kind === 'registration' && tx.status === 'awaiting_primary')
+        throw temporaryRedirect('/register');
       clearAuthTransactionCookie(cookies);
-      throw temporaryRedirect('/');
+      throw temporaryRedirect('/?auth_error=1');
     }
 
     return {
@@ -69,7 +79,6 @@ export async function requireAuthTransaction<K extends AuthTransactionKind = Aut
     };
   } catch (error) {
     if (isRedirect(error)) throw error;
-    clearAuthTransactionCookie(cookies);
-    throw temporaryRedirect('/');
+    throw error;
   }
 }

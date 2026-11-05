@@ -21,7 +21,12 @@ import { validateAndRenewAccessSession } from '$lib/server/access-session';
 import { temporaryRedirect } from '$lib/server/temporary-redirect';
 import { sendRegistrationCode } from '$lib/server/registration-email';
 
-function transactionRoute(kind: string, status: string): '/challenge' | '/register' | null {
+function transactionRoute(
+  kind: string,
+  status: string,
+  method?: string,
+): '/challenge' | '/register' | '/mfa-otp' | null {
+  if (kind === 'authorization' && status === 'awaiting_mfa' && method === 'totp') return '/mfa-otp';
   if (status !== 'awaiting_primary') return null;
   if (kind === 'authorization') return '/challenge';
   if (kind === 'registration') return '/register';
@@ -38,7 +43,13 @@ export const load = async ({ cookies, url }) => {
   }
 
   const cookie = getAuthTransactionCookie(cookies);
-  if (!cookie) return {};
+  if (!cookie)
+    return {
+      passwordReset: url.searchParams.get('password_reset') === '1',
+      ...(url.searchParams.get('auth_error') === '1'
+        ? { transactionError: 'error.auth.transaction.invalid' as const }
+        : {}),
+    };
 
   const token = parseAuthTransactionToken(cookie);
   if (!token) {
@@ -57,15 +68,20 @@ export const load = async ({ cookies, url }) => {
       return { transactionError: result.error.id };
     }
 
-    const nextRoute = transactionRoute(result.data.kind, result.data.status);
+    const nextRoute = transactionRoute(
+      result.data.kind,
+      result.data.status,
+      result.data.kind === 'authorization'
+        ? result.data.metadata?.authorization?.pending_mfa_method
+        : undefined,
+    );
     if (nextRoute) throw temporaryRedirect(nextRoute);
 
     clearAuthTransactionCookie(cookies);
     return { transactionError: 'error.auth.transaction.invalid' as const };
   } catch (error) {
     if (isRedirect(error)) throw error;
-    clearAuthTransactionCookie(cookies);
-    return { transactionError: 'error.auth.transaction.invalid' as const };
+    throw error;
   }
 };
 

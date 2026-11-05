@@ -21,6 +21,15 @@ export const error = {
     },
   },
   auth: {
+    mfa: {
+      setup_unavailable:
+        'Could not configure the authenticator. Check the server configuration and try again.',
+    },
+    passkey: {
+      remove_failed: 'Could not remove this passkey. Refresh the page and try again.',
+      unavailable: 'Passkeys require a supported browser and a secure connection.',
+      cancelled: 'The passkey request was cancelled or timed out. Try again.',
+    },
     account: {
       invalid: 'The account is invalid.',
       blocked: 'This account is temporarily blocked. Contact support.',
@@ -49,6 +58,7 @@ export const error = {
       failed: 'We could not create your account. Please try again.',
     },
     login: {
+      rate_limited: 'Too many attempts. Please wait 15 minutes and try again.',
       transaction_invalid: 'The sign-in transaction is invalid.',
       failed: 'Something went wrong. Please try again.',
     },

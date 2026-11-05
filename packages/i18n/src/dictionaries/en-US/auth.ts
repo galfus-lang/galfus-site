@@ -20,9 +20,10 @@ export const auth = {
     success_redirecting: 'Redirecting you to the application...',
     recover: 'Enter your email or username to receive password reset instructions.',
     recover_sent:
-      'If an account matches this identifier, instructions to reset your password have been sent.',
+      'If an eligible account matches this identifier, we will send password reset instructions.',
     registration_code: 'Enter the six-digit code sent to your email address.',
     registration_code_sent: 'A new verification code has been sent.',
+    password_reset_complete: 'Your password has been changed. Sign in with your new password.',
     upsert_password: 'Enter your new password below.',
   },
   label: {

@@ -21,9 +21,10 @@ export const auth = {
     recover:
       'Digite seu e-mail ou nome de usuário para receber as instruções de redefinição de senha.',
     recover_sent:
-      'Se uma conta corresponder a este identificador, as instruções para redefinir sua senha foram enviadas.',
+      'Se houver uma conta elegível para este identificador, enviaremos instruções para redefinir sua senha.',
     registration_code: 'Digite o código de seis dígitos enviado para seu e-mail.',
     registration_code_sent: 'Um novo código de verificação foi enviado.',
+    password_reset_complete: 'Sua senha foi alterada. Entre com sua nova senha.',
     upsert_password: 'Digite sua nova senha abaixo.',
   },
   label: {

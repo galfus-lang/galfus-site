@@ -1,5 +1,7 @@
 import { fail, isRedirect } from '@sveltejs/kit';
-import { hashSecret, verifyTotp } from '@galfus/auth-utils';
+import { hashRecoveryCode, verifyTotpStep } from '@galfus/auth-utils';
+import { decryptTotpSecret, recoveryPepper } from '$lib/server/totp-secrets';
+import { reserveLoginAttempt } from '$lib/server/password-attempt';
 import { clearAuthTransactionCookie, setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { requireAuthTransaction } from '$lib/server/auth-transaction';
 import { connectDb } from '$lib/server/db';
@@ -11,6 +13,7 @@ import {
   confirmRecoveryCodeAuthTransaction,
   confirmTotpAuthTransaction,
   getActiveMfaAuthenticator,
+  recordMfaFailure,
 } from '@galfus/data-manager/server';
 import { translate } from '@galfus/i18n';
 
@@ -30,8 +33,9 @@ export const load = async ({ cookies }) => {
   });
 
   const pendingMethod = transaction.metadata?.authorization?.pending_mfa_method;
-  if (pendingMethod === 'email_otp' || pendingMethod === 'sms_otp') {
-    throw temporaryRedirect('/mfa-pass');
+  if (pendingMethod !== 'totp') {
+    clearAuthTransactionCookie(cookies);
+    throw temporaryRedirect('/');
   }
 
   const identifier = transaction.metadata?.authorization?.identifier ?? '';
@@ -42,7 +46,7 @@ export const load = async ({ cookies }) => {
 };
 
 export const actions = {
-  verify: async ({ request, cookies }) => {
+  verify: async ({ request, cookies, getClientAddress }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
     const otp = data.get('otp')?.toString()?.trim() ?? '';
@@ -61,6 +65,8 @@ export const actions = {
 
     try {
       const db = await connectDb();
+      if (!(await reserveLoginAttempt(db, accountId, getClientAddress(), 'mfa')))
+        return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
 
       // 1. Locate active TOTP authenticator
       const authenticatorResult = await getActiveMfaAuthenticator(db, {
@@ -73,21 +79,24 @@ export const actions = {
       }
 
       const authenticator = authenticatorResult.data;
-      const secret = authenticator.secretCiphertext;
-
-      // 2. Verify TOTP code against secret
-      if (secret) {
-        const isValid = verifyTotp(otp, {
-          issuer: 'Galfus',
-          label: identifier || 'Galfus User',
-          secret,
-          period: 30,
-          digits: 6,
+      if (!authenticator.secretCiphertext) {
+        return fail(400, { error: translate('error.auth.otp.invalid', locale) });
+      }
+      const secret = await decryptTotpSecret(authenticator.secretCiphertext);
+      const step = verifyTotpStep(otp, {
+        issuer: 'Galfus',
+        label: identifier || 'Galfus User',
+        secret,
+        period: 30,
+        digits: 6,
+      });
+      if (step === null) {
+        await recordMfaFailure(db, {
+          id: token.id,
+          browserVerifierHash: token.verifierHash,
+          accountId,
         });
-
-        if (!isValid) {
-          return fail(401, { error: translate('error.auth.otp.incorrect', locale) });
-        }
+        return fail(401, { error: translate('error.auth.otp.incorrect', locale) });
       }
 
       // 3. Atomically confirm transaction
@@ -97,6 +106,7 @@ export const actions = {
         expectedVersion: transaction.version,
         accountId,
         authenticatorId: authenticator.id,
+        step,
       });
 
       if (!confirmResult.success) {
@@ -140,7 +150,7 @@ export const actions = {
     }
   },
 
-  recovery: async ({ request, cookies }) => {
+  recovery: async ({ request, cookies, getClientAddress }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
     const recoveryCode = data.get('recoveryCode')?.toString()?.trim() ?? '';
@@ -159,7 +169,19 @@ export const actions = {
 
     try {
       const db = await connectDb();
-      const codeHash = await hashSecret(recoveryCode.toUpperCase());
+      if (!(await reserveLoginAttempt(db, accountId, getClientAddress(), 'mfa')))
+        return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
+      let codeHash: string;
+      try {
+        codeHash = await hashRecoveryCode(recoveryCode, recoveryPepper());
+      } catch {
+        await recordMfaFailure(db, {
+          id: token.id,
+          browserVerifierHash: token.verifierHash,
+          accountId,
+        });
+        return fail(401, { error: translate('error.auth.otp.incorrect', locale) });
+      }
 
       const confirmResult = await confirmRecoveryCodeAuthTransaction(db, {
         id: token.id,
@@ -170,6 +192,11 @@ export const actions = {
       });
 
       if (!confirmResult.success) {
+        await recordMfaFailure(db, {
+          id: token.id,
+          browserVerifierHash: token.verifierHash,
+          accountId,
+        });
         return fail(401, { error: translate('error.auth.otp.incorrect', locale) });
       }
 

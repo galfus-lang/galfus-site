@@ -15,6 +15,7 @@ import {
   CompleteExternalProviderLinkInputSchema,
   CompleteOrganizationInvitationInputSchema,
   ConfirmTotpAuthTransactionInputSchema,
+  RecordMfaFailureInputSchema,
   ConfirmRecoveryCodeAuthTransactionInputSchema,
   ConfirmOtpAuthTransactionInputSchema,
   ConfirmPasswordAuthTransactionInputSchema,
@@ -842,35 +843,60 @@ export async function confirmTotpAuthTransaction(
   const parsed = v.safeParse(ConfirmTotpAuthTransactionInputSchema, input);
   if (!parsed.success) return invalidInput(parsed.issues);
 
-  const transaction = await querySingle<AuthTransactionView<'authorization'>>(
-    db,
-    `
-      UPDATE $transaction
-      SET status = 'authorized', version = version + 1
-      WHERE kind = 'authorization'
-        AND account = $account
-        AND status = 'awaiting_mfa'
-        AND version = $expectedVersion
-        AND browser_verifier_hash = $browserVerifierHash
-        AND expires_at > time::now()
-        AND consumed_at IS NONE
-        AND $authenticator IN (
-          SELECT VALUE id FROM account_authenticator
-          WHERE account = $account AND kind = 'totp' AND purpose = 'mfa' AND status = 'active'
-        )
-      RETURN AFTER;
-    `,
-    {
-      transaction: transactionRecordId(parsed.output.id),
-      account: recordId('account', parsed.output.accountId),
-      authenticator: recordId('account_authenticator', parsed.output.authenticatorId),
-      browserVerifierHash: parsed.output.browserVerifierHash,
-      expectedVersion: parsed.output.expectedVersion,
-    },
-  );
+  const results = await db
+    .query<unknown[]>(
+      `BEGIN TRANSACTION;
+      LET $tx = (SELECT id FROM $transaction WHERE kind = 'authorization' AND account = $account
+        AND status = 'awaiting_mfa' AND version = $expectedVersion
+        AND browser_verifier_hash = $browserVerifierHash AND attempts < max_attempts
+        AND expires_at > time::now() AND consumed_at IS NONE LIMIT 1)[0];
+      LET $factor = IF $tx IS NONE THEN NONE ELSE (UPDATE $authenticator
+        SET metadata.last_used_at = $stepTime
+        WHERE account = $account AND kind = 'totp' AND purpose = 'mfa' AND status = 'active'
+          AND (metadata.last_used_at IS NONE OR metadata.last_used_at < $stepTime)
+        RETURN AFTER)[0] END;
+      LET $updated = IF $factor IS NONE THEN NONE ELSE (UPDATE $transaction
+        SET status = 'authorized', version = version + 1
+        WHERE status = 'awaiting_mfa' AND version = $expectedVersion RETURN AFTER)[0] END;
+      COMMIT TRANSACTION;
+      RETURN $updated;`,
+      {
+        transaction: transactionRecordId(parsed.output.id),
+        account: recordId('account', parsed.output.accountId),
+        authenticator: recordId('account_authenticator', parsed.output.authenticatorId),
+        stepTime: new Date(parsed.output.step * 30_000),
+        browserVerifierHash: parsed.output.browserVerifierHash,
+        expectedVersion: parsed.output.expectedVersion,
+      },
+    )
+    .json();
+  const transaction = results.at(-1) as AuthTransactionView<'authorization'> | null | undefined;
   return transaction
     ? { success: true, data: transaction }
     : authenticationError('error.auth.transaction.state_conflict');
+}
+
+/** Record failed second-factor attempts without accepting client-selected limits. */
+export async function recordMfaFailure(
+  db: Surreal,
+  input: unknown,
+): Promise<DataManagerResult<boolean>> {
+  const parsed = v.safeParse(RecordMfaFailureInputSchema, input);
+  if (!parsed.success) return invalidInput(parsed.issues);
+  const result = await querySingle<{ id: RecordId<'auth_transaction'> }>(
+    db,
+    `UPDATE $transaction SET attempts = attempts + 1,
+      status = IF attempts + 1 >= max_attempts THEN 'failed' ELSE status END
+      WHERE kind = 'authorization' AND account = $account AND status = 'awaiting_mfa'
+        AND browser_verifier_hash = $browserVerifierHash AND expires_at > time::now()
+        AND consumed_at IS NONE AND attempts < max_attempts RETURN AFTER;`,
+    {
+      transaction: transactionRecordId(parsed.output.id),
+      account: recordId('account', parsed.output.accountId),
+      browserVerifierHash: parsed.output.browserVerifierHash,
+    },
+  );
+  return { success: true, data: Boolean(result) };
 }
 
 /** Consumes a recovery code and advances the awaiting_mfa transaction to authorized. */
@@ -885,7 +911,11 @@ export async function confirmRecoveryCodeAuthTransaction(
     .query<unknown[]>(
       `
         BEGIN TRANSACTION;
-        LET $recoveryCode = (
+        LET $validTx = (SELECT id FROM $transaction WHERE kind = 'authorization'
+          AND browser_verifier_hash = $browserVerifierHash AND account = $account
+          AND status = 'awaiting_mfa' AND version = $expectedVersion AND attempts < max_attempts
+          AND expires_at > time::now() AND consumed_at IS NONE LIMIT 1)[0];
+        LET $recoveryCode = IF $validTx IS NONE THEN NONE ELSE (
           UPDATE account_authenticator
           SET status = 'disabled', disabled_at = time::now()
           WHERE account = $account
@@ -894,7 +924,7 @@ export async function confirmRecoveryCodeAuthTransaction(
             AND status = 'active'
             AND secret_hash = $codeHash
           RETURN AFTER
-        )[0];
+        )[0] END;
         LET $transactionUpdate = IF $recoveryCode IS NONE THEN NONE ELSE (
           UPDATE $transaction
           SET status = 'authorized',
@@ -1806,6 +1836,7 @@ export async function startPasswordRecoveryTransaction(
     return authenticationError('error.auth.transaction.invalid');
   }
 
+  const returnToField = parsed.output.returnTo ? 'return_to: $returnTo,' : '';
   const results = await db
     .query<
       [
@@ -1829,24 +1860,26 @@ export async function startPasswordRecoveryTransaction(
           FETCH account
         )[0];
         LET $account = IF $identity IS NONE THEN NONE ELSE $identity.account END;
-        LET $transaction = IF $account IS NONE OR $account.status != 'active' THEN NONE ELSE (
+        LET $targetEmail = IF $account IS NONE THEN NONE ELSE (
+          SELECT VALUE identifier FROM account_identity
+          WHERE account = $account.id AND kind = 'local' AND issuer = 'galfus'
+            AND provider = 'email' AND status = 'active' AND verified_at IS NOT NONE
+          LIMIT 1
+        )[0] END;
+        LET $transaction = IF $account IS NONE OR $account.status != 'active' OR $targetEmail IS NONE THEN NONE ELSE (
           CREATE type::record('auth_transaction', $transactionId) CONTENT {
             kind: 'upsert_password',
             status: 'pending',
             account: $account.id,
             browser_verifier_hash: $browserVerifierHash,
             expires_at: $expiresAt,
+            ${returnToField}
             metadata: {
               upsert_password: {
                 reason: 'recovery',
               },
             },
           }
-        )[0] END;
-        LET $targetEmail = IF $account IS NONE THEN NONE ELSE IF $identity.provider = 'email' THEN $identity.identifier ELSE (
-          SELECT VALUE identifier FROM account_identity
-          WHERE account = $account.id AND provider = 'email' AND status = 'active'
-          LIMIT 1
         )[0] END;
         COMMIT TRANSACTION;
         RETURN { transaction: $transaction, targetEmail: $targetEmail };
@@ -1856,6 +1889,7 @@ export async function startPasswordRecoveryTransaction(
         browserVerifierHash: parsed.output.browserVerifierHash,
         identifier: parsed.output.identifier,
         expiresAt: asDate(parsed.output.expiresAt),
+        ...(parsed.output.returnTo ? { returnTo: parsed.output.returnTo } : {}),
       },
     )
     .json();
@@ -1912,7 +1946,7 @@ export async function completeUpsertPasswordTransaction(
           LIMIT 1
         )[0];
         LET $updatedAccount = IF $tx IS NONE THEN NONE ELSE (
-          UPDATE $account SET credential_version = credential_version + 1 RETURN AFTER
+          UPDATE $account SET credential_version = credential_version + 1 WHERE status = 'active' RETURN AFTER
         )[0] END;
         LET $existingAuth = IF $updatedAccount IS NONE THEN NONE ELSE (
           SELECT id FROM account_authenticator
@@ -1935,6 +1969,11 @@ export async function completeUpsertPasswordTransaction(
             verified_at = time::now()
           RETURN AFTER
         )[0] END;
+        IF $savedAuth IS NOT NONE THEN (
+          UPDATE auth_transaction SET status = 'revoked'
+          WHERE account = $account AND id != $transaction AND kind IN ['upsert_password', 'password_recovery']
+            AND consumed_at IS NONE AND status IN ['pending', 'awaiting_primary', 'authorized']
+        ) END;
         LET $completedTx = IF $savedAuth IS NONE THEN NONE ELSE (
           UPDATE $tx.id
           SET status = 'completed',

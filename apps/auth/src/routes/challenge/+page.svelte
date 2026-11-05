@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
+  import { deserialize, enhance } from '$app/forms';
   import { startAuthentication } from '@simplewebauthn/browser';
   import { addToast } from '@galfus/design-system/components/ToastSystem.svelte';
   import { cn } from '@galfus/design-system/utils/cn';
@@ -19,32 +19,40 @@
           Accept: 'application/json',
         },
       });
-      const result = await response.json();
-      const rawData = typeof result?.data === 'string' ? JSON.parse(result.data) : result?.data;
+      const result = deserialize(await response.text());
+      const rawData = result.type === 'success' ? result.data : undefined;
       const options = rawData?.options;
 
       if (!options) {
         throw new Error('Failed to obtain passkey options');
       }
 
-      const assertion = await startAuthentication({ optionsJSON: options });
+      const assertion = await startAuthentication({
+        optionsJSON: options as Parameters<typeof startAuthentication>[0]['optionsJSON'],
+      });
 
+      const form = new FormData();
+      form.set('response', JSON.stringify(assertion));
       const verifyResponse = await fetch('?/passkeyVerify', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ response: assertion }),
+        body: form,
       });
-      const verifyResult = await verifyResponse.json();
+      const verifyResult = deserialize(await verifyResponse.text());
       const verifyData =
-        typeof verifyResult?.data === 'string' ? JSON.parse(verifyResult.data) : verifyResult?.data;
+        verifyResult.type === 'success' || verifyResult.type === 'failure'
+          ? verifyResult.data
+          : undefined;
 
-      if (verifyData?.redirectUrl) {
+      if (typeof verifyData?.redirectUrl === 'string') {
         window.location.href = verifyData.redirectUrl;
       } else {
-        const error = verifyData?.error || translate('auth.title.sign_in_failed', data.locale);
+        const error =
+          typeof verifyData?.error === 'string'
+            ? verifyData.error
+            : translate('auth.title.sign_in_failed', data.locale);
         addToast({
           title: translate('auth.title.sign_in_failed', data.locale),
           description: error,
@@ -57,7 +65,7 @@
       if (error?.name !== 'NotAllowedError') {
         addToast({
           title: translate('auth.title.sign_in_failed', data.locale),
-          description: error?.message || translate('auth.title.sign_in_failed', data.locale),
+          description: translate('auth.title.sign_in_failed', data.locale),
           type: 'error',
           duration: 6000,
         });
@@ -71,7 +79,7 @@
 <div class="flex w-full flex-col items-center justify-center space-y-6">
   <div class="relative mb-2 flex w-full items-center justify-center">
     <a
-      href="/"
+      href="/?restart=1"
       class="text-muted-foreground hover:text-foreground btn absolute left-0 btn-icon btn-ghost"
       aria-label={translate('auth.action.use_different_identity', data.locale)}
     >
@@ -178,7 +186,10 @@
       </div>
 
       <div class="mb-6 flex justify-start">
-        <a href="/recover" class="text-muted-foreground hover:text-foreground text-xs">
+        <a
+          href={data.returnTo ? `/recover?rto=${encodeURIComponent(data.returnTo)}` : '/recover'}
+          class="text-muted-foreground hover:text-foreground text-xs"
+        >
           {translate('auth.action.forgot_password', data.locale)}
         </a>
       </div>

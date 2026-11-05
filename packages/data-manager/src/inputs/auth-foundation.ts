@@ -316,6 +316,17 @@ export const ConfirmTotpAuthTransactionInputSchema = v.object({
   ),
   accountId: RecordIdSchema,
   authenticatorId: RecordIdSchema,
+  step: v.pipe(
+    v.number('error.input.invalid'),
+    v.integer('error.input.invalid'),
+    v.minValue(0, 'error.input.invalid'),
+  ),
+});
+
+export const RecordMfaFailureInputSchema = v.object({
+  id: PublicIdSchema,
+  browserVerifierHash: SecretHashSchema,
+  accountId: RecordIdSchema,
 });
 
 export const ConfirmRecoveryCodeAuthTransactionInputSchema = v.object({
@@ -571,6 +582,7 @@ export const StartPasswordRecoveryTransactionInputSchema = v.object({
     v.minLength(1, 'error.auth.identity.required'),
   ),
   expiresAt: DateTimeSchema,
+  returnTo: OptionalStringSchema,
 });
 export type StartPasswordRecoveryTransactionInput = v.InferOutput<
   typeof StartPasswordRecoveryTransactionInputSchema
@@ -620,6 +632,11 @@ export const ActivateDirectTotpAuthenticatorInputSchema = v.object({
   accountId: RecordIdSchema,
   authenticatorId: PublicIdSchema,
   secretCiphertext: v.pipe(v.string('error.input.invalid'), v.trim(), v.minLength(1)),
+  verifiedStep: v.pipe(
+    v.number('error.input.invalid'),
+    v.integer('error.input.invalid'),
+    v.minValue(0, 'error.input.invalid'),
+  ),
   codes: v.array(
     v.object({
       id: PublicIdSchema,

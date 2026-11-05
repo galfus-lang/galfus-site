@@ -67,6 +67,7 @@ describe('upsert-password server route', () => {
       try {
         await load({
           cookies: {} as never,
+          setHeaders: vi.fn(),
           url: new URL(`http://localhost:5001/upsert-password?code=${validTransactionToken}`),
         } as never);
         throw new Error('Expected redirect');
@@ -86,6 +87,7 @@ describe('upsert-password server route', () => {
       try {
         await load({
           cookies: {} as never,
+          setHeaders: vi.fn(),
           url: new URL('http://localhost:5001/upsert-password'),
         } as never);
         throw new Error('Expected redirect');
@@ -110,6 +112,7 @@ describe('upsert-password server route', () => {
 
       const result = await load({
         cookies: {} as never,
+        setHeaders: vi.fn(),
         url: new URL('http://localhost:5001/upsert-password'),
       } as never);
       expect(result).toEqual({});
@@ -125,6 +128,7 @@ describe('upsert-password server route', () => {
           body: form,
         }),
         cookies: {} as never,
+        setHeaders: vi.fn(),
       } as never);
 
       expect(result).toMatchObject({
@@ -144,6 +148,7 @@ describe('upsert-password server route', () => {
           body: form,
         }),
         cookies: {} as never,
+        setHeaders: vi.fn(),
       } as never);
 
       expect(result).toMatchObject({
@@ -163,6 +168,7 @@ describe('upsert-password server route', () => {
           body: form,
         }),
         cookies: {} as never,
+        setHeaders: vi.fn(),
       } as never);
 
       expect(result).toMatchObject({
@@ -171,7 +177,7 @@ describe('upsert-password server route', () => {
       });
     });
 
-    it('successfully completes upsert password transaction, signs token and redirects to /success', async () => {
+    it('completes password recovery and requires a new login', async () => {
       mocks.getAuthTransactionCookie.mockReturnValue(validTransactionToken);
       mocks.getAuthTransaction.mockResolvedValue({
         success: true,
@@ -204,11 +210,12 @@ describe('upsert-password server route', () => {
             body: form,
           }),
           cookies: {} as never,
+          setHeaders: vi.fn(),
         } as never);
         throw new Error('Expected redirect');
       } catch (error) {
         expect(isRedirect(error)).toBe(true);
-        expect(error).toMatchObject({ status: 303, location: '/success' });
+        expect(error).toMatchObject({ status: 303, location: '/?password_reset=1' });
         expect(mocks.completeUpsertPasswordTransaction).toHaveBeenCalledWith(
           expect.anything(),
           expect.objectContaining({
@@ -216,10 +223,7 @@ describe('upsert-password server route', () => {
             password: 'brand_new_secret_123',
           }),
         );
-        expect(mocks.setAuthAccessTokenCookie).toHaveBeenCalledWith(
-          expect.anything(),
-          'signed-access-token',
-        );
+        expect(mocks.setAuthAccessTokenCookie).not.toHaveBeenCalled();
         expect(mocks.clearAuthTransactionCookie).toHaveBeenCalled();
       }
     });

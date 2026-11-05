@@ -1,4 +1,5 @@
 import { fail, isRedirect } from '@sveltejs/kit';
+import { reserveLoginAttempt } from '$lib/server/password-attempt';
 import { clearAuthTransactionCookie, setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { requireAuthTransaction } from '$lib/server/auth-transaction';
 import { connectDb } from '$lib/server/db';
@@ -50,6 +51,7 @@ export const load = async ({ cookies }) => {
     return {
       identifier,
       hasPasskey,
+      ...(transaction.return_to ? { returnTo: transaction.return_to } : {}),
     };
   } catch (error) {
     if (isRedirect(error)) throw error;
@@ -57,12 +59,13 @@ export const load = async ({ cookies }) => {
     return {
       identifier,
       hasPasskey: false,
+      ...(transaction.return_to ? { returnTo: transaction.return_to } : {}),
     };
   }
 };
 
 export const actions = {
-  password: async ({ request, cookies }) => {
+  password: async ({ request, cookies, getClientAddress }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
     const password = data.get('password')?.toString();
@@ -81,6 +84,8 @@ export const actions = {
 
     try {
       const db = await connectDb();
+      if (!(await reserveLoginAttempt(db, accountId, getClientAddress())))
+        return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
 
       const confirmResult = await confirmPasswordAuthTransaction(db, {
         id: token.id,
@@ -103,7 +108,7 @@ export const actions = {
         if (pendingMfaMethod === 'totp') {
           throw temporaryRedirect('/mfa-otp');
         }
-        throw temporaryRedirect('/mfa-pass');
+        return fail(403, { error: translate('error.auth.login.failed', locale) });
       }
 
       if (confirmedTx.status !== 'authorized') {
@@ -202,8 +207,9 @@ export const actions = {
     const identifier = transaction.metadata?.authorization?.identifier ?? '';
 
     try {
-      const body = await request.json();
-      const response = body?.response as AuthenticationResponseJSON | undefined;
+      const form = await request.formData();
+      const response = JSON.parse(String(form.get('response') ?? 'null')) as
+        AuthenticationResponseJSON | undefined;
 
       if (!response?.id) {
         return fail(400, { error: translate('error.input.invalid', locale) });
@@ -254,9 +260,9 @@ export const actions = {
 
       if (authorizedTx.status === 'awaiting_mfa') {
         const pendingMfa = authorizedTx.metadata?.authorization?.pending_mfa_method;
-        return {
-          redirectUrl: pendingMfa === 'totp' ? '/mfa-otp' : '/mfa-pass',
-        };
+        if (pendingMfa !== 'totp')
+          return fail(403, { error: translate('error.auth.login.failed', locale) });
+        return { redirectUrl: '/mfa-otp' };
       }
 
       const completeResult = await completeAuthTransaction(db, {

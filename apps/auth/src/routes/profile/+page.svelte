@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
+  import { deserialize, enhance } from '$app/forms';
   import { startRegistration } from '@simplewebauthn/browser';
   import { addToast } from '@galfus/design-system/components/ToastSystem.svelte';
   import Brand from '@galfus/design-system/components/svg/Brand.svelte';
@@ -12,22 +12,21 @@
   let isUpdatingProfile = $state(false);
   let isChangingPassword = $state(false);
   let isPasskeyRegistering = $state(false);
+  let removingPasskeyId = $state<string | null>(null);
   let isRevokingSessions = $state(false);
-
-  // TOTP setup state
-  let totpSetupData = $state<{
-    secret: string;
-    qrCodeSvg: string;
-    recoveryCodes: string[];
-  } | null>(null);
-  let isTotpSetupLoading = $state(false);
-  let isTotpActivating = $state(false);
-  let isTotpDisabling = $state(false);
-  let showRecoveryCodes = $state(false);
 
   async function handleAddPasskey() {
     isPasskeyRegistering = true;
     try {
+      if (!window.isSecureContext || !window.PublicKeyCredential) {
+        addToast({
+          title: translate('auth.title.sign_in_failed', data.locale),
+          description: translate('error.auth.passkey.unavailable', data.locale),
+          type: 'error',
+          duration: 6000,
+        });
+        return;
+      }
       const response = await fetch('?/passkeyRegistrationOptions', {
         method: 'POST',
         headers: {
@@ -36,28 +35,33 @@
         },
       });
 
-      const result = await response.json();
-      const rawData = typeof result?.data === 'string' ? JSON.parse(result.data) : result?.data;
+      const result = deserialize(await response.text());
+      const rawData = result.type === 'success' ? result.data : undefined;
       const options = rawData?.options;
 
       if (!options) {
         throw new Error('Failed to obtain passkey registration options');
       }
 
-      const attestation = await startRegistration({ optionsJSON: options });
+      const attestation = await startRegistration({
+        optionsJSON: options as Parameters<typeof startRegistration>[0]['optionsJSON'],
+      });
 
+      const form = new FormData();
+      form.set('response', JSON.stringify(attestation));
       const verifyResponse = await fetch('?/verifyPasskeyRegistration', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ response: attestation }),
+        body: form,
       });
 
-      const verifyResult = await verifyResponse.json();
+      const verifyResult = deserialize(await verifyResponse.text());
       const verifyData =
-        typeof verifyResult?.data === 'string' ? JSON.parse(verifyResult.data) : verifyResult?.data;
+        verifyResult.type === 'success' || verifyResult.type === 'failure'
+          ? verifyResult.data
+          : undefined;
 
       if (verifyData?.success) {
         addToast({
@@ -68,9 +72,12 @@
         });
         window.location.reload();
       } else {
-        const error = verifyData?.error || 'Passkey registration failed.';
+        const error =
+          typeof verifyData?.error === 'string'
+            ? verifyData.error
+            : translate('error.auth.login.failed', data.locale);
         addToast({
-          title: 'Passkey error',
+          title: translate('auth.title.sign_in_failed', data.locale),
           description: error,
           type: 'error',
           duration: 6000,
@@ -78,43 +85,19 @@
       }
     } catch (err: unknown) {
       const error = err as Error;
-      if (error?.name !== 'NotAllowedError') {
-        addToast({
-          title: 'Passkey error',
-          description: error?.message || 'Could not register passkey.',
-          type: 'error',
-          duration: 6000,
-        });
-      }
+      addToast({
+        title: translate('auth.title.sign_in_failed', data.locale),
+        description: translate(
+          error?.name === 'NotAllowedError'
+            ? 'error.auth.passkey.cancelled'
+            : 'error.auth.login.failed',
+          data.locale,
+        ),
+        type: 'error',
+        duration: 6000,
+      });
     } finally {
       isPasskeyRegistering = false;
-    }
-  }
-
-  async function handleStartTotpSetup() {
-    isTotpSetupLoading = true;
-    try {
-      const response = await fetch('?/setupTotp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-        },
-      });
-      const result = await response.json();
-      const rawData = typeof result?.data === 'string' ? JSON.parse(result.data) : result?.data;
-      if (rawData?.totpSetup) {
-        totpSetupData = rawData.totpSetup;
-      }
-    } catch (err) {
-      addToast({
-        title: '2FA Error',
-        description: 'Failed to start 2FA setup.',
-        type: 'error',
-        duration: 5000,
-      });
-    } finally {
-      isTotpSetupLoading = false;
     }
   }
 </script>
@@ -393,7 +376,9 @@
                   action="?/removePasskey"
                   method="POST"
                   use:enhance={() => {
+                    removingPasskeyId = passkey.id;
                     return async ({ result, update }) => {
+                      removingPasskeyId = null;
                       if (result.type === 'success') {
                         addToast({
                           title: translate('profile.status.passkey_removed', data.locale),
@@ -401,14 +386,30 @@
                           type: 'success',
                           duration: 4000,
                         });
+                      } else if (result.type === 'failure' || result.type === 'error') {
+                        addToast({
+                          title: translate('auth.title.sign_in_failed', data.locale),
+                          description:
+                            result.type === 'failure' && typeof result.data?.error === 'string'
+                              ? result.data.error
+                              : translate('error.auth.passkey.remove_failed', data.locale),
+                          type: 'error',
+                          duration: 6000,
+                        });
                       }
                       await update();
                     };
                   }}
                 >
                   <input type="hidden" name="authenticatorId" value={passkey.id} />
-                  <button type="submit" class="text-xs text-danger-9 hover:underline">
-                    {translate('profile.action.remove_passkey', data.locale)}
+                  <button
+                    type="submit"
+                    class="text-xs text-danger-9 hover:underline"
+                    disabled={removingPasskeyId !== null}
+                  >
+                    {removingPasskeyId === passkey.id
+                      ? translate('fields.please_wait', data.locale)
+                      : translate('profile.action.remove_passkey', data.locale)}
                   </button>
                 </form>
               </div>
@@ -441,154 +442,9 @@
               : translate('profile.status.disabled', data.locale)}
           </span>
         </div>
-
-        {#if data.profile.security.mfa.enabled}
-          <form
-            action="?/disableTotp"
-            method="POST"
-            use:enhance={() => {
-              isTotpDisabling = true;
-              return async ({ result, update }) => {
-                isTotpDisabling = false;
-                if (result.type === 'success') {
-                  addToast({
-                    title: translate('profile.status.mfa_disabled', data.locale),
-                    description: translate('profile.status.mfa_disabled', data.locale),
-                    type: 'success',
-                    duration: 4000,
-                  });
-                }
-                await update();
-              };
-            }}
-          >
-            <button
-              type="submit"
-              class={cn(
-                'btn w-full btn-outlined text-xs text-danger-9',
-                isTotpDisabling && 'is-loading',
-              )}
-              disabled={isTotpDisabling}
-            >
-              {translate('profile.action.disable_2fa', data.locale)}
-            </button>
-          </form>
-        {:else if !totpSetupData}
-          <button
-            type="button"
-            class={cn('btn w-full btn-outlined text-xs', isTotpSetupLoading && 'is-loading')}
-            disabled={isTotpSetupLoading}
-            onclick={handleStartTotpSetup}
-          >
-            {translate('profile.action.setup_2fa', data.locale)}
-          </button>
-        {:else}
-          <!-- TOTP Enrollment in progress -->
-          <div class="bg-muted/20 space-y-3 rounded-lg border p-3 text-xs">
-            <p class="font-medium">Scan QR code in Authenticator App:</p>
-            <div class="bg-white flex justify-center rounded p-2">
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html totpSetupData.qrCodeSvg}
-            </div>
-            <div class="space-y-1">
-              <span class="text-muted-foreground text-[10px]">
-                {translate('profile.label.totp_secret', data.locale)}:
-              </span>
-              <p class="bg-background rounded border p-1 text-center font-mono select-all">
-                {totpSetupData.secret}
-              </p>
-            </div>
-
-            <!-- Recovery Codes Preview -->
-            <div class="space-y-1">
-              <button
-                type="button"
-                class="text-primary text-[11px] hover:underline"
-                onclick={() => (showRecoveryCodes = !showRecoveryCodes)}
-              >
-                {showRecoveryCodes ? 'Hide recovery codes' : 'View emergency recovery codes'}
-              </button>
-              {#if showRecoveryCodes}
-                <div
-                  class="bg-background grid grid-cols-2 gap-1 rounded border p-2 font-mono text-[10px]"
-                >
-                  {#each totpSetupData.recoveryCodes as code}
-                    <div>{code}</div>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-
-            <form
-              action="?/activateTotp"
-              method="POST"
-              use:enhance={() => {
-                isTotpActivating = true;
-                return async ({ result, update }) => {
-                  isTotpActivating = false;
-                  if (result.type === 'success') {
-                    totpSetupData = null;
-                    addToast({
-                      title: translate('profile.status.mfa_enabled', data.locale),
-                      description: translate('profile.status.mfa_enabled', data.locale),
-                      type: 'success',
-                      duration: 4000,
-                    });
-                  } else if (result.type === 'failure' && result.data?.error) {
-                    addToast({
-                      title: 'Error',
-                      description: result.data.error as string,
-                      type: 'error',
-                      duration: 5000,
-                    });
-                  }
-                  await update();
-                };
-              }}
-              class="space-y-2 pt-2"
-            >
-              <input
-                type="hidden"
-                name="recoveryCodes"
-                value={JSON.stringify(totpSetupData.recoveryCodes)}
-              />
-              <div class="space-y-1">
-                <label for="totpCode" class="font-medium">
-                  {translate('profile.label.totp_code', data.locale)}
-                </label>
-                <input
-                  id="totpCode"
-                  name="code"
-                  type="text"
-                  class="input-base w-full text-center font-mono text-sm tracking-widest"
-                  placeholder="000000"
-                  maxlength="6"
-                  required
-                />
-              </div>
-
-              <div class="flex space-x-2">
-                <button
-                  type="button"
-                  class="btn flex-1 btn-outlined text-xs"
-                  onclick={() => (totpSetupData = null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class={cn(
-                    'btn flex-1 btn-solid text-xs color-group-primary',
-                    isTotpActivating && 'is-loading',
-                  )}
-                  disabled={isTotpActivating}
-                >
-                  Confirm & Activate
-                </button>
-              </div>
-            </form>
-          </div>
-        {/if}
+        <a href="/profile/mfa" class="btn w-full btn-outlined text-xs"
+          >{translate('profile.action.manage_2fa', data.locale)}</a
+        >
       </div>
 
       <!-- Revoke Other Sessions Section -->

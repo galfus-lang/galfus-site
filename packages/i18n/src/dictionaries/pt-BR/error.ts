@@ -21,6 +21,16 @@ export const error = {
     },
   },
   auth: {
+    mfa: {
+      setup_unavailable:
+        'Não foi possível configurar o autenticador. Verifique a configuração do servidor e tente novamente.',
+    },
+    passkey: {
+      remove_failed:
+        'Não foi possível remover esta chave de acesso. Atualize a página e tente novamente.',
+      unavailable: 'As chaves de acesso exigem um navegador compatível e uma conexão segura.',
+      cancelled: 'A solicitação da chave de acesso foi cancelada ou expirou. Tente novamente.',
+    },
     account: {
       invalid: 'A conta informada é inválida.',
       blocked: 'Esta conta está temporariamente bloqueada. Contate o suporte.',
@@ -50,6 +60,7 @@ export const error = {
       failed: 'Não foi possível criar sua conta. Tente novamente.',
     },
     login: {
+      rate_limited: 'Muitas tentativas. Aguarde 15 minutos e tente novamente.',
       transaction_invalid: 'A transação de entrada é inválida.',
       failed: 'Ocorreu um erro. Tente novamente.',
     },
