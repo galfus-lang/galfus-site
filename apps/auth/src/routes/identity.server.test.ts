@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   setAuthTransactionCookie: vi.fn(),
   startIdentityAuthTransaction: vi.fn(),
   sendRegistrationCode: vi.fn(),
+  reserveIdentityAttempt: vi.fn(),
 }));
 
 vi.mock('$app/environment', () => ({ dev: true }));
@@ -26,6 +27,9 @@ vi.mock('$lib/server/auth-cookies', () => ({
 }));
 
 vi.mock('$lib/server/db', () => ({ connectDb: mocks.connectDb }));
+vi.mock('$lib/server/password-attempt', () => ({
+  reserveIdentityAttempt: mocks.reserveIdentityAttempt,
+}));
 vi.mock('$lib/server/registration-email', () => ({
   sendRegistrationCode: mocks.sendRegistrationCode,
 }));
@@ -82,6 +86,7 @@ function submitIdentifier(identifier: string, returnTo?: string) {
     }),
     url: new URL(`http://localhost:5001/${query}`),
     cookies: {} as never,
+    getClientAddress: () => '127.0.0.1',
   } as never);
 }
 
@@ -103,6 +108,7 @@ describe('identity action', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.connectDb.mockResolvedValue({});
+    mocks.reserveIdentityAttempt.mockResolvedValue(true);
     mocks.createAuthTransactionToken.mockResolvedValue(transactionToken);
     mocks.sendRegistrationCode.mockResolvedValue({ success: true });
   });
@@ -116,6 +122,14 @@ describe('identity action', () => {
     });
     expect(mocks.connectDb).not.toHaveBeenCalled();
     expect(mocks.createAuthTransactionToken).not.toHaveBeenCalled();
+  });
+
+  it('limits identity attempts before creating transactions or sending messages', async () => {
+    mocks.reserveIdentityAttempt.mockResolvedValue(false);
+    const result = await submitIdentifier('person@example.com');
+    expect(result).toMatchObject({ status: 429, data: { error: 'error.auth.login.rate_limited' } });
+    expect(mocks.createAuthTransactionToken).not.toHaveBeenCalled();
+    expect(mocks.sendRegistrationCode).not.toHaveBeenCalled();
   });
 
   it('normalizes an unknown e-mail and routes it to registration', async () => {

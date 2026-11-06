@@ -7,6 +7,9 @@ const secret = env.AUTH_SECRET ?? (dev ? 'galfus_local_development_only_secret' 
 if (!secret) {
   throw new Error('AUTH_SECRET is required outside local development.');
 }
+if (!dev && secret.length < 32) {
+  throw new Error('AUTH_SECRET must contain at least 32 characters outside local development.');
+}
 
 export const jwt = new JwtService(secret, {
   issuer: 'galfus:auth',

@@ -1,0 +1,8 @@
+@utility link {
+  color: var(--color-g-10, var(--color-primary-10));
+  transition: color 0.15s ease-in-out;
+
+  &:hover {
+    color: var(--color-g-11, var(--color-primary-11));
+  }
+}

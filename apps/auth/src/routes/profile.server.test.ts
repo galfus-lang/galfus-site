@@ -8,17 +8,24 @@ const mocks = vi.hoisted(() => ({
   setAuthAccessTokenCookie: vi.fn(),
   connectDb: vi.fn(),
   getAccountProfile: vi.fn(),
+  getAccountPasskeys: vi.fn(),
   updateAccountProfile: vi.fn(),
   verifyAccountPassword: vi.fn(),
   upsertAccountPassword: vi.fn(),
   removeAccountAuthenticator: vi.fn(),
   disableAccountMfa: vi.fn(),
+  activateDirectTotpAuthenticator: vi.fn(),
+  getActiveMfaAuthenticator: vi.fn(),
+  decryptTotpSecret: vi.fn(),
+  verifyTotpStep: vi.fn(),
   incrementAccountCredentialVersion: vi.fn(),
   verifyPasskeyRegistration: vi.fn(),
   persistVerifiedPasskeyAuthenticator: vi.fn(),
   encryptTotpSecret: vi.fn(),
   jwtSign: vi.fn(),
   jwtVerify: vi.fn(),
+  challengeSign: vi.fn(),
+  challengeVerify: vi.fn(),
 }));
 
 vi.mock('$app/environment', () => ({ dev: true }));
@@ -34,12 +41,13 @@ vi.mock('$lib/server/db', () => ({ connectDb: mocks.connectDb }));
 vi.mock('$lib/server/password-attempt', () => ({ reserveLoginAttempt: async () => true }));
 vi.mock('$lib/server/totp-secrets', () => ({
   encryptTotpSecret: mocks.encryptTotpSecret,
-  decryptTotpSecret: vi.fn(),
+  decryptTotpSecret: mocks.decryptTotpSecret,
   recoveryPepper: () => 'x'.repeat(32),
 }));
 vi.mock('@galfus/auth-utils', async (original) => ({
   ...(await original<typeof import('@galfus/auth-utils')>()),
   verifyPasskeyRegistration: mocks.verifyPasskeyRegistration,
+  verifyTotpStep: mocks.verifyTotpStep,
 }));
 vi.mock('$lib/server/i18n', () => ({ getRequestLocale: () => 'en-US' }));
 vi.mock('$lib/server/access-session', () => ({
@@ -57,8 +65,8 @@ vi.mock('$lib/server/access-session', () => ({
 vi.mock('$lib/server/jwt', () => ({
   AUTH_ACCESS_JWT_AUDIENCE: 'galfus:access',
   jwt: {
-    sign: mocks.jwtSign,
-    verify: mocks.jwtVerify,
+    sign: mocks.challengeSign,
+    verify: mocks.challengeVerify,
   },
 }));
 
@@ -69,9 +77,10 @@ vi.mock('@galfus/data-manager/server', () => ({
   upsertAccountPassword: mocks.upsertAccountPassword,
   removeAccountAuthenticator: mocks.removeAccountAuthenticator,
   disableAccountMfa: mocks.disableAccountMfa,
+  getActiveMfaAuthenticator: mocks.getActiveMfaAuthenticator,
   incrementAccountCredentialVersion: mocks.incrementAccountCredentialVersion,
-  activateDirectTotpAuthenticator: vi.fn(),
-  getAccountPasskeys: vi.fn(),
+  activateDirectTotpAuthenticator: mocks.activateDirectTotpAuthenticator,
+  getAccountPasskeys: mocks.getAccountPasskeys,
   persistVerifiedPasskeyAuthenticator: mocks.persistVerifiedPasskeyAuthenticator,
 }));
 
@@ -82,6 +91,12 @@ vi.mock('@galfus/i18n', async (importOriginal) => ({
 
 const { load, actions } = await import('./profile/+page.server');
 const { actions: mfaActions } = await import('./profile/mfa/+page.server');
+const personalPage = await import('./profile/personal/+page.server');
+const passwordPage = await import('./profile/password/+page.server');
+const passkeysPage = await import('./profile/passkeys/+page.server');
+const sessionsPage = await import('./profile/sessions/+page.server');
+const identitiesPage = await import('./profile/identities/+page.server');
+const securityPage = await import('./profile/security/+page.server');
 
 const mockProfile = {
   account: {
@@ -113,7 +128,46 @@ describe('profile server route', () => {
     vi.clearAllMocks();
     mocks.connectDb.mockResolvedValue({});
     mocks.jwtSign.mockResolvedValue('signed-access-token');
+    mocks.challengeVerify.mockResolvedValue({
+      flow: 'passkey_registration',
+      sub: 'account:test_account',
+      credentialVersion: 3,
+      challenge: 'expected-challenge',
+    });
     mocks.encryptTotpSecret.mockResolvedValue('encrypted-pending');
+  });
+
+  it.each([
+    ['personal', personalPage.load],
+    ['password', passwordPage.load],
+    ['passkeys', passkeysPage.load],
+    ['sessions', sessionsPage.load],
+    ['identities', identitiesPage.load],
+    ['security', securityPage.load],
+  ])('requires authentication for the %s page', async (_, loadPage) => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue(undefined);
+    await expect(loadPage({ cookies: {} } as never)).rejects.toMatchObject({
+      status: 303,
+      location: '/',
+    });
+  });
+
+  it.each([
+    ['personal', personalPage.actions.updateProfile],
+    ['password', passwordPage.actions.changePassword],
+    ['passkey options', passkeysPage.actions.passkeyRegistrationOptions],
+    ['passkey verification', passkeysPage.actions.verifyPasskeyRegistration],
+    ['passkey removal', passkeysPage.actions.removePasskey],
+    ['sessions', sessionsPage.actions.revokeOtherSessions],
+  ])('requires authentication for the %s action', async (_, action) => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue(undefined);
+    await expect(
+      action({
+        request: new Request('http://localhost:5001/profile', { method: 'POST' }),
+        cookies: {},
+        getClientAddress: () => '127.0.0.1',
+      } as never),
+    ).rejects.toMatchObject({ status: 303, location: '/' });
   });
 
   describe('load', () => {
@@ -352,6 +406,59 @@ describe('profile server route', () => {
     expect(result).toMatchObject({ status: 400, data: { error: 'error.auth.account.invalid' } });
   });
 
+  it('requires the current password before issuing a passkey registration challenge', async () => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+    mocks.jwtVerify.mockResolvedValue({ accountId: 'account:test_account' });
+    mocks.getAccountProfile.mockResolvedValue({ success: true, data: mockProfile });
+    mocks.verifyAccountPassword.mockResolvedValue({ success: true, data: false });
+    const form = new FormData();
+    form.set('currentPassword', 'wrong-password');
+    const result = await actions.passkeyRegistrationOptions({
+      request: new Request('http://localhost:5001/profile/passkeys?/passkeyRegistrationOptions', {
+        method: 'POST',
+        body: form,
+      }),
+      cookies: {} as never,
+      getClientAddress: () => '127.0.0.1',
+    });
+    expect(result).toMatchObject({ status: 401 });
+    expect(mocks.challengeSign).not.toHaveBeenCalled();
+  });
+
+  it('binds the passkey registration challenge to the account and credential version', async () => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+    mocks.jwtVerify.mockResolvedValue({ accountId: 'account:test_account' });
+    mocks.getAccountProfile.mockResolvedValue({ success: true, data: mockProfile });
+    mocks.verifyAccountPassword.mockResolvedValue({ success: true, data: true });
+    mocks.getAccountPasskeys.mockResolvedValue([]);
+    mocks.challengeSign.mockResolvedValue('signed-challenge');
+    const form = new FormData();
+    form.set('currentPassword', 'correct-password');
+    const cookies = { set: vi.fn() };
+    const result = await actions.passkeyRegistrationOptions({
+      request: new Request('http://localhost:5001/profile/passkeys?/passkeyRegistrationOptions', {
+        method: 'POST',
+        body: form,
+      }),
+      cookies: cookies as never,
+      getClientAddress: () => '127.0.0.1',
+    });
+    expect(result).toHaveProperty('options.challenge');
+    expect(mocks.challengeSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        flow: 'passkey_registration',
+        sub: 'account:test_account',
+        credentialVersion: 3,
+      }),
+      expect.objectContaining({ audience: 'galfus:passkey-registration', expirationTime: '5m' }),
+    );
+    expect(cookies.set).toHaveBeenCalledWith(
+      'passkey_reg_challenge',
+      'signed-challenge',
+      expect.objectContaining({ httpOnly: true, path: '/profile', maxAge: 300 }),
+    );
+  });
+
   it('stores the WebAuthn user ID in base64url format when registering a passkey', async () => {
     mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
     mocks.jwtVerify.mockResolvedValue({
@@ -390,10 +497,39 @@ describe('profile server route', () => {
     expect(mocks.persistVerifiedPasskeyAuthenticator).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
+        credentialVersion: 3,
         webauthnUserId: 'YWNjb3VudDp0ZXN0X2FjY291bnQ',
       }),
     );
   });
+
+  it.each([{ sub: 'account:another_account' }, { credentialVersion: 2 }, { flow: 'access' }])(
+    'rejects a passkey registration challenge bound to another security context: %o',
+    async (change) => {
+      mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+      mocks.jwtVerify.mockResolvedValue({ accountId: 'account:test_account' });
+      mocks.challengeVerify.mockResolvedValue({
+        flow: 'passkey_registration',
+        sub: 'account:test_account',
+        credentialVersion: 3,
+        challenge: 'expected-challenge',
+        ...change,
+      });
+      const form = new FormData();
+      form.set('response', JSON.stringify({ id: 'credential' }));
+      const cookies = { get: vi.fn().mockReturnValue('signed-challenge'), delete: vi.fn() };
+      const result = await actions.verifyPasskeyRegistration({
+        request: new Request('http://localhost:5001/profile?/verifyPasskeyRegistration', {
+          method: 'POST',
+          body: form,
+        }),
+        cookies: cookies as never,
+      } as never);
+      expect(result).toMatchObject({ status: 400 });
+      expect(mocks.verifyPasskeyRegistration).not.toHaveBeenCalled();
+      expect(mocks.persistVerifiedPasskeyAuthenticator).not.toHaveBeenCalled();
+    },
+  );
 
   describe('actions.disableTotp', () => {
     it('disables 2FA authenticators for the account', async () => {
@@ -407,8 +543,15 @@ describe('profile server route', () => {
         data: true,
       });
       mocks.verifyAccountPassword.mockResolvedValue({ success: true, data: true });
+      mocks.getActiveMfaAuthenticator.mockResolvedValue({
+        success: true,
+        data: { id: 'account_authenticator:totp', secretCiphertext: 'encrypted' },
+      });
+      mocks.decryptTotpSecret.mockResolvedValue('secret');
+      mocks.verifyTotpStep.mockReturnValue(12345);
       const form = new FormData();
       form.set('currentPassword', 'password');
+      form.set('code', '123456');
 
       const result = await mfaActions.disableTotp({
         request: new Request('http://localhost:5001/profile?/disableTotp', {
@@ -420,7 +563,38 @@ describe('profile server route', () => {
       } as never);
 
       expect(result).toEqual({ success: true, updatedField: 'mfa_disabled' });
-      expect(mocks.disableAccountMfa).toHaveBeenCalled();
+      expect(mocks.disableAccountMfa).toHaveBeenCalledWith(expect.anything(), {
+        accountId: 'account:test_account',
+        authenticatorId: 'account_authenticator:totp',
+        credentialVersion: 3,
+        verifiedStep: 12345,
+      });
+      expect(mocks.jwtSign).toHaveBeenCalledWith(expect.anything(), expect.anything(), 4);
+    });
+
+    it('does not disable MFA when the authenticator code is incorrect', async () => {
+      mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+      mocks.jwtVerify.mockResolvedValue({ accountId: 'account:test_account' });
+      mocks.verifyAccountPassword.mockResolvedValue({ success: true, data: true });
+      mocks.getActiveMfaAuthenticator.mockResolvedValue({
+        success: true,
+        data: { id: 'account_authenticator:totp', secretCiphertext: 'encrypted' },
+      });
+      mocks.decryptTotpSecret.mockResolvedValue('secret');
+      mocks.verifyTotpStep.mockReturnValue(null);
+      const form = new FormData();
+      form.set('currentPassword', 'password');
+      form.set('code', '123456');
+      const result = await mfaActions.disableTotp({
+        request: new Request('http://localhost:5001/profile/mfa?/disableTotp', {
+          method: 'POST',
+          body: form,
+        }),
+        cookies: {} as never,
+        getClientAddress: () => '127.0.0.1',
+      } as never);
+      expect(result).toMatchObject({ status: 401 });
+      expect(mocks.disableAccountMfa).not.toHaveBeenCalled();
     });
   });
 
@@ -450,6 +624,40 @@ describe('profile server route', () => {
       'encrypted-pending',
       expect.objectContaining({ httpOnly: true, path: '/profile/mfa' }),
     );
+  });
+
+  it('renews the current credential after MFA activation revokes older credentials', async () => {
+    mocks.getAuthAccessTokenCookie.mockReturnValue('valid-access-token');
+    mocks.jwtVerify.mockResolvedValue({ accountId: 'account:test_account' });
+    mocks.decryptTotpSecret.mockResolvedValue(
+      JSON.stringify({
+        accountId: 'account:test_account',
+        credentialVersion: 3,
+        secret: 'secret',
+        recoveryCodes: [],
+        createdAt: Date.now(),
+      }),
+    );
+    mocks.verifyTotpStep.mockReturnValue(12345);
+    mocks.activateDirectTotpAuthenticator.mockResolvedValue({ success: true, data: true });
+    const form = new FormData();
+    form.set('code', '123456');
+    const cookies = { get: vi.fn().mockReturnValue('pending'), delete: vi.fn() };
+    const result = await mfaActions.activateTotp({
+      request: new Request('http://localhost:5001/profile/mfa?/activateTotp', {
+        method: 'POST',
+        body: form,
+      }),
+      cookies: cookies as never,
+      getClientAddress: () => '127.0.0.1',
+    } as never);
+    expect(result).toEqual({ success: true, updatedField: 'mfa_enabled', recoveryCodes: [] });
+    expect(mocks.activateDirectTotpAuthenticator).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ credentialVersion: 3, verifiedStep: 12345 }),
+    );
+    expect(mocks.jwtSign).toHaveBeenCalledWith(expect.anything(), expect.anything(), 4);
+    expect(mocks.setAuthAccessTokenCookie).toHaveBeenCalled();
   });
 
   describe('actions.revokeOtherSessions', () => {
@@ -486,14 +694,19 @@ describe('profile server route', () => {
 
   describe('actions.logout', () => {
     it('clears cookies and redirects to /', async () => {
+      const cookies = { delete: vi.fn() };
       try {
-        await actions.logout({ cookies: {} as never } as never);
+        await actions.logout({ cookies: cookies as never } as never);
         throw new Error('Expected redirect');
       } catch (error) {
         expect(isRedirect(error)).toBe(true);
         expect(error).toMatchObject({ status: 303, location: '/' });
         expect(mocks.clearAuthAccessTokenCookie).toHaveBeenCalled();
         expect(mocks.clearAuthTransactionCookie).toHaveBeenCalled();
+        expect(cookies.delete).toHaveBeenCalledWith('passkey_reg_challenge', { path: '/profile' });
+        expect(cookies.delete).toHaveBeenCalledWith('totp_enrollment_secret', {
+          path: '/profile/mfa',
+        });
       }
     });
   });

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AuthCardHeader from '$lib/components/AuthCardHeader.svelte';
   import { enhance } from '$app/forms';
   import { cn } from '@galfus/design-system/utils/cn';
   import { translate } from '@galfus/i18n';
@@ -10,38 +11,26 @@
     null,
   );
   let setup = $derived(setupData ?? form?.totpSetup ?? null);
+  let recoveryCodes = $derived(setup?.recoveryCodes ?? form?.recoveryCodes);
 </script>
 
 <div class="@container mx-auto w-full max-w-xl space-y-6">
-  <a href="/profile" class="text-sm text-primary-10 hover:underline">
-    ← {translate('profile.action.back_to_profile', data.locale)}
-  </a>
+  <AuthCardHeader
+    title={translate('profile.title.two_step', data.locale)}
+    description={translate('profile.description.mfa_help', data.locale)}
+    backHref="/profile/security"
+    backLabel={translate('profile.action.back_to_security', data.locale)}
+  />
 
-  <div class="space-y-2">
-    <h1 class="text-2xl font-bold">{translate('profile.title.two_step', data.locale)}</h1>
-    <p class="text-muted-foreground text-sm">
-      {translate('profile.description.mfa_help', data.locale)}
-    </p>
-  </div>
-
-  {#if form?.error}
-    <div
-      role="alert"
-      class="rounded-lg border border-danger-9/30 bg-danger-1/10 p-3 text-sm text-danger-9"
-    >
-      {form.error}
-    </div>
-  {/if}
-
-  {#if activated && setup}
+  {#if (activated || form?.updatedField === 'mfa_enabled') && recoveryCodes}
     <div role="status" class="text-sm">{translate('profile.status.mfa_enabled', data.locale)}</div>
     <div class="space-y-2 rounded-lg border p-4">
       <p class="text-sm">{translate('profile.description.save_recovery_codes', data.locale)}</p>
       <div class="grid grid-cols-2 gap-2 font-mono text-sm">
-        {#each setup.recoveryCodes as code}<div>{code}</div>{/each}
+        {#each recoveryCodes as code}<div>{code}</div>{/each}
       </div>
     </div>
-    <a href="/profile" class="btn w-full btn-outlined"
+    <a href="/profile" class="btn w-full btn-outlined link"
       >{translate('profile.action.back_to_profile', data.locale)}</a
     >
   {:else if data.profile.security.mfa.enabled}
@@ -52,28 +41,47 @@
       use:enhance={() => {
         pending = true;
         return async ({ update }) => {
-          pending = false;
-          await update();
+          try {
+            await update();
+          } finally {
+            pending = false;
+          }
         };
       }}
       class="space-y-3"
     >
-      <label for="disable-password" class="block text-sm"
-        >{translate('profile.label.current_password', data.locale)}</label
-      >
-      <input
-        id="disable-password"
-        name="currentPassword"
-        type="password"
-        autocomplete="current-password"
-        class="input-base w-full"
-        required
-      />
-      <button
-        type="submit"
-        class={cn('btn w-full btn-outlined text-danger-9', pending && 'is-loading')}
-        disabled={pending}>{translate('profile.action.disable_2fa', data.locale)}</button
-      >
+      <fieldset disabled={pending} class="w-full min-w-0 space-y-3">
+        <label for="disable-password" class="block text-sm"
+          >{translate('profile.label.current_password', data.locale)}</label
+        >
+        <input
+          id="disable-password"
+          name="currentPassword"
+          type="password"
+          autocomplete="current-password"
+          class="input-base w-full"
+          required
+        />
+        <label for="disable-code" class="block text-sm">
+          {translate('profile.label.totp_code', data.locale)}
+        </label>
+        <input
+          id="disable-code"
+          name="code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern={'[0-9]{6}'}
+          minlength="6"
+          maxlength="6"
+          class="input-base w-full text-center font-mono"
+          required
+        />
+        <button
+          type="submit"
+          class={cn('btn w-full btn-outlined text-danger-9', pending && 'is-loading')}
+          disabled={pending}>{translate('profile.action.disable_2fa', data.locale)}</button
+        >
+      </fieldset>
     </form>
   {:else if !setup}
     <form
@@ -82,30 +90,35 @@
       use:enhance={() => {
         pending = true;
         return async ({ result, update }) => {
-          pending = false;
           if (result.type === 'success' && result.data?.totpSetup)
             setupData = result.data.totpSetup as NonNullable<typeof setupData>;
-          await update({ invalidateAll: false });
+          try {
+            await update({ invalidateAll: false });
+          } finally {
+            pending = false;
+          }
         };
       }}
       class="space-y-3"
     >
-      <label for="setup-password" class="block text-sm"
-        >{translate('profile.label.current_password', data.locale)}</label
-      >
-      <input
-        id="setup-password"
-        name="currentPassword"
-        type="password"
-        autocomplete="current-password"
-        class="input-base w-full"
-        required
-      />
-      <button
-        type="submit"
-        class={cn('btn w-full btn-solid color-group-primary', pending && 'is-loading')}
-        disabled={pending}>{translate('profile.action.setup_2fa', data.locale)}</button
-      >
+      <fieldset disabled={pending} class="w-full min-w-0 space-y-3">
+        <label for="setup-password" class="block text-sm"
+          >{translate('profile.label.current_password', data.locale)}</label
+        >
+        <input
+          id="setup-password"
+          name="currentPassword"
+          type="password"
+          autocomplete="current-password"
+          class="input-base w-full"
+          required
+        />
+        <button
+          type="submit"
+          class={cn('btn w-full btn-solid color-group-primary', pending && 'is-loading')}
+          disabled={pending}>{translate('profile.action.setup_2fa', data.locale)}</button
+        >
+      </fieldset>
     </form>
   {:else}
     <div class="space-y-4 rounded-lg border p-4">
@@ -127,32 +140,37 @@
         use:enhance={() => {
           pending = true;
           return async ({ result, update }) => {
-            pending = false;
             if (result.type === 'success') activated = true;
-            await update({ reset: false, invalidateAll: false });
+            try {
+              await update({ reset: false, invalidateAll: false });
+            } finally {
+              pending = false;
+            }
           };
         }}
         class="space-y-3"
       >
-        <label for="totp-code" class="block text-sm"
-          >{translate('profile.label.totp_code', data.locale)}</label
-        >
-        <input
-          id="totp-code"
-          name="code"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          pattern={'[0-9]{6}'}
-          maxlength="6"
-          minlength="6"
-          class="input-base w-full text-center font-mono"
-          required
-        />
-        <button
-          type="submit"
-          class={cn('btn w-full btn-solid color-group-primary', pending && 'is-loading')}
-          disabled={pending}>{translate('profile.action.confirm_enable', data.locale)}</button
-        >
+        <fieldset disabled={pending} class="w-full min-w-0 space-y-3">
+          <label for="totp-code" class="block text-sm"
+            >{translate('profile.label.totp_code', data.locale)}</label
+          >
+          <input
+            id="totp-code"
+            name="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern={'[0-9]{6}'}
+            maxlength="6"
+            minlength="6"
+            class="input-base w-full text-center font-mono"
+            required
+          />
+          <button
+            type="submit"
+            class={cn('btn w-full btn-solid color-group-primary', pending && 'is-loading')}
+            disabled={pending}>{translate('profile.action.confirm_enable', data.locale)}</button
+          >
+        </fieldset>
       </form>
     </div>
   {/if}

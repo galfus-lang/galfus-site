@@ -694,16 +694,31 @@ export async function disableAccountMfa(
   const parsed = v.safeParse(DisableAccountMfaInputSchema, input);
   if (!parsed.success) return invalidInput(parsed.issues);
 
-  await db.query(
-    `
-      DELETE account_authenticator
-      WHERE account = type::record($accountId)
-        AND (purpose = 'mfa' OR purpose = 'recovery');
-    `,
-    parsed.output,
-  );
+  const results = await db
+    .query<unknown[]>(
+      `
+      BEGIN TRANSACTION;
+      LET $verified = (UPDATE type::record($authenticatorId)
+        SET metadata.last_used_at = $stepTime
+        WHERE account = type::record($accountId) AND kind = 'totp' AND purpose = 'mfa'
+          AND status = 'active'
+          AND (metadata.last_used_at IS NONE OR metadata.last_used_at < $stepTime)
+        RETURN AFTER)[0];
+      LET $account = IF $verified IS NONE THEN NONE ELSE (UPDATE type::record($accountId)
+        SET credential_version = credential_version + 1
+        WHERE status = 'active' AND credential_version = $credentialVersion RETURN AFTER)[0] END;
+      IF $account IS NOT NONE THEN (
+        DELETE account_authenticator WHERE account = type::record($accountId)
+          AND (purpose = 'mfa' OR purpose = 'recovery')
+      ) END;
+      COMMIT TRANSACTION;
+      RETURN $account IS NOT NONE;
+      `,
+      { ...parsed.output, stepTime: new Date(parsed.output.verifiedStep * 30_000) },
+    )
+    .json();
 
-  return { success: true, data: true };
+  return { success: true, data: results.at(-1) === true };
 }
 
 export async function activateDirectTotpAuthenticator(
@@ -713,14 +728,18 @@ export async function activateDirectTotpAuthenticator(
   const parsed = v.safeParse(ActivateDirectTotpAuthenticatorInputSchema, input);
   if (!parsed.success) return invalidInput(parsed.issues);
 
-  await db.query(
-    `
+  const results = await db
+    .query<unknown[]>(
+      `
       BEGIN TRANSACTION;
-      DELETE account_authenticator
-      WHERE account = type::record($accountId)
-        AND (purpose = 'mfa' OR purpose = 'recovery');
-
-      CREATE type::record('account_authenticator', $authenticatorId) CONTENT {
+      LET $existing = (SELECT id FROM account_authenticator
+        WHERE account = type::record($accountId) AND purpose = 'mfa' AND status = 'active' LIMIT 1)[0];
+      LET $account = IF $existing IS NOT NONE THEN NONE ELSE (UPDATE type::record($accountId)
+        SET credential_version = credential_version + 1
+        WHERE status = 'active' AND credential_version = $credentialVersion RETURN AFTER)[0] END;
+      IF $account IS NOT NONE THEN (DELETE account_authenticator
+        WHERE account = type::record($accountId) AND purpose = 'recovery') END;
+      IF $account IS NOT NONE THEN (CREATE type::record('account_authenticator', $authenticatorId) CONTENT {
         account: type::record($accountId),
         kind: 'totp',
         purpose: 'mfa',
@@ -728,22 +747,24 @@ export async function activateDirectTotpAuthenticator(
         secret_ciphertext: $secretCiphertext,
         metadata: { last_used_at: $stepTime },
         verified_at: time::now()
-      };
+      }) END;
 
       FOR $code IN $codes {
-        CREATE type::record('account_authenticator', $code.id) CONTENT {
+        IF $account IS NOT NONE THEN (CREATE type::record('account_authenticator', $code.id) CONTENT {
           account: type::record($accountId),
           kind: 'recovery_code',
           purpose: 'recovery',
           status: 'active',
           secret_hash: $code.secretHash,
           verified_at: time::now()
-        };
+        }) END;
       };
       COMMIT TRANSACTION;
+      RETURN $account IS NOT NONE;
     `,
-    { ...parsed.output, stepTime: new Date(parsed.output.verifiedStep * 30_000) },
-  );
+      { ...parsed.output, stepTime: new Date(parsed.output.verifiedStep * 30_000) },
+    )
+    .json();
 
-  return { success: true, data: true };
+  return { success: true, data: results.at(-1) === true };
 }

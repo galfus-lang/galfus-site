@@ -80,6 +80,8 @@ export const error = {
     otp: {
       invalid: 'The verification code is invalid or expired.',
       incorrect: 'The code is incorrect. Please try again.',
+      already_used:
+        'The code was already used or your access changed. Wait for a new code or sign in again.',
     },
   },
 } as const;

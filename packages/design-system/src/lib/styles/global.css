@@ -64,6 +64,7 @@
 @import './components/toolbar.css';
 @import './components/sidebar.css';
 @import './components/divider.css';
+@import './components/link.css';
 
 :root {
   /* Fallback defaults for color-group so components don't break if no explicit group is set */

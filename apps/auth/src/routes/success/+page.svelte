@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AuthCardHeader from '$lib/components/AuthCardHeader.svelte';
   import { translate } from '@galfus/i18n';
 
   let { data } = $props();
@@ -17,17 +18,16 @@
 </svelte:head>
 
 <div class="flex w-full flex-col items-center justify-center space-y-6 text-center">
+  <AuthCardHeader
+    title={translate('auth.title.success', data.locale)}
+    description={translate('auth.description.success_redirecting', data.locale)}
+  />
+
   <div
     class="flex h-16 w-16 animate-bounce items-center justify-center rounded-full bg-success-3 text-success-11"
+    aria-hidden="true"
   >
     <span class="icon-[lucide--check-circle-2] text-3xl"></span>
-  </div>
-
-  <div class="space-y-2">
-    <h1 class="text-2xl font-bold">{translate('auth.title.success', data.locale)}</h1>
-    <p class="text-muted-foreground text-sm">
-      {translate('auth.description.success_redirecting', data.locale)}
-    </p>
   </div>
 
   <div class="w-full pt-4">

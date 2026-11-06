@@ -231,36 +231,44 @@ export async function persistVerifiedPasskeyAuthenticator(
 
   const output = parsed.output;
   const account = recordId('account', output.accountId);
-  if (!(await hasActiveAccount(db, account))) {
-    return authenticationError('error.auth.account.invalid');
-  }
-
-  const authenticator = await querySingle<AccountAuthenticator>(
-    db,
-    "CREATE type::record('account_authenticator', $authenticatorId) CONTENT $content RETURN AFTER;",
-    {
-      authenticatorId: output.id,
-      content: {
+  const results = await db
+    .query<unknown[]>(
+      `BEGIN TRANSACTION;
+     LET $current = (UPDATE $account SET credential_version = credential_version
+       WHERE status = 'active' AND credential_version = $credentialVersion RETURN AFTER)[0];
+     LET $created = IF $current IS NONE THEN NONE ELSE (
+       CREATE type::record('account_authenticator', $authenticatorId) CONTENT $content RETURN AFTER
+     )[0] END;
+     COMMIT TRANSACTION;
+     RETURN $created;`,
+      {
         account,
-        kind: 'passkey',
-        purpose: 'primary',
-        status: 'active',
-        identifier: output.credentialId,
-        public_key: output.publicKey,
-        verified_at: new Date(),
-        metadata: {
-          webauthn_user_id: output.webauthnUserId,
-          counter: output.counter,
-          transports: output.transports,
-          device_type: output.deviceType,
-          backed_up: output.backedUp,
-          ...(output.label ? { label: output.label } : {}),
+        credentialVersion: output.credentialVersion,
+        authenticatorId: output.id,
+        content: {
+          account,
+          kind: 'passkey',
+          purpose: 'primary',
+          status: 'active',
+          identifier: output.credentialId,
+          public_key: output.publicKey,
+          verified_at: new Date(),
+          metadata: {
+            webauthn_user_id: output.webauthnUserId,
+            counter: output.counter,
+            transports: output.transports,
+            device_type: output.deviceType,
+            backed_up: output.backedUp,
+            ...(output.label ? { label: output.label } : {}),
+          },
         },
       },
-    },
-  );
-  if (!authenticator) throw new Error('SurrealDB did not create the passkey authenticator.');
-  return { success: true, data: authenticator };
+    )
+    .json();
+  const authenticator = results.at(-1) as AccountAuthenticator | null | undefined;
+  return authenticator
+    ? { success: true, data: authenticator }
+    : authenticationError('error.auth.transaction.state_conflict');
 }
 
 /** Stores a verified WebAuthn signature counter only when it is monotonic. */

@@ -1,7 +1,10 @@
 import { fail, isRedirect } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { connectDb } from '$lib/server/db';
 import { getRequestLocale } from '$lib/server/i18n';
 import { requireUserSession } from '$lib/server/user-session';
+import { issueAccessToken } from '$lib/server/access-session';
+import { setAuthAccessTokenCookie } from '$lib/server/auth-cookies';
 import { decryptTotpSecret, encryptTotpSecret, recoveryPepper } from '$lib/server/totp-secrets';
 import { reserveLoginAttempt } from '$lib/server/password-attempt';
 import {
@@ -15,6 +18,7 @@ import {
 import {
   activateDirectTotpAuthenticator,
   disableAccountMfa,
+  getActiveMfaAuthenticator,
   getAccountProfile,
   verifyAccountPassword,
 } from '@galfus/data-manager/server';
@@ -40,7 +44,9 @@ export const actions = {
       if (!(await reserveLoginAttempt(db, session.accountId, getClientAddress())))
         return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
       const verified =
-        password && (await verifyAccountPassword(db, { accountId: session.accountId, password }));
+        password &&
+        password.length <= 128 &&
+        (await verifyAccountPassword(db, { accountId: session.accountId, password }));
       if (
         !profile.success ||
         !profile.data ||
@@ -72,7 +78,7 @@ export const actions = {
         path: '/profile/mfa',
         httpOnly: true,
         sameSite: 'lax',
-        secure: request.url.startsWith('https://'),
+        secure: !dev,
         maxAge: 600,
       });
 
@@ -137,19 +143,31 @@ export const actions = {
 
       const result = await activateDirectTotpAuthenticator(db, {
         accountId: session.accountId,
+        credentialVersion: session.credentialVersion,
         authenticatorId: generateId(),
         secretCiphertext: await encryptTotpSecret(enrollment.secret),
         verifiedStep: step,
         codes: hashedCodes,
       });
 
-      if (!result.success) {
+      if (!result.success || !result.data) {
         return fail(400, { error: translate('error.auth.transaction.state_conflict', locale) });
       }
 
+      const accessToken = await issueAccessToken(
+        db,
+        { accountId: session.accountId, identifier: session.identifier },
+        session.credentialVersion + 1,
+      );
+      setAuthAccessTokenCookie(cookies, accessToken);
+
       cookies.delete('totp_enrollment_secret', { path: '/profile/mfa' });
 
-      return { success: true, updatedField: 'mfa_enabled' };
+      return {
+        success: true,
+        updatedField: 'mfa_enabled',
+        recoveryCodes: enrollment.recoveryCodes,
+      };
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error('Activate TOTP error:', error);
@@ -165,17 +183,50 @@ export const actions = {
       const db = await connectDb();
       const form = await request.formData();
       const password = String(form.get('currentPassword') ?? '');
+      const code = String(form.get('code') ?? '').trim();
       if (!(await reserveLoginAttempt(db, session.accountId, getClientAddress())))
         return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
       const verified =
-        password && (await verifyAccountPassword(db, { accountId: session.accountId, password }));
+        password &&
+        password.length <= 128 &&
+        (await verifyAccountPassword(db, { accountId: session.accountId, password }));
       if (!verified || !verified.success || !verified.data)
         return fail(401, { error: translate('error.auth.pass.incorrect', locale) });
-      const result = await disableAccountMfa(db, { accountId: session.accountId });
+      if (!/^\d{6}$/.test(code))
+        return fail(400, { error: translate('error.auth.otp.invalid', locale) });
+      if (!(await reserveLoginAttempt(db, session.accountId, getClientAddress(), 'mfa')))
+        return fail(429, { error: translate('error.auth.login.rate_limited', locale) });
+      const authenticator = await getActiveMfaAuthenticator(db, {
+        accountId: session.accountId,
+        kind: 'totp',
+      });
+      if (!authenticator.success || !authenticator.data?.secretCiphertext)
+        return fail(400, { error: translate('error.auth.otp.invalid', locale) });
+      const step = verifyTotpStep(code, {
+        issuer: 'Galfus',
+        label: session.identifier || 'user',
+        secret: await decryptTotpSecret(authenticator.data.secretCiphertext),
+      });
+      if (step === null) return fail(401, { error: translate('error.auth.otp.incorrect', locale) });
+      const result = await disableAccountMfa(db, {
+        accountId: session.accountId,
+        authenticatorId: authenticator.data.id,
+        credentialVersion: session.credentialVersion,
+        verifiedStep: step,
+      });
 
       if (!result.success) {
-        return fail(400, { error: translate('error.input.invalid', locale) });
+        return fail(400, { error: translate('error.auth.otp.invalid', locale) });
       }
+      if (!result.data)
+        return fail(400, { error: translate('error.auth.otp.already_used', locale) });
+
+      const accessToken = await issueAccessToken(
+        db,
+        { accountId: session.accountId, identifier: session.identifier },
+        session.credentialVersion + 1,
+      );
+      setAuthAccessTokenCookie(cookies, accessToken);
 
       return { success: true, updatedField: 'mfa_disabled' };
     } catch (error) {

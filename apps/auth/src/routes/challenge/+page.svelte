@@ -1,7 +1,8 @@
 <script lang="ts">
+  import AuthCardHeader from '$lib/components/AuthCardHeader.svelte';
   import { deserialize, enhance } from '$app/forms';
   import { startAuthentication } from '@simplewebauthn/browser';
-  import { addToast } from '@galfus/design-system/components/ToastSystem.svelte';
+  import { addToast } from '$lib/components/AuthMessageDrawer.svelte';
   import { cn } from '@galfus/design-system/utils/cn';
   import { translate } from '@galfus/i18n';
 
@@ -11,6 +12,7 @@
 
   async function handlePasskeyLogin() {
     isPasskeyLoading = true;
+    let redirecting = false;
     try {
       const response = await fetch('?/passkeyOptions', {
         method: 'POST',
@@ -47,6 +49,7 @@
           : undefined;
 
       if (typeof verifyData?.redirectUrl === 'string') {
+        redirecting = true;
         window.location.href = verifyData.redirectUrl;
       } else {
         const error =
@@ -71,36 +74,18 @@
         });
       }
     } finally {
-      isPasskeyLoading = false;
+      if (!redirecting) isPasskeyLoading = false;
     }
   }
 </script>
 
 <div class="flex w-full flex-col items-center justify-center space-y-6">
-  <div class="relative mb-2 flex w-full items-center justify-center">
-    <a
-      href="/?restart=1"
-      class="text-muted-foreground hover:text-foreground btn absolute left-0 btn-icon btn-ghost"
-      aria-label={translate('auth.action.use_different_identity', data.locale)}
-    >
-      <span class="icon-[lucide--arrow-left] icon-lg"></span>
-    </a>
-
-    <div
-      class="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-full"
-    >
-      <span class="icon-[lucide--user] icon-xl"></span>
-    </div>
-  </div>
-
-  <div class="text-center">
-    <h1 class="text-2xl font-bold">{translate('auth.title.welcome_back', data.locale)}</h1>
-    <div
-      class="border-border text-muted-foreground mt-4 inline-flex items-center rounded-full border px-4 py-1.5 text-sm"
-    >
-      {data.identifier}
-    </div>
-  </div>
+  <AuthCardHeader
+    title={translate('auth.title.welcome_back', data.locale)}
+    identifier={data.identifier}
+    backHref="/?restart=1"
+    backLabel={translate('auth.action.use_different_identity', data.locale)}
+  />
 
   <div class="mt-6 w-full">
     {#if data.hasPasskey}
@@ -108,7 +93,7 @@
         type="button"
         onclick={handlePasskeyLogin}
         class={cn('btn w-full btn-solid color-group-primary', isPasskeyLoading && 'is-loading')}
-        disabled={isPasskeyLoading}
+        disabled={isPasskeyLoading || isLoading}
       >
         <span class="mr-2 icon-[lucide--fingerprint] icon-lg"></span>
         {isPasskeyLoading
@@ -117,11 +102,11 @@
       </button>
 
       <div class="relative flex items-center py-5">
-        <div class="border-border grow border-t"></div>
+        <div class="grow border-t border-neutral-6"></div>
         <span class="text-muted-foreground mx-4 shrink-0 text-xs">
           {translate('auth.connective.or_use_password', data.locale)}
         </span>
-        <div class="border-border grow border-t"></div>
+        <div class="grow border-t border-neutral-6"></div>
       </div>
     {/if}
 
@@ -131,7 +116,6 @@
       use:enhance={() => {
         isLoading = true;
         return async ({ result, update }) => {
-          isLoading = false;
           let errorMessage: string | undefined;
 
           if (result.type === 'failure' && typeof result.data?.error === 'string') {
@@ -148,58 +132,59 @@
               duration: 6000,
             });
           }
-          await update();
+          try {
+            await update();
+          } finally {
+            isLoading = false;
+          }
         };
       }}
       class="space-y-4"
     >
-      {#if form?.error}
-        <div
-          class="rounded-lg border border-danger-9/30 bg-danger-1/10 p-3 text-xs font-medium text-danger-9"
-        >
-          {form.error}
-        </div>
-      {/if}
-      <div class="space-y-1">
-        <label for="password" class="text-sm font-medium">
-          {translate('auth.label.password', data.locale)}
-        </label>
-        <div class="input-group">
-          <div class="input-icon">
-            <span class="icon-[lucide--key] icon-md"></span>
+      <fieldset disabled={isLoading || isPasskeyLoading} class="w-full min-w-0 space-y-4">
+        <div class="space-y-1">
+          <label for="password" class="text-sm font-medium">
+            {translate('auth.label.password', data.locale)}
+          </label>
+          <div class="input-group">
+            <div class="input-icon">
+              <span class="icon-[lucide--key] icon-md"></span>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              maxlength="128"
+              class={cn(
+                'input-base w-full pl-10',
+                form?.error && 'border-danger-9 focus:ring-danger-9',
+              )}
+              placeholder="••••••••"
+              required
+            />
           </div>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            class={cn(
-              'input-base w-full pl-10',
-              form?.error && 'border-danger-9 focus:ring-danger-9',
-            )}
-            placeholder="••••••••"
-            required
-          />
         </div>
-      </div>
 
-      <div class="mb-6 flex justify-start">
-        <a
-          href={data.returnTo ? `/recover?rto=${encodeURIComponent(data.returnTo)}` : '/recover'}
-          class="text-muted-foreground hover:text-foreground text-xs"
+        <div class="mb-6 flex justify-start">
+          <a
+            href={data.returnTo ? `/recover?rto=${encodeURIComponent(data.returnTo)}` : '/recover'}
+            class="text-xs link"
+          >
+            {translate('auth.action.forgot_password', data.locale)}
+          </a>
+        </div>
+
+        <button
+          type="submit"
+          class={cn('btn w-full btn-solid color-group-primary', isLoading && 'is-loading')}
+          disabled={isLoading}
         >
-          {translate('auth.action.forgot_password', data.locale)}
-        </a>
-      </div>
-
-      <button
-        type="submit"
-        class={cn('btn w-full btn-solid color-group-primary', isLoading && 'is-loading')}
-        disabled={isLoading}
-      >
-        {isLoading
-          ? translate('fields.please_wait', data.locale)
-          : translate('auth.action.sign_in', data.locale)}
-      </button>
+          {isLoading
+            ? translate('fields.please_wait', data.locale)
+            : translate('auth.action.sign_in', data.locale)}
+        </button>
+      </fieldset>
     </form>
   </div>
 </div>

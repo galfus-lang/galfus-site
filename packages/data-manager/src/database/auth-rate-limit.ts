@@ -3,7 +3,7 @@ import * as v from 'valibot';
 import { invalidInput, type DataManagerResult } from '../errors';
 
 const schema = v.object({
-  scope: v.picklist(['login', 'recovery', 'mfa']),
+  scope: v.picklist(['identity', 'login', 'recovery', 'mfa']),
   accountHash: v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]{43}$/)),
   addressHash: v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]{43}$/)),
 });
@@ -24,7 +24,7 @@ export async function reservePasswordAttempt(
     LET $addressRecord = type::record('auth_transaction', string::concat('rate_', $scope, '_address_', $addressHash));
     LET $accountGuard = (SELECT * FROM $accountRecord LIMIT 1)[0];
     LET $addressGuard = (SELECT * FROM $addressRecord LIMIT 1)[0];
-    LET $accountLimit = IF $scope = 'recovery' THEN 3 ELSE 10 END;
+    LET $accountLimit = IF $scope = 'recovery' THEN 3 ELSE IF $scope = 'identity' THEN 20 ELSE 10 END;
     LET $addressLimit = IF $scope = 'recovery' THEN 20 ELSE 60 END;
     LET $allowed = ($accountGuard IS NONE OR $accountGuard.expires_at <= time::now() OR $accountGuard.attempts < $accountLimit)
       AND ($addressGuard IS NONE OR $addressGuard.expires_at <= time::now() OR $addressGuard.attempts < $addressLimit);

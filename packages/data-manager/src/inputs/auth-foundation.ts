@@ -541,6 +541,7 @@ export const ConsumeRecoveryCodeAuthenticatorInputSchema = v.object({
 export const PersistVerifiedPasskeyAuthenticatorInputSchema = v.object({
   id: PublicIdSchema,
   accountId: RecordIdSchema,
+  credentialVersion: v.pipe(v.number('error.input.invalid'), v.integer(), v.minValue(0)),
   credentialId: v.pipe(
     v.string('error.input.invalid'),
     v.regex(/^[A-Za-z0-9_-]+$/, 'error.input.invalid'),
@@ -625,12 +626,16 @@ export type RemoveAccountAuthenticatorInput = v.InferOutput<
 
 export const DisableAccountMfaInputSchema = v.object({
   accountId: RecordIdSchema,
+  authenticatorId: RecordIdSchema,
+  credentialVersion: v.pipe(v.number('error.input.invalid'), v.integer(), v.minValue(0)),
+  verifiedStep: v.pipe(v.number('error.input.invalid'), v.integer(), v.minValue(0)),
 });
 export type DisableAccountMfaInput = v.InferOutput<typeof DisableAccountMfaInputSchema>;
 
 export const ActivateDirectTotpAuthenticatorInputSchema = v.object({
   accountId: RecordIdSchema,
   authenticatorId: PublicIdSchema,
+  credentialVersion: v.pipe(v.number('error.input.invalid'), v.integer(), v.minValue(0)),
   secretCiphertext: v.pipe(v.string('error.input.invalid'), v.trim(), v.minLength(1)),
   verifiedStep: v.pipe(
     v.number('error.input.invalid'),

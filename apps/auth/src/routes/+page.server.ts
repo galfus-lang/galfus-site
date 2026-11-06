@@ -20,6 +20,7 @@ import { getRequestLocale } from '$lib/server/i18n';
 import { validateAndRenewAccessSession } from '$lib/server/access-session';
 import { temporaryRedirect } from '$lib/server/temporary-redirect';
 import { sendRegistrationCode } from '$lib/server/registration-email';
+import { reserveIdentityAttempt } from '$lib/server/password-attempt';
 
 function transactionRoute(
   kind: string,
@@ -81,7 +82,7 @@ export const load = async ({ cookies, url }) => {
 };
 
 export const actions = {
-  default: async ({ request, url, cookies }) => {
+  default: async ({ request, url, cookies, getClientAddress }) => {
     const locale = getRequestLocale({ request, cookies });
     const data = await request.formData();
     const returnTo = getValidatedMainAppRedirect(dev, url.searchParams.get('rto'));
@@ -98,6 +99,14 @@ export const actions = {
 
     try {
       const db = await connectDb();
+      if (
+        !(await reserveIdentityAttempt(db, identityResult.output.identifier, getClientAddress()))
+      ) {
+        return fail(429, {
+          error: translate('error.auth.login.rate_limited', locale),
+          identifier: identityResult.output.identifier,
+        });
+      }
       const transactionToken = await createAuthTransactionToken();
       const transactionResult = await startIdentityAuthTransaction(db, {
         id: transactionToken.id,

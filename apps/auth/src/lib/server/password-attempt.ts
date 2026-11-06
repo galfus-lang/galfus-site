@@ -18,3 +18,18 @@ export async function reserveLoginAttempt(
   });
   return result.success && result.data;
 }
+
+export async function reserveIdentityAttempt(
+  db: Surreal,
+  identifier: string,
+  address: string,
+): Promise<boolean> {
+  const pepper = env.AUTH_RATE_LIMIT_SECRET;
+  if (!pepper || pepper.length < 32) throw new Error('AUTH_RATE_LIMIT_SECRET is required.');
+  const result = await reservePasswordAttempt(db, {
+    scope: 'identity',
+    accountHash: await hashSecret(`${pepper}:identity:${identifier}`),
+    addressHash: await hashSecret(`${pepper}:address:${address}`),
+  });
+  return result.success && result.data;
+}

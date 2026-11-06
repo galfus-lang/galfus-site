@@ -73,6 +73,9 @@ export const actions = {
     if (!password) {
       return fail(400, { error: translate('error.auth.pass.required', locale) });
     }
+    if (password.length > 128) {
+      return fail(400, { error: translate('error.auth.pass.too_long', locale) });
+    }
 
     const { token, transaction } = await requireAuthTransaction(cookies, {
       allowedKinds: ['authorization'],
